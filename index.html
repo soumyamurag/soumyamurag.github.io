@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soumya Murag, MD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #1a2e4a;
+      --navy-mid:   #274060;
+      --teal:       #2a7d7d;
+      --teal-light: #3a9d9d;
+      --cream:      #faf9f7;
+      --white:      #ffffff;
+      --gray-100:   #f4f4f2;
+      --gray-300:   #d8d8d4;
+      --gray-500:   #8a8a84;
+      --gray-700:   #4a4a44;
+      --text:       #1e1e1a;
+      --radius:     10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(26, 46, 74, 0.97);
+      backdrop-filter: blur(8px);
+      padding: 0 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav-logo {
+      font-family: 'Lora', serif;
+      font-size: 17px;
+      color: white;
+      text-decoration: none;
+      letter-spacing: 0.2px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: white; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 60%, #1d5060 100%);
+      display: flex;
+      align-items: center;
+      padding: 100px 5% 80px;
+    }
+
+    .hero-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 72px;
+      width: 100%;
+    }
+
+    .hero-photo {
+      flex-shrink: 0;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(255,255,255,0.15);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      background: var(--navy-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.3);
+      font-size: 13px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 20px;
+    }
+
+    .photo-placeholder svg { opacity: 0.4; }
+
+    .hero-text { color: white; }
+
+    .hero-tag {
+      display: inline-block;
+      background: rgba(42, 125, 125, 0.35);
+      border: 1px solid rgba(42, 125, 125, 0.5);
+      color: #7dd8d8;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+    }
+
+    .hero-text h1 {
+      font-family: 'Lora', serif;
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 600;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-text h1 em {
+      font-style: italic;
+      color: #7dd8d8;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      letter-spacing: 0.2px;
+    }
+
+    .btn-primary {
+      background: var(--teal);
+      color: white;
+      border: 1.5px solid var(--teal);
+    }
+
+    .btn-primary:hover {
+      background: var(--teal-light);
+      border-color: var(--teal-light);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(42,125,125,0.35);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: rgba(255,255,255,0.85);
+      border: 1.5px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.6);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      padding: 96px 5%;
+    }
+
+    .section-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .section-inner.wide {
+      max-width: 1040px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-family: 'Lora', serif;
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 600;
+      color: var(--navy);
+      line-height: 1.2;
+      margin-bottom: 32px;
+    }
+
+    /* ── ABOUT ── */
+    #about { background: var(--white); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+
+    .about-body p {
+      color: var(--gray-700);
+      margin-bottom: 18px;
+      font-size: 15.5px;
+    }
+
+    .about-body p:last-child { margin-bottom: 0; }
+
+    .about-aside { padding-top: 8px; }
+
+    .aside-block {
+      border-left: 3px solid var(--teal);
+      padding: 14px 0 14px 20px;
+      margin-bottom: 24px;
+    }
+
+    .aside-block:last-child { margin-bottom: 0; }
+
+    .aside-block .label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 5px;
+    }
+
+    .aside-block .value {
+      font-size: 14px;
+      color: var(--navy);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    /* ── TOOLS ── */
+    #tools { background: var(--cream); }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 8px;
+    }
+
+    .tool-card {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius);
+      padding: 28px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--teal), var(--teal-light));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s;
+    }
+
+    .tool-card:hover {
+      border-color: var(--teal-light);
+      box-shadow: 0 8px 32px rgba(42,125,125,0.12);
+      transform: translateY(-3px);
+    }
+
+    .tool-card:hover::before { transform: scaleX(1); }
+
+    .tool-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #e8f5f5, #d0eded);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .tool-card h3 {
+      font-family: 'Lora', serif;
+      font-size: 18px;
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .tool-card p {
+      font-size: 13.5px;
+      color: var(--gray-500);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .tool-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      background: #e8f5f5;
+      color: var(--teal);
+      padding: 3px 9px;
+      border-radius: 10px;
+      align-self: flex-start;
+    }
+
+    .tool-arrow {
+      position: absolute;
+      bottom: 22px;
+      right: 22px;
+      color: var(--gray-300);
+      font-size: 18px;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .tool-card:hover .tool-arrow {
+      color: var(--teal);
+      transform: translate(2px, -2px);
+    }
+
+    .coming-soon {
+      opacity: 0.55;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .coming-soon .tool-tag {
+      background: var(--gray-100);
+      color: var(--gray-500);
+    }
+
+    /* ── WRITING / SUBSTACK ── */
+    #writing { background: var(--navy); }
+
+    #writing .section-label { color: #7dd8d8; }
+    #writing .section-title { color: white; }
+
+    .writing-inner {
+      display: flex;
+      align-items: center;
+      gap: 64px;
+    }
+
+    .writing-text { flex: 1; }
+
+    .writing-text p {
+      color: rgba(255,255,255,0.65);
+      font-size: 15.5px;
+      margin-bottom: 28px;
+    }
+
+    .writing-graphic {
+      flex-shrink: 0;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(42,125,125,0.15);
+      border: 1px solid rgba(42,125,125,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 72px;
+    }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--white); }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .contact-text p {
+      color: var(--gray-700);
+      font-size: 15.5px;
+      margin-bottom: 32px;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: var(--navy);
+      padding: 14px 18px;
+      border: 1.5px solid var(--gray-300);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .contact-link:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: #f0fafa;
+      transform: translateX(4px);
+    }
+
+    .contact-icon {
+      width: 36px; height: 36px;
+      background: var(--gray-100);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .contact-link:hover .contact-icon { background: #d0eded; }
+
+    .contact-note {
+      background: var(--gray-100);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .contact-note h4 {
+      font-family: 'Lora', serif;
+      font-size: 17px;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .contact-note p {
+      font-size: 13.5px;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      padding: 28px 5%;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    footer a {
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: #7dd8d8; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero-inner {
+        flex-direction: column;
+        text-align: center;
+        gap: 36px;
+      }
+
+      .hero-ctas { justify-content: center; }
+
+      .about-grid,
+      .contact-grid { grid-template-columns: 1fr; gap: 36px; }
+
+      .writing-inner { flex-direction: column; gap: 32px; text-align: center; }
+      .writing-graphic { width: 120px; height: 120px; font-size: 52px; }
+
+      .nav-links { display: none; }
+
+      .hero-photo { width: 160px; height: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">Soumya Murag, MD</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#tools">Clinical Tools</a></li>
+    <li><a href="#writing">Writing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner">
+
+    <div class="hero-photo" id="heroPhoto">
+      <!-- Replace photo.jpg with your actual image file in this folder -->
+      <img src="photo.jpg" alt="Dr. Soumya Murag"
+           onerror="this.parentElement.innerHTML='<div class=\'photo-placeholder\'><svg width=\'64\' height=\'64\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'white\' stroke-width=\'1\'><circle cx=\'12\' cy=\'8\' r=\'4\'/><path d=\'M4 20c0-4 3.6-7 8-7s8 3 8 7\'/></svg><span style=\'color:rgba(255,255,255,0.3);font-size:11px;\'>Add photo.jpg</span></div>'">
+    </div>
+
+    <div class="hero-text">
+      <div class="hero-tag">Pulmonary &amp; Critical Care</div>
+      <h1>Soumya<br><em>Murag</em>, MD</h1>
+      <p class="hero-subtitle">Physician · Educator · Clinical Tool Builder</p>
+      <div class="hero-ctas">
+        <a href="#tools" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+          Clinical Tools
+        </a>
+        <a href="#writing" class="btn btn-outline">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Read My Writing
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="section-label">About</div>
+    <h2 class="section-title">Caring for the critically ill,<br>building tools to do it better.</h2>
+    <div class="about-grid">
+      <div class="about-body">
+        <p>
+          Dr. Soumya Murag is a Pulmonary &amp; Critical Care physician with a passion for bridging the gap between clinical complexity and clear, actionable decision-making at the bedside.
+        </p>
+        <p>
+          Trained in the management of critically ill patients and complex pulmonary disease, she is particularly interested in the intersection of medical education, clinical reasoning, and digital tools that make evidence-based medicine more accessible.
+        </p>
+        <p>
+          When not in the ICU or clinic, she writes about medicine, critical thinking, and the human side of healthcare.
+        </p>
+      </div>
+      <div class="about-aside">
+        <div class="aside-block">
+          <div class="label">Specialty</div>
+          <div class="value">Pulmonary Medicine<br>Critical Care Medicine</div>
+        </div>
+        <div class="aside-block">
+          <div class="label">Focus Areas</div>
+          <div class="value">Medical Education<br>Clinical Decision Support<br>Bedside Reasoning</div>
+        </div>
+        <div class="aside-block">
+          <div class="label">Writing</div>
+          <div class="value"><a href="https://substack.com/@soumyamurag" target="_blank" style="color:var(--teal);text-decoration:none;">Substack →</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="section-inner wide">
+    <div class="section-label">Clinical Tools</div>
+    <h2 class="section-title">Bedside tools built for<br>real clinical decisions.</h2>
+    <div class="tools-grid">
+
+      <!-- Acid-Base Analyzer -->
+      <a href="tools/acid_base_analyzer.html" class="tool-card">
+        <div class="tool-icon">🫁</div>
+        <div class="tool-tag">ICU · Pulmonary</div>
+        <h3>Acid-Base Analyzer</h3>
+        <p>Step-by-step acid-base interpretation from BMP and ABG/VBG. Calculates anion gap, Winter's formula, corrected HCO₃, delta ratio, osmolal gap, and ventilator analysis.</p>
+        <span class="tool-arrow">↗</span>
+      </a>
+
+      <!-- Placeholder for future tools -->
+      <div class="tool-card coming-soon">
+        <div class="tool-icon">🫀</div>
+        <div class="tool-tag">Coming Soon</div>
+        <h3>More Tools</h3>
+        <p>Additional clinical decision support tools in development. Check back soon.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WRITING -->
+<section id="writing">
+  <div class="section-inner">
+    <div class="writing-inner">
+      <div class="writing-text">
+        <div class="section-label">Writing</div>
+        <h2 class="section-title">Medicine, thinking,<br>and what matters.</h2>
+        <p>I write about critical care, clinical reasoning, medical education, and the human experience of illness — for clinicians and curious readers alike.</p>
+        <a href="https://substack.com/@soumyamurag" target="_blank" class="btn btn-primary">
+          Read on Substack →
+        </a>
+      </div>
+      <div class="writing-graphic">✍️</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-label">Contact</div>
+    <h2 class="section-title">Get in touch.</h2>
+    <div class="contact-grid">
+      <div class="contact-text">
+        <p>Whether you're a colleague, a learner, or someone who found a tool useful — I'd love to hear from you.</p>
+        <div class="contact-links">
+          <a href="mailto:soumyamurag@gmail.com" class="contact-link">
+            <div class="contact-icon">✉️</div>
+            soumyamurag@gmail.com
+          </a>
+          <a href="https://substack.com/@soumyamurag" target="_blank" class="contact-link">
+            <div class="contact-icon">✍️</div>
+            Substack
+          </a>
+        </div>
+      </div>
+      <div class="contact-note">
+        <h4>A note</h4>
+        <p>The clinical tools on this site are intended as decision-support aids for licensed clinicians. They are not a substitute for clinical judgment and should always be interpreted in full clinical context.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Soumya Murag, MD &nbsp;·&nbsp; <a href="mailto:soumyamurag@gmail.com">soumyamurag@gmail.com</a></p>
+</footer>
+
+</body>
+</html>

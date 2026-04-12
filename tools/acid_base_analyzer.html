@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICU Acid-Base Analyzer</title>
+<style>
+  :root {
+    --blue: #1a4f8a;
+    --blue-light: #2d6cbf;
+    --blue-pale: #e8f0fb;
+    --red: #c0392b;
+    --red-pale: #fdecea;
+    --green: #1a7a4a;
+    --green-pale: #e8f5ee;
+    --yellow: #8a6c00;
+    --yellow-pale: #fffbe6;
+    --orange: #b95e00;
+    --orange-pale: #fff3e6;
+    --gray: #5a6472;
+    --gray-light: #f4f5f7;
+    --border: #dde2e8;
+    --text: #1a2332;
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f3f8;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  header {
+    background: var(--blue);
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  header span {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-left: 8px;
+  }
+
+  .icon-circle {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: var(--blue-pale);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card-header .badge {
+    margin-left: auto;
+    font-size: 10px;
+    background: var(--blue);
+    color: white;
+    padding: 2px 7px;
+    border-radius: 10px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+
+  .card-header .badge.optional {
+    background: var(--gray);
+  }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .field-row.single { grid-template-columns: 1fr; }
+  .field-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  label .unit {
+    color: #aab;
+    font-weight: 400;
+  }
+
+  label .normal {
+    color: #99a;
+    font-size: 10px;
+    font-weight: 400;
+    margin-left: auto;
+  }
+
+  input[type="number"], select {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: white;
+    width: 100%;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus, select:focus {
+    outline: none;
+    border-color: var(--blue-light);
+    box-shadow: 0 0 0 3px rgba(45,108,191,0.1);
+  }
+
+  input.highlight {
+    border-color: var(--blue-light);
+    background: var(--blue-pale);
+  }
+
+  .toggle-section {
+    margin-bottom: 16px;
+  }
+
+  .toggle-btn {
+    width: 100%;
+    background: white;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--gray);
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .toggle-btn:hover {
+    border-color: var(--blue-light);
+    color: var(--blue);
+    background: var(--blue-pale);
+  }
+
+  .toggle-btn .arrow { margin-left: auto; transition: transform 0.2s; }
+  .toggle-btn.open .arrow { transform: rotate(90deg); }
+
+  .collapsible { display: none; }
+  .collapsible.open { display: block; }
+
+  .radio-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 400;
+    transition: all 0.15s;
+  }
+
+  .radio-group input[type="radio"] { width: 14px; height: 14px; }
+
+  .radio-group label:has(input:checked) {
+    border-color: var(--blue-light);
+    background: var(--blue-pale);
+    color: var(--blue);
+    font-weight: 500;
+  }
+
+  .analyze-btn {
+    display: block;
+    width: 100%;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    transition: background 0.15s, transform 0.1s;
+    margin-bottom: 20px;
+  }
+
+  .analyze-btn:hover { background: var(--blue-light); }
+  .analyze-btn:active { transform: scale(0.99); }
+
+  .clear-btn {
+    display: block;
+    width: 100%;
+    background: white;
+    color: var(--gray);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    margin-bottom: 20px;
+    transition: all 0.15s;
+  }
+  .clear-btn:hover { color: var(--red); border-color: var(--red); }
+
+  /* ── RESULTS ── */
+  #results { display: none; }
+
+  .summary-banner {
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    border-left: 5px solid;
+  }
+
+  .summary-banner.acidosis {
+    background: var(--red-pale);
+    border-color: var(--red);
+  }
+
+  .summary-banner.alkalosis {
+    background: var(--yellow-pale);
+    border-color: #d4a000;
+  }
+
+  .summary-banner.normal {
+    background: var(--green-pale);
+    border-color: var(--green);
+  }
+
+  .summary-banner h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .summary-banner p {
+    font-size: 13px;
+    opacity: 0.85;
+  }
+
+  .step {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .step-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--gray-light);
+  }
+
+  .step-num {
+    width: 26px; height: 26px;
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .step-body {
+    padding: 14px 16px;
+  }
+
+  .finding {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .finding:last-child { margin-bottom: 0; }
+
+  .finding-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .finding.normal { background: var(--green-pale); color: #155a35; }
+  .finding.abnormal { background: var(--red-pale); color: #8b1a12; }
+  .finding.warning { background: var(--yellow-pale); color: #6b4c00; }
+  .finding.info { background: var(--blue-pale); color: #1a3d7a; }
+  .finding.neutral { background: var(--gray-light); color: var(--gray); }
+  .finding.orange { background: var(--orange-pale); color: var(--orange); }
+
+  .finding strong { font-weight: 600; }
+
+  .formula-box {
+    background: #f8f9fb;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--text);
+    margin: 8px 0;
+  }
+
+  .formula-box .calc { color: var(--blue); font-weight: 600; }
+  .formula-box .result { color: var(--green); font-weight: 700; font-size: 14px; }
+  .formula-box .flag { color: var(--red); font-weight: 700; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 10px 0;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .tag.acidosis { background: var(--red-pale); color: var(--red); }
+  .tag.alkalosis { background: var(--yellow-pale); color: #9a7200; }
+  .tag.normal { background: var(--green-pale); color: var(--green); }
+  .tag.mixed { background: var(--orange-pale); color: var(--orange); }
+
+  .vent-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .vent-table th {
+    text-align: left;
+    padding: 6px 10px;
+    background: var(--gray-light);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    color: var(--gray);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  .vent-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .vent-table tr:last-child td { border-bottom: none; }
+
+  .disclaimer {
+    background: var(--yellow-pale);
+    border: 1px solid #e0c060;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--yellow);
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 600px) {
+    .field-row { grid-template-columns: 1fr; }
+    .field-row.triple { grid-template-columns: 1fr 1fr; }
+    header h1 { font-size: 17px; }
+  }
+
+  @media print {
+    body { background: white; }
+    main { padding: 0; }
+    .analyze-btn, .clear-btn, .toggle-btn { display: none; }
+    #inputs { display: none; }
+    #results { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="icon-circle">🫁</div>
+  <div>
+    <h1>ICU Acid-Base Analyzer <span>MICU Clinical Decision Tool</span></h1>
+  </div>
+</header>
+
+<main>
+  <div id="inputs">
+
+    <!-- Row 1: BMP + Blood Gas -->
+    <div class="grid">
+
+      <!-- BMP -->
+      <div class="card">
+        <div class="card-header">
+          🧪 Basic Metabolic Panel
+          <span class="badge">Required</span>
+        </div>
+        <div class="card-body">
+          <div class="field-row">
+            <div class="field">
+              <label>Sodium <span class="unit">mEq/L</span> <span class="normal">135–145</span></label>
+              <input type="number" id="na" placeholder="e.g. 138" step="0.1">
+            </div>
+            <div class="field">
+              <label>Chloride <span class="unit">mEq/L</span> <span class="normal">98–106</span></label>
+              <input type="number" id="cl" placeholder="e.g. 102" step="0.1">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Bicarbonate <span class="unit">mEq/L</span> <span class="normal">22–26</span></label>
+              <input type="number" id="hco3" placeholder="e.g. 24" step="0.1">
+            </div>
+            <div class="field">
+              <label>Albumin <span class="unit">g/dL</span> <span class="normal">opt, 3.5–5</span></label>
+              <input type="number" id="albumin" placeholder="e.g. 4.0" step="0.1">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>BUN <span class="unit">mg/dL</span> <span class="normal">opt</span></label>
+              <input type="number" id="bun" placeholder="e.g. 18" step="0.1">
+            </div>
+            <div class="field">
+              <label>Glucose <span class="unit">mg/dL</span> <span class="normal">opt</span></label>
+              <input type="number" id="glucose" placeholder="e.g. 100" step="0.1">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Blood Gas -->
+      <div class="card">
+        <div class="card-header">
+          💉 Blood Gas (ABG / VBG)
+          <span class="badge">Required</span>
+        </div>
+        <div class="card-body">
+          <div class="field-row single" style="margin-bottom:12px;">
+            <div class="field">
+              <label>Sample Type</label>
+              <div class="radio-group">
+                <label><input type="radio" name="gas_type" value="ABG" checked> Arterial (ABG)</label>
+                <label><input type="radio" name="gas_type" value="VBG"> Venous (VBG)</label>
+              </div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>pH <span class="normal">7.35–7.45</span></label>
+              <input type="number" id="ph" placeholder="e.g. 7.35" step="0.01" min="6.5" max="8.0">
+            </div>
+            <div class="field">
+              <label>pCO₂ <span class="unit">mmHg</span> <span class="normal">35–45</span></label>
+              <input type="number" id="pco2" placeholder="e.g. 40" step="0.1">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>pO₂ <span class="unit">mmHg</span> <span class="normal">opt</span></label>
+              <input type="number" id="po2" placeholder="e.g. 95" step="0.1">
+            </div>
+            <div class="field">
+              <label>Serum Osm <span class="unit">mOsm/kg</span> <span class="normal">opt</span></label>
+              <input type="number" id="osm" placeholder="e.g. 290" step="0.1">
+            </div>
+          </div>
+          <div style="margin-top:4px;">
+            <div class="field">
+              <label>Resp. Acido/Alkalo — Chronicity</label>
+              <div class="radio-group">
+                <label><input type="radio" name="chronicity" value="acute" checked> Acute (&lt;3–5d)</label>
+                <label><input type="radio" name="chronicity" value="chronic"> Chronic (&gt;3–5d)</label>
+                <label><input type="radio" name="chronicity" value="both"> Show Both</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Urine Studies (optional) -->
+    <div class="toggle-section">
+      <button class="toggle-btn" id="urineToggle" onclick="toggleSection('urine', this)">
+        🧫 Urine Studies <em style="font-weight:400;font-size:12px;">(for NAGMA workup — UAG, urine osmolal gap)</em>
+        <span class="arrow">▶</span>
+      </button>
+      <div class="collapsible" id="urine">
+        <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;">
+          <div class="card-body">
+            <div class="field-row triple">
+              <div class="field">
+                <label>Urine Na <span class="unit">mEq/L</span></label>
+                <input type="number" id="una" placeholder="e.g. 40" step="0.1">
+              </div>
+              <div class="field">
+                <label>Urine K <span class="unit">mEq/L</span></label>
+                <input type="number" id="uk" placeholder="e.g. 30" step="0.1">
+              </div>
+              <div class="field">
+                <label>Urine Cl <span class="unit">mEq/L</span></label>
+                <input type="number" id="ucl" placeholder="e.g. 20" step="0.1">
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Urine Osm <span class="unit">mOsm/kg</span></label>
+                <input type="number" id="uosm" placeholder="e.g. 400" step="0.1">
+              </div>
+              <div class="field">
+                <label>Urine Urea <span class="unit">mg/dL</span></label>
+                <input type="number" id="uurea" placeholder="e.g. 200" step="0.1">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ventilator Settings (optional) -->
+    <div class="toggle-section">
+      <button class="toggle-btn" id="ventToggle" onclick="toggleSection('vent', this)">
+        🌬️ Ventilator Settings <em style="font-weight:400;font-size:12px;">(optional — interpret gas in context of vent)</em>
+        <span class="arrow">▶</span>
+      </button>
+      <div class="collapsible" id="vent">
+        <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;">
+          <div class="card-body">
+            <div class="field-row">
+              <div class="field">
+                <label>Vent Mode</label>
+                <select id="ventMode">
+                  <option value="">— select —</option>
+                  <option>AC/VC (Assist Control Volume)</option>
+                  <option>AC/PC (Assist Control Pressure)</option>
+                  <option>SIMV/VC</option>
+                  <option>SIMV/PC</option>
+                  <option>PRVC</option>
+                  <option>PSV (Pressure Support)</option>
+                  <option>APRV</option>
+                  <option>CPAP</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>FiO₂ <span class="unit">%</span></label>
+                <input type="number" id="fio2" placeholder="e.g. 40" min="21" max="100" step="1">
+              </div>
+            </div>
+            <div class="field-row triple">
+              <div class="field">
+                <label>Set RR <span class="unit">/min</span></label>
+                <input type="number" id="setRR" placeholder="e.g. 18" step="1">
+              </div>
+              <div class="field">
+                <label>Patient RR <span class="unit">/min</span></label>
+                <input type="number" id="ptRR" placeholder="e.g. 22" step="1">
+              </div>
+              <div class="field">
+                <label>Tidal Volume <span class="unit">mL</span></label>
+                <input type="number" id="tv" placeholder="e.g. 500" step="10">
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>PEEP <span class="unit">cmH₂O</span></label>
+                <input type="number" id="peep" placeholder="e.g. 5" step="1">
+              </div>
+              <div class="field">
+                <label>Patient Weight <span class="unit">kg (for IBW check)</span></label>
+                <input type="number" id="weight" placeholder="e.g. 70" step="0.1">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="analyze-btn" onclick="analyze()">▶ Analyze Acid-Base Status</button>
+    <button class="clear-btn" onclick="clearAll()">✕ Clear All Fields</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results"></div>
+
+</main>
+
+<script>
+function toggleSection(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+function v(id) {
+  const val = parseFloat(document.getElementById(id).value);
+  return isNaN(val) ? null : val;
+}
+
+function sv(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function rv(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : null;
+}
+
+function fmt(n, dec=1) {
+  return n === null ? '?' : n.toFixed(dec);
+}
+
+function icon(type) {
+  return { normal:'✅', abnormal:'🔴', warning:'⚠️', info:'ℹ️', neutral:'📋', orange:'🟠' }[type] || '•';
+}
+
+function finding(type, html) {
+  return `<div class="finding ${type}"><span class="finding-icon">${icon(type)}</span><div>${html}</div></div>`;
+}
+
+function stepCard(num, title, body) {
+  return `
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">${num}</div>
+        <div class="step-title">${title}</div>
+      </div>
+      <div class="step-body">${body}</div>
+    </div>`;
+}
+
+function formulaBox(lines) {
+  return `<div class="formula-box">${lines.map(l => `<div>${l}</div>`).join('')}</div>`;
+}
+
+function analyze() {
+  // ── Gather inputs ──
+  const na    = v('na');
+  const cl    = v('cl');
+  const hco3  = v('hco3');
+  const ph    = v('ph');
+  const pco2  = v('pco2');
+  const po2   = v('po2');
+  const alb   = v('albumin');
+  const bun   = v('bun');
+  const gluc  = v('glucose');
+  const osm   = v('osm');
+  const una   = v('una');
+  const uk    = v('uk');
+  const ucl   = v('ucl');
+  const uosm  = v('uosm');
+  const uurea = v('uurea');
+  const setRR = v('setRR');
+  const ptRR  = v('ptRR');
+  const tv    = v('tv');
+  const peep  = v('peep');
+  const fio2  = v('fio2');
+  const weight= v('weight');
+  const gasType    = rv('gas_type') || 'ABG';
+  const chronicity = rv('chronicity') || 'acute';
+  const ventMode   = sv('ventMode');
+
+  // Validate required fields
+  if (na === null || cl === null || hco3 === null || ph === null || pco2 === null) {
+    alert('Please enter at minimum: Na, Cl, HCO₃ (from BMP) and pH, pCO₂ (from blood gas).');
+    return;
+  }
+
+  let steps = [];
+  let summaryTitle = '';
+  let summaryDetail = '';
+  let summaryClass = '';
+  let diagnoses = [];
+
+  // ════════════════════════════════════════════════
+  // STEP 1 – pH Status
+  // ════════════════════════════════════════════════
+  let phStatus;
+  let s1 = '';
+
+  if (ph < 7.38) {
+    phStatus = 'acidemia';
+    s1 += finding('abnormal', `<strong>Acidemia</strong> — pH ${fmt(ph,2)} is below 7.38`);
+  } else if (ph > 7.42) {
+    phStatus = 'alkalemia';
+    s1 += finding('warning', `<strong>Alkalemia</strong> — pH ${fmt(ph,2)} is above 7.42`);
+  } else {
+    phStatus = 'normal';
+    s1 += finding('normal', `<strong>Normal pH</strong> — pH ${fmt(ph,2)} (7.38–7.42). May still have a mixed disorder.`);
+  }
+
+  // CO2 and HCO3 status
+  const co2Low  = pco2 < 38;
+  const co2High = pco2 > 42;
+  const hco3Low  = hco3 < 22;
+  const hco3High = hco3 > 26;
+
+  if (co2High)  s1 += finding('abnormal', `<strong>Elevated pCO₂</strong> — ${fmt(pco2)} mmHg (>42) → respiratory acidosis component`);
+  else if (co2Low) s1 += finding('warning', `<strong>Low pCO₂</strong> — ${fmt(pco2)} mmHg (<38) → respiratory alkalosis component`);
+  else s1 += finding('normal', `<strong>pCO₂ normal</strong> — ${fmt(pco2)} mmHg (38–42)`);
+
+  if (hco3Low)  s1 += finding('abnormal', `<strong>Low HCO₃</strong> — ${fmt(hco3)} mEq/L (<22) → metabolic acidosis component`);
+  else if (hco3High) s1 += finding('warning', `<strong>Elevated HCO₃</strong> — ${fmt(hco3)} mEq/L (>26) → metabolic alkalosis component`);
+  else s1 += finding('normal', `<strong>HCO₃ normal</strong> — ${fmt(hco3)} mEq/L (22–26)`);
+
+  if (gasType === 'VBG') {
+    s1 += finding('neutral', `<strong>VBG note:</strong> Venous pH is ~0.03–0.05 units lower than arterial; venous pCO₂ is ~4–6 mmHg higher. Interpretation adjusted accordingly.`);
+  }
+
+  // Determine primary disorder
+  let primary = '';
+  if (phStatus === 'acidemia') {
+    if (hco3Low && co2High) {
+      primary = 'mixed_acidosis';
+      diagnoses.push('Mixed Metabolic + Respiratory Acidosis');
+    } else if (hco3Low) {
+      primary = 'met_acidosis';
+      diagnoses.push('Primary Metabolic Acidosis');
+    } else if (co2High) {
+      primary = 'resp_acidosis';
+      diagnoses.push('Primary Respiratory Acidosis');
+    } else {
+      primary = 'acidemia_unclear';
+      diagnoses.push('Acidemia — check compensation');
+    }
+  } else if (phStatus === 'alkalemia') {
+    if (hco3High && co2Low) {
+      primary = 'mixed_alkalosis';
+      diagnoses.push('Mixed Metabolic + Respiratory Alkalosis');
+    } else if (hco3High) {
+      primary = 'met_alkalosis';
+      diagnoses.push('Primary Metabolic Alkalosis');
+    } else if (co2Low) {
+      primary = 'resp_alkalosis';
+      diagnoses.push('Primary Respiratory Alkalosis');
+    } else {
+      primary = 'alkalemia_unclear';
+      diagnoses.push('Alkalemia — check compensation');
+    }
+  } else {
+    // Normal pH — could still be mixed
+    if (hco3Low && co2Low) {
+      primary = 'met_acidosis'; // met acidosis, good resp compensation
+      diagnoses.push('Metabolic Acidosis (compensated)');
+    } else if (hco3High && co2High) {
+      primary = 'met_alkalosis'; // met alkalosis, good resp compensation
+      diagnoses.push('Metabolic Alkalosis (compensated)');
+    } else if (co2High && hco3High) {
+      primary = 'resp_acidosis';
+      diagnoses.push('Respiratory Acidosis (compensated)');
+    } else if (co2Low && hco3Low) {
+      primary = 'resp_alkalosis';
+      diagnoses.push('Respiratory Alkalosis (compensated)');
+    } else {
+      primary = 'normal';
+      diagnoses.push('No primary acid-base disorder identified');
+    }
+  }
+
+  steps.push(stepCard(1, 'pH & Primary Disorder Assessment', s1));
+
+  // ════════════════════════════════════════════════
+  // STEP 2 – Anion Gap
+  // ════════════════════════════════════════════════
+  const ag = na - cl - hco3;
+  let agNormal = 12;
+  let s2 = '';
+
+  s2 += formulaBox([
+    `AG = Na − Cl − HCO₃`,
+    `AG = ${fmt(na,0)} − ${fmt(cl,0)} − ${fmt(hco3,0)} = <span class="calc">${fmt(ag,1)}</span> mEq/L`,
+    `Normal AG = 12 mEq/L (at albumin 4.0 g/dL)`
+  ]);
+
+  let corrAG = ag;
+  let agNormalForAlb = 12;
+  if (alb !== null) {
+    corrAG = ag + 2.5 * (4.0 - alb);
+    agNormalForAlb = 2.5 * alb;
+    s2 += formulaBox([
+      `Albumin-corrected AG = AG + 2.5 × (4.0 − albumin)`,
+      `= ${fmt(ag,1)} + 2.5 × (4.0 − ${fmt(alb,1)}) = <span class="result">${fmt(corrAG,1)}</span> mEq/L`,
+      `Expected AG for albumin ${fmt(alb,1)} g/dL ≈ ${fmt(agNormalForAlb,1)} ± 2 mEq/L`
+    ]);
+  }
+
+  const agHigh = corrAG > 12;
+  if (agHigh) {
+    s2 += finding('abnormal', `<strong>Elevated Anion Gap — ${fmt(corrAG,1)} mEq/L</strong>${alb !== null ? ' (albumin-corrected)' : ''} → High Anion Gap Metabolic Acidosis (HAGMA) component`);
+    diagnoses.push('High Anion Gap Metabolic Acidosis (HAGMA)');
+  } else {
+    s2 += finding('normal', `<strong>Anion gap normal — ${fmt(corrAG,1)} mEq/L</strong> (≤12). No HAGMA.`);
+  }
+
+  steps.push(stepCard(2, 'Anion Gap Calculation', s2));
+
+  // ════════════════════════════════════════════════
+  // STEP 3 – Compensation Check
+  // ════════════════════════════════════════════════
+  let s3 = '';
+  const isMetAcid = (primary === 'met_acidosis' || primary === 'mixed_acidosis');
+  const isMetAlk  = (primary === 'met_alkalosis' || primary === 'mixed_alkalosis');
+  const isRespAcid = (primary === 'resp_acidosis');
+  const isRespAlk  = (primary === 'resp_alkalosis');
+
+  if (isMetAcid) {
+    // Winter's formula
+    const expPCO2_low  = 1.5 * hco3 + 8 - 2;
+    const expPCO2_high = 1.5 * hco3 + 8 + 2;
+    s3 += `<p style="margin-bottom:8px;font-size:13px;font-weight:600;">Winter's Formula — Expected Respiratory Compensation:</p>`;
+    s3 += formulaBox([
+      `Expected pCO₂ = (1.5 × HCO₃) + 8 ± 2`,
+      `= (1.5 × ${fmt(hco3,1)}) + 8 ± 2 = <span class="result">${fmt(expPCO2_low,1)} – ${fmt(expPCO2_high,1)}</span> mmHg`,
+      `Measured pCO₂ = <span class="${pco2 >= expPCO2_low && pco2 <= expPCO2_high ? 'result' : 'flag'}">${fmt(pco2,1)}</span> mmHg`
+    ]);
+
+    if (pco2 > expPCO2_high) {
+      s3 += finding('abnormal', `<strong>pCO₂ higher than expected (${fmt(pco2,1)} > ${fmt(expPCO2_high,1)}) → Concurrent Respiratory Acidosis</strong>`);
+      diagnoses.push('Concurrent Respiratory Acidosis (inadequate compensation)');
+    } else if (pco2 < expPCO2_low) {
+      s3 += finding('warning', `<strong>pCO₂ lower than expected (${fmt(pco2,1)} < ${fmt(expPCO2_low,1)}) → Concurrent Respiratory Alkalosis</strong>`);
+      diagnoses.push('Concurrent Respiratory Alkalosis (superimposed)');
+    } else {
+      s3 += finding('normal', `<strong>Appropriate respiratory compensation.</strong> pCO₂ ${fmt(pco2,1)} mmHg is within expected range (${fmt(expPCO2_low,1)}–${fmt(expPCO2_high,1)} mmHg).`);
+    }
+  }
+
+  else if (isMetAlk) {
+    const expPCO2_low  = 0.7 * (hco3 - 24) + 40 - 2;
+    const expPCO2_high = 0.7 * (hco3 - 24) + 40 + 2;
+    s3 += `<p style="margin-bottom:8px;font-size:13px;font-weight:600;">Expected Respiratory Compensation in Metabolic Alkalosis:</p>`;
+    s3 += formulaBox([
+      `Expected pCO₂ = 0.7 × (HCO₃ − 24) + 40 ± 2`,
+      `= 0.7 × (${fmt(hco3,1)} − 24) + 40 ± 2 = <span class="result">${fmt(expPCO2_low,1)} – ${fmt(expPCO2_high,1)}</span> mmHg`,
+      `Measured pCO₂ = <span class="${pco2 >= expPCO2_low && pco2 <= expPCO2_high ? 'result' : 'flag'}">${fmt(pco2,1)}</span> mmHg`
+    ]);
+    if (pco2 > expPCO2_high) {
+      s3 += finding('abnormal', `<strong>pCO₂ higher than expected → Concurrent Respiratory Acidosis</strong>`);
+      diagnoses.push('Concurrent Respiratory Acidosis');
+    } else if (pco2 < expPCO2_low) {
+      s3 += finding('warning', `<strong>pCO₂ lower than expected → Concurrent Respiratory Alkalosis</strong>`);
+      diagnoses.push('Concurrent Respiratory Alkalosis');
+    } else {
+      s3 += finding('normal', `<strong>Appropriate respiratory compensation.</strong> pCO₂ ${fmt(pco2,1)} mmHg within expected range (${fmt(expPCO2_low,1)}–${fmt(expPCO2_high,1)} mmHg).`);
+    }
+  }
+
+  else if (isRespAcid || (phStatus !== 'normal' && co2High)) {
+    s3 += `<p style="margin-bottom:8px;font-size:13px;font-weight:600;">Expected Metabolic Compensation in Respiratory Acidosis:</p>`;
+
+    const deltaPC = pco2 - 40;
+    const expHCO3_acute_low  = 24 + 0.1 * deltaPC - 3;
+    const expHCO3_acute_high = 24 + 0.1 * deltaPC + 3;
+    const expHCO3_chronic_low  = 24 + 0.35 * deltaPC - 3;
+    const expHCO3_chronic_high = 24 + 0.35 * deltaPC + 3;
+
+    if (chronicity === 'acute' || chronicity === 'both') {
+      s3 += formulaBox([
+        `Acute: Expected HCO₃ = 24 + (0.1 × ΔpCO₂)`,
+        `= 24 + (0.1 × ${fmt(deltaPC,1)}) = <span class="result">~${fmt(24 + 0.1*deltaPC,1)}</span> mEq/L`,
+        `Range ≈ ${fmt(expHCO3_acute_low,1)} – ${fmt(expHCO3_acute_high,1)} mEq/L`
+      ]);
+      if (chronicity === 'acute') evaluateRespComp(hco3, expHCO3_acute_low, expHCO3_acute_high, diagnoses, s3_append => s3 += s3_append, 'acidosis');
+    }
+    if (chronicity === 'chronic' || chronicity === 'both') {
+      s3 += formulaBox([
+        `Chronic: Expected HCO₃ = 24 + (0.35 × ΔpCO₂)`,
+        `= 24 + (0.35 × ${fmt(deltaPC,1)}) = <span class="result">~${fmt(24 + 0.35*deltaPC,1)}</span> mEq/L`,
+        `Range ≈ ${fmt(expHCO3_chronic_low,1)} – ${fmt(expHCO3_chronic_high,1)} mEq/L`
+      ]);
+      if (chronicity === 'chronic') evaluateRespComp(hco3, expHCO3_chronic_low, expHCO3_chronic_high, diagnoses, s3_append => s3 += s3_append, 'acidosis');
+    }
+    if (chronicity === 'both') {
+      s3 += finding('info', `<strong>Measured HCO₃ = ${fmt(hco3,1)} mEq/L</strong> — Compare to acute range (${fmt(expHCO3_acute_low,1)}–${fmt(expHCO3_acute_high,1)}) and chronic range (${fmt(expHCO3_chronic_low,1)}–${fmt(expHCO3_chronic_high,1)}) above.`);
+    }
+  }
+
+  else if (isRespAlk || (phStatus !== 'normal' && co2Low)) {
+    s3 += `<p style="margin-bottom:8px;font-size:13px;font-weight:600;">Expected Metabolic Compensation in Respiratory Alkalosis:</p>`;
+
+    const deltaPC = 40 - pco2;
+    const expHCO3_acute_low  = 24 - 0.22 * deltaPC - 3;
+    const expHCO3_acute_high = 24 - 0.22 * deltaPC + 3;
+    const expHCO3_chronic_low  = 24 - 0.4 * deltaPC - 3;
+    const expHCO3_chronic_high = 24 - 0.4 * deltaPC + 3;
+
+    if (chronicity === 'acute' || chronicity === 'both') {
+      s3 += formulaBox([
+        `Acute: Expected HCO₃ = 24 − (0.22 × ΔpCO₂)`,
+        `= 24 − (0.22 × ${fmt(deltaPC,1)}) = <span class="result">~${fmt(24 - 0.22*deltaPC,1)}</span> mEq/L`,
+        `Range ≈ ${fmt(expHCO3_acute_low,1)} – ${fmt(expHCO3_acute_high,1)} mEq/L`
+      ]);
+      if (chronicity === 'acute') evaluateRespComp(hco3, expHCO3_acute_low, expHCO3_acute_high, diagnoses, s3_append => s3 += s3_append, 'alkalosis');
+    }
+    if (chronicity === 'chronic' || chronicity === 'both') {
+      s3 += formulaBox([
+        `Chronic: Expected HCO₃ = 24 − (0.4 × ΔpCO₂)`,
+        `= 24 − (0.4 × ${fmt(deltaPC,1)}) = <span class="result">~${fmt(24 - 0.4*deltaPC,1)}</span> mEq/L`,
+        `Range ≈ ${fmt(expHCO3_chronic_low,1)} – ${fmt(expHCO3_chronic_high,1)} mEq/L`
+      ]);
+      if (chronicity === 'chronic') evaluateRespComp(hco3, expHCO3_chronic_low, expHCO3_chronic_high, diagnoses, s3_append => s3 += s3_append, 'alkalosis');
+    }
+    if (chronicity === 'both') {
+      s3 += finding('info', `<strong>Measured HCO₃ = ${fmt(hco3,1)} mEq/L</strong> — Compare to acute range (${fmt(expHCO3_acute_low,1)}–${fmt(expHCO3_acute_high,1)}) and chronic range (${fmt(expHCO3_chronic_low,1)}–${fmt(expHCO3_chronic_high,1)}) above.`);
+    }
+  }
+
+  else {
+    s3 += finding('neutral', 'No primary disorder identified — compensation not applicable.');
+  }
+
+  steps.push(stepCard(3, 'Compensation Assessment', s3));
+
+  // ════════════════════════════════════════════════
+  // STEP 4 – HAGMA analysis: Corrected HCO3
+  // ════════════════════════════════════════════════
+  if (agHigh) {
+    let s4 = '';
+    const excessAG = corrAG - 12;
+    const corrHCO3 = hco3 + excessAG;
+
+    s4 += `<p style="margin-bottom:8px;font-size:13px;font-weight:600;">Corrected HCO₃ (Bicarbonate Gap Analysis):</p>`;
+    s4 += `<p style="font-size:12px;color:#666;margin-bottom:8px;">Concept: For each 1 mEq/L rise in AG above 12, HCO₃ should fall by ~1. Adding the excess AG back to measured HCO₃ reveals the "baseline" HCO₃ and any concurrent disorder.</p>`;
+    s4 += formulaBox([
+      `Corrected HCO₃ = HCO₃ + (AG − 12)`,
+      `= ${fmt(hco3,1)} + (${fmt(corrAG,1)} − 12)`,
+      `= ${fmt(hco3,1)} + ${fmt(excessAG,1)} = <span class="result">${fmt(corrHCO3,1)}</span> mEq/L`,
+      `(Normal HCO₃ range: 22–28 mEq/L)`
+    ]);
+
+    if (corrHCO3 > 28) {
+      s4 += finding('warning', `<strong>Corrected HCO₃ ${fmt(corrHCO3,1)} > 28 → Concurrent Metabolic Alkalosis.</strong> The baseline HCO₃ was elevated before the HAGMA developed.`);
+      diagnoses.push('Concurrent Metabolic Alkalosis (triple disorder possible)');
+    } else if (corrHCO3 < 22) {
+      s4 += finding('abnormal', `<strong>Corrected HCO₃ ${fmt(corrHCO3,1)} < 22 → Concurrent Normal Anion Gap Metabolic Acidosis (NAGMA).</strong> Mixed HAGMA + NAGMA.`);
+      diagnoses.push('Concurrent NAGMA (mixed HAGMA + NAGMA)');
+    } else {
+      s4 += finding('normal', `<strong>Corrected HCO₃ ${fmt(corrHCO3,1)} mEq/L is within normal range (22–28) → Pure HAGMA.</strong> No concurrent metabolic disorder.`);
+    }
+
+    // Also show delta ratio for reference
+    const denominator = 24 - hco3;
+    if (denominator !== 0) {
+      const deltaRatio = excessAG / denominator;
+      s4 += `<hr class="divider">`;
+      s4 += `<p style="font-size:12px;color:#888;margin-bottom:6px;">Delta Ratio (cross-check, same concept):</p>`;
+      s4 += formulaBox([
+        `Δ Ratio = (AG − 12) / (24 − HCO₃) = ${fmt(excessAG,1)} / ${fmt(denominator,1)} = <span class="calc">${fmt(deltaRatio,2)}</span>`,
+        deltaRatio < 0.4  ? `<0.4 → Pure NAGMA` :
+        deltaRatio < 1.0  ? `0.4–1.0 → Mixed HAGMA + NAGMA` :
+        deltaRatio <= 2.0 ? `1.0–2.0 → Pure HAGMA` :
+                            `>2.0 → HAGMA + concurrent Metabolic Alkalosis`
+      ]);
+    }
+
+    steps.push(stepCard(4, 'HAGMA Analysis — Corrected HCO₃ / Delta Ratio', s4));
+  }
+
+  // ════════════════════════════════════════════════
+  // STEP 5 – Osmolal Gap (if data available)
+  // ════════════════════════════════════════════════
+  if (osm !== null && bun !== null && gluc !== null) {
+    const calcOsm = 2 * na + bun / 2.8 + gluc / 18;
+    const osmGap = osm - calcOsm;
+    let s5 = '';
+    s5 += formulaBox([
+      `Calculated Osm = 2×Na + BUN/2.8 + Glucose/18`,
+      `= 2×${fmt(na,0)} + ${fmt(bun,1)}/2.8 + ${fmt(gluc,1)}/18 = <span class="calc">${fmt(calcOsm,1)}</span> mOsm/kg`,
+      `Osmolal Gap = Measured (${fmt(osm,1)}) − Calculated (${fmt(calcOsm,1)}) = <span class="${osmGap > 10 ? 'flag' : 'result'}">${fmt(osmGap,1)}</span> mOsm/kg`,
+      `Normal: 0–6 (up to ~10 in ICU)`
+    ]);
+    if (osmGap > 10) {
+      s5 += finding('abnormal', `<strong>Osmolal gap elevated (${fmt(osmGap,1)}) → Consider toxic alcohol ingestion</strong> (methanol, ethylene glycol, isopropanol, propylene glycol).`);
+    } else {
+      s5 += finding('normal', `Osmolal gap normal (${fmt(osmGap,1)} mOsm/kg). Toxic alcohol ingestion less likely.`);
+    }
+    steps.push(stepCard(5, 'Osmolal Gap', s5));
+  }
+
+  // ════════════════════════════════════════════════
+  // STEP 6 – NAGMA workup (Urine AG)
+  // ════════════════════════════════════════════════
+  const hasNAGMA = diagnoses.some(d => d.includes('NAGMA')) || (agHigh === false && isMetAcid);
+  if (una !== null && uk !== null && ucl !== null) {
+    const uag = una + uk - ucl;
+    let s6 = '';
+    s6 += formulaBox([
+      `Urine AG = UNa + UK − UCl`,
+      `= ${fmt(una,1)} + ${fmt(uk,1)} − ${fmt(ucl,1)} = <span class="${uag > 0 ? 'flag' : 'result'}">${fmt(uag,1)}</span> mEq/L`
+    ]);
+
+    if (una < 20) {
+      s6 += finding('warning', `<strong>Urine Na < 20 mEq/L (${fmt(una,1)}):</strong> UAG may be unreliable (inadequate urine Na for interpretation). Consider Urine Osmolal Gap instead.`);
+    }
+
+    if (uag < 0) {
+      s6 += finding('normal', `<strong>UAG negative (${fmt(uag,1)}) → Extrarenal (GI) cause.</strong> Suggests adequate renal ammonium excretion. Common causes: diarrhea, ileostomy, GI fistula.`);
+    } else {
+      s6 += finding('abnormal', `<strong>UAG positive (${fmt(uag,1)}) → Renal cause.</strong> Impaired NH₄⁺ excretion. Consider: RTA (type 1, 2, or 4), hypoaldosteronism, amphotericin B toxicity.`);
+    }
+
+    // Urine Osmolal Gap if urine osm available
+    if (uosm !== null && uurea !== null) {
+      const uog = uosm - (2 * (una + uk) + uurea / 2.8);
+      s6 += `<hr class="divider">`;
+      s6 += formulaBox([
+        `Urine Osmolal Gap = UOsm − [2×(UNa+UK) + Uurea/2.8]`,
+        `= ${fmt(uosm,1)} − [2×(${fmt(una,1)}+${fmt(uk,1)}) + ${fmt(uurea,1)}/2.8] = <span class="${uog < 50 ? 'flag' : 'result'}">${fmt(uog,1)}</span>`,
+        `<50 suggests RTA (low NH₄⁺ excretion); >100 suggests GI loss`
+      ]);
+      if (uog < 50) {
+        s6 += finding('abnormal', `<strong>UOG < 50 → Low NH₄⁺ excretion → Renal cause (RTA).</strong>`);
+      } else {
+        s6 += finding('normal', `<strong>UOG ${fmt(uog,1)} → Adequate NH₄⁺ excretion → GI/extrarenal cause.</strong>`);
+      }
+    }
+
+    steps.push(stepCard(6, 'NAGMA Workup — Urine Anion Gap', s6));
+  }
+
+  // ════════════════════════════════════════════════
+  // STEP 7 – Ventilator Analysis
+  // ════════════════════════════════════════════════
+  const hasVentData = setRR !== null || ptRR !== null || tv !== null;
+  if (hasVentData) {
+    let s7 = '';
+    const actualRR = ptRR || setRR;
+    const actualMV = (tv !== null && actualRR !== null) ? (tv * actualRR / 1000).toFixed(1) : null;
+    const setMV    = (tv !== null && setRR !== null)   ? (tv * setRR  / 1000).toFixed(1) : null;
+
+    let tableRows = '';
+    const addRow = (label, val, note='') => {
+      if (val !== null) tableRows += `<tr><td>${label}</td><td><strong>${val}</strong></td><td style="color:#888;font-size:12px;">${note}</td></tr>`;
+    };
+
+    if (ventMode) addRow('Mode', ventMode, '');
+    if (fio2 !== null) addRow('FiO₂', fio2 + '%', fio2 > 60 ? '⚠️ High FiO₂' : '');
+    if (peep !== null) addRow('PEEP', peep + ' cmH₂O', '');
+    if (setRR !== null) addRow('Set RR', setRR + ' /min', '');
+    if (ptRR !== null)  addRow('Patient RR', ptRR + ' /min', ptRR > (setRR || 0) ? '⚠️ Overbreathing set RR' : '');
+    if (tv !== null) addRow('Tidal Volume', tv + ' mL', weight !== null ? `${fmt(tv/weight,1)} mL/kg` : '');
+    if (setMV)   addRow('Set MV', setMV + ' L/min', '');
+    if (actualMV) addRow('Actual MV', actualMV + ' L/min', '');
+    if (weight !== null && tv !== null) {
+      const tvPerKg = tv / weight;
+      addRow('TV/kg (IBW)', fmt(tvPerKg,1) + ' mL/kg', tvPerKg > 8 ? '⚠️ Above lung-protective threshold' : tvPerKg >= 6 ? 'Within lung-protective range (6–8)' : '⚠️ Low tidal volume');
+    }
+
+    s7 += `<table class="vent-table"><thead><tr><th>Parameter</th><th>Value</th><th>Note</th></tr></thead><tbody>${tableRows}</tbody></table>`;
+
+    if (ptRR !== null && setRR !== null && ptRR > setRR) {
+      const extra = ptRR - setRR;
+      s7 += finding('warning', `<strong>Patient overbreathing by ${extra} breaths/min</strong> (set ${setRR}, actual ${ptRR}). Patient has significant respiratory drive — driving down pCO₂. Consider etiology: pain, metabolic acidosis, neurologic, anxiety, sepsis.`);
+    } else if (ptRR !== null && setRR !== null && ptRR <= setRR) {
+      s7 += finding('info', `<strong>Patient rate (${ptRR}/min) ≤ set rate (${setRR}/min).</strong> Patient is not overbreathing — ventilator is determining minute ventilation.`);
+    }
+
+    // Interpret pCO2 in context of MV
+    if (pco2 !== null) {
+      if (co2High && ptRR !== null && ptRR > (setRR || 0)) {
+        s7 += finding('abnormal', `<strong>Elevated pCO₂ despite patient overbreathing</strong> — suggests significant CO₂ production (e.g., sepsis, high carbohydrate load) or severely impaired gas exchange.`);
+      } else if (co2Low && ptRR !== null && ptRR > (setRR || 0)) {
+        s7 += finding('warning', `<strong>Low pCO₂ with patient overbreathing</strong> — respiratory alkalosis is patient-driven. Addressing underlying cause may help.`);
+      }
+    }
+
+    steps.push(stepCard(7, 'Ventilator Settings & Respiratory Analysis', s7));
+  }
+
+  // ════════════════════════════════════════════════
+  // BUILD SUMMARY
+  // ════════════════════════════════════════════════
+  if (phStatus === 'acidemia') {
+    summaryClass = 'acidosis';
+    summaryTitle = 'Acidemia (pH ' + fmt(ph,2) + ')';
+  } else if (phStatus === 'alkalemia') {
+    summaryClass = 'alkalosis';
+    summaryTitle = 'Alkalemia (pH ' + fmt(ph,2) + ')';
+  } else {
+    summaryClass = 'normal';
+    summaryTitle = 'pH within normal limits (' + fmt(ph,2) + ')';
+  }
+
+  summaryDetail = diagnoses.join(' · ');
+
+  // Render
+  let html = `
+    <div class="summary-banner ${summaryClass}">
+      <h2>${summaryTitle}</h2>
+      <p>${summaryDetail || 'See step-by-step analysis below.'}</p>
+    </div>
+    ${steps.join('')}
+    <div class="disclaimer">
+      <strong>Clinical Disclaimer:</strong> This tool is intended as a decision-support aid for licensed clinicians. All results must be interpreted in the full clinical context. Always verify calculations independently. Not a substitute for clinical judgment.
+      <br>Reference: UCSF Hospital Handbook — Acid-Base Disorders Algorithm.
+    </div>`;
+
+  const el = document.getElementById('results');
+  el.style.display = 'block';
+  el.innerHTML = html;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function evaluateRespComp(hco3, low, high, diagnoses, append, type) {
+  if (hco3 > high) {
+    append(finding('warning', `<strong>HCO₃ higher than expected (${fmt(hco3,1)} > ${fmt(high,1)}) → Concurrent Metabolic Alkalosis.</strong>`));
+    if (!diagnoses.includes('Concurrent Metabolic Alkalosis')) diagnoses.push('Concurrent Metabolic Alkalosis');
+  } else if (hco3 < low) {
+    append(finding('abnormal', `<strong>HCO₃ lower than expected (${fmt(hco3,1)} < ${fmt(low,1)}) → Concurrent Metabolic Acidosis.</strong>`));
+    if (!diagnoses.includes('Concurrent Metabolic Acidosis')) diagnoses.push('Concurrent Metabolic Acidosis');
+  } else {
+    append(finding('normal', `<strong>HCO₃ within expected range (${fmt(low,1)}–${fmt(high,1)} mEq/L) — appropriate compensation for ${type}.</strong>`));
+  }
+}
+
+function clearAll() {
+  document.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+  document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('results').innerHTML = '';
+}
+</script>
+
+</body>
+</html>
