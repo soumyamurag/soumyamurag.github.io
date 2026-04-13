@@ -400,9 +400,9 @@ function step(num, title, body) {
 
 // ─── PREDICTED VALUES ────────────────────────────────────────────
 function predictedVO2(age, sex, wt) {
-  // Wasserman reference equations (mL/min)
+  // Wasserman reference equations (mL/min) — Wasserman et al. 1999
   if (sex === 'M') return wt * (50.72 - 0.372 * age);
-  else             return wt * (22.78 - 0.17 * age);
+  else             return (wt + 42.8) * (22.78 - 0.17 * age);
 }
 function predictedMaxHR(age) { return 220 - age; }
 function predictedO2Pulse(predVO2, predHR) { return predVO2 / predHR; }
@@ -488,8 +488,12 @@ function analyze() {
     trained athletes 50–80+ mL/kg/min. Values decline ~1% per year after age 30.
   `);
   s2 += formula([
-    `Predicted VO₂max = Wt × (${sex==='M'?'50.72 − 0.372':'22.78 − 0.17'} × age)  [Wasserman]`,
-    `= ${fmt(wt,0)} × (${sex==='M'?fmt(50.72-0.372*age,2):fmt(22.78-0.17*age,2)}) = <span class="val">${fmt(predVO2_mL,0)} mL/min</span> (${predVO2_mLkg?fmt(predVO2_mLkg,1):'?'} mL/kg/min)`,
+    sex==='M'
+      ? `Predicted VO₂max = Wt × (50.72 − 0.372 × age)  [Wasserman]`
+      : `Predicted VO₂max = (Wt + 42.8) × (22.78 − 0.17 × age)  [Wasserman]`,
+    sex==='M'
+      ? `= ${fmt(wt,0)} × ${fmt(50.72-0.372*age,2)} = <span class="val">${fmt(predVO2_mL,0)} mL/min</span> (${predVO2_mLkg?fmt(predVO2_mLkg,1):'?'} mL/kg/min)`
+      : `= (${fmt(wt,0)} + 42.8) × ${fmt(22.78-0.17*age,2)} = <span class="val">${fmt(predVO2_mL,0)} mL/min</span> (${predVO2_mLkg?fmt(predVO2_mLkg,1):'?'} mL/kg/min)`,
     `Measured peak VO₂ = <span class="${pctPredVO2>=84?'ok':'flag'}">${fmt(vo2peak_mL,0)} mL/min</span> (${vo2peak_mLkg?fmt(vo2peak_mLkg,1):'?'} mL/kg/min)`,
     `% Predicted = <span class="${pctPredVO2>=84?'ok':'flag'}">${fmt(pctPredVO2,1)}%</span>`,
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
@@ -513,7 +517,7 @@ function analyze() {
       intensity at which lactate production outpaces clearance. The resulting metabolic acidosis is buffered:
       <strong>H⁺ + HCO₃⁻ → H₂O + CO₂</strong>, causing VCO₂ to rise faster than VO₂ (the <em>V-slope</em>).
       Clinically identified as the point where VE/VO₂ rises without a concurrent rise in VE/VCO₂.
-      A low AT (<40% predicted VO₂max) indicates poor aerobic conditioning or limited cardiac output reserve.
+      Typically occurs at <strong>50–60% of VO₂max</strong> in healthy individuals. The ATS/ERS lower limit of normal is ≥40% of predicted VO₂max. A low AT indicates poor aerobic conditioning or limited cardiac output reserve.
     `);
     s3 += formula([
       `AT VO₂ = <span class="val">${fmt(vo2at*1000,0)} mL/min</span>`,
