@@ -263,12 +263,16 @@
       position: relative;
       flex-shrink: 0;
       animation: fadeIn 1s 0.3s ease both;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 340px;
     }
 
     .hero-photo-frame {
       position: relative;
-      width: 280px;
-      height: 340px;
+      width: 100%;
+      height: 400px;
     }
 
     .hero-photo-frame::before {
@@ -285,7 +289,7 @@
       content: '';
       position: absolute;
       inset: 10px -10px -10px 10px;
-      border: 1px solid rgba(240,165,0,0.2);
+      border: 1px solid rgba(184,114,10,0.25);
       border-radius: 2px;
       z-index: 0;
     }
@@ -302,20 +306,43 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center top;
       border-radius: 2px;
       display: block;
       filter: grayscale(8%);
     }
 
-    .hero-photo-label {
-      position: absolute;
-      bottom: -28px;
-      right: 0;
+    /* Credential chips below photo */
+    .hero-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
+    .hero-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+
+    .hero-chip-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      flex-shrink: 0;
+    }
+
+    .hero-chip-text {
       font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 2px;
-      color: var(--text-faint);
+      font-size: 10px;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
+      color: var(--text-muted);
     }
 
     /* ── SECTION SHELL ── */
@@ -793,7 +820,7 @@
       <h1 class="hero-name">Soumya<br><em>Murag</em></h1>
       <div class="hero-degree">MD</div>
       <p class="hero-tagline">
-        Physician. Educator. Builder of tools that make evidence-based medicine clearer at the bedside.
+        Physician. Educator. Builder of AI tools that make evidence-based medicine clearer at the bedside.
       </p>
       <div class="hero-ctas">
         <a href="#tools" class="btn btn-teal">Clinical Tools</a>
@@ -804,9 +831,22 @@
     <div class="hero-photo-wrap">
       <div class="hero-photo-frame">
         <img src="photo.jpg" alt="Dr. Soumya Murag"
-             onerror="this.style.background='#192035';this.removeAttribute('onerror')">
+             onerror="this.style.background='#EDE4D6';this.removeAttribute('onerror')">
       </div>
-      <div class="hero-photo-label">Pulmonary &amp; Critical Care · MICU</div>
+      <div class="hero-chips">
+        <div class="hero-chip">
+          <div class="hero-chip-dot"></div>
+          <span class="hero-chip-text">Pulmonary Medicine</span>
+        </div>
+        <div class="hero-chip">
+          <div class="hero-chip-dot"></div>
+          <span class="hero-chip-text">Critical Care</span>
+        </div>
+        <div class="hero-chip">
+          <div class="hero-chip-dot" style="background:var(--amber)"></div>
+          <span class="hero-chip-text">Health Tech & AI</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -823,23 +863,30 @@
     <div class="about-grid">
       <div class="about-body reveal">
         <p>
-          Dr. Soumya Murag is a <strong>Pulmonary &amp; Critical Care physician</strong> with a passion for bridging the gap between clinical complexity and clear, actionable decision-making at the bedside.
+          Dr. Soumya Murag is an <strong>Assistant Professor in Pulmonary and Critical Care Medicine at the University of California–San Francisco</strong>, where she serves as Director of the Pulmonary Function Testing Laboratory at the Mt. Zion campus.
         </p>
         <p>
-          Trained in the management of critically ill patients and complex pulmonary disease, she is particularly interested in the intersection of <strong>medical education, clinical reasoning, and digital tools</strong> that make evidence-based medicine more accessible.
+          She received her B.S. in Biomedical Engineering from the University of Southern California and her M.D. from Virginia Commonwealth University School of Medicine, and completed her Internal Medicine residency and Chief Residency at Santa Clara Valley Medical Center before pursuing her Pulmonary and Critical Care Medicine Fellowship at UC Irvine.
         </p>
         <p>
-          When not in the ICU or clinic, she writes about medicine, critical thinking, and the human side of healthcare.
+          Clinically, she attends in the Medical ICU, the outpatient Pulmonary clinic across multiple UCSF sites, and contributes to the inpatient pulmonary consult service. She has served in advisory and clinical validation roles for <strong>digital health startups at the intersection of respiratory medicine and artificial intelligence</strong>.
+        </p>
+        <p>
+          Her scholarly interests span AI-enabled pulmonary diagnostics, remote monitoring for respiratory conditions, precision medicine for obstructive lung disease, and point-of-care ultrasound education. She is a passionate advocate for the integration of digital health tools into pulmonary and critical care practice and speaks and writes on the evolving role of artificial intelligence in clinical medicine and physician identity.
         </p>
       </div>
       <div class="about-aside reveal">
+        <div class="aside-item">
+          <div class="aside-label">Position</div>
+          <div class="aside-value">Assistant Professor<br>UCSF</div>
+        </div>
         <div class="aside-item">
           <div class="aside-label">Specialty</div>
           <div class="aside-value">Pulmonary Medicine<br>Critical Care Medicine</div>
         </div>
         <div class="aside-item">
-          <div class="aside-label">Focus</div>
-          <div class="aside-value">Medical Education<br>Bedside Reasoning<br>Clinical Decision Support</div>
+          <div class="aside-label">Research Interests</div>
+          <div class="aside-value">AI-Enabled Diagnostics<br>Remote Monitoring<br>Precision Medicine<br>POCUS Education</div>
         </div>
         <div class="aside-item">
           <div class="aside-label">Writing</div>
