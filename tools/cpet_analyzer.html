@@ -143,6 +143,27 @@
 
   hr.divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
 
+  /* GRAPHS */
+  .graphs-section { background: white; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 14px; overflow: hidden; }
+  .graphs-hdr { background: var(--gray-light); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: baseline; gap: 12px; }
+  .graphs-hdr-label { font-weight: 700; font-size: 14px; }
+  .graphs-hdr-note { font-size: 11px; color: var(--gray); font-style: italic; }
+  .graphs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .graph-panel { padding: 16px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .graph-panel:nth-child(2n) { border-right: none; }
+  .graph-panel:nth-child(3), .graph-panel:nth-child(4) { border-bottom: none; }
+  .graph-title { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .graph-subtitle { font-size: 10.5px; color: var(--gray); margin-bottom: 10px; font-style: italic; }
+  .graph-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--gray); }
+  .legend-line { width: 20px; height: 2.5px; border-radius: 1px; flex-shrink: 0; }
+  .legend-dash { width: 20px; height: 0; border-top: 2px dashed; flex-shrink: 0; }
+
+  @media (max-width: 700px) {
+    .graphs-grid { grid-template-columns: 1fr; }
+    .graph-panel { border-right: none !important; }
+    .graph-panel:nth-child(3) { border-bottom: 1px solid var(--border) !important; }
+  }
   @media (max-width: 600px) { .row2, .row3 { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -635,12 +656,22 @@ function analyze() {
       <p>${pattern.summary}</p>
     </div>`;
 
+  // Build graphs if we have sufficient data
+  let graphsHTML = '';
+  if (vo2peak && hrpeak && vepeak) {
+    const graphData = buildGraphData({
+      age, wt, vo2peak, vo2at, hrpeak, hrRest: hrrest, vepeak, mvv,
+      verest, rer, vevco2at, predVO2_mL, predHR, predO2pulse, o2pulse, br
+    });
+    graphsHTML = renderGraphs(graphData);
+  }
+
   const disclaimer = `<div class="disclaimer">
     <strong>Educational Disclaimer:</strong> This tool is designed for learning and educational review of CPET interpretation. All results must be interpreted in full clinical context by a trained physician. Not a substitute for formal CPET training or clinical judgment. Reference: Wasserman K et al., <em>Principles of Exercise Testing and Interpretation</em> (6th ed.); ATS/ACCP Statement on Cardiopulmonary Exercise Testing (2003).
   </div>`;
 
   document.getElementById('results').style.display = 'block';
-  document.getElementById('results').innerHTML = banner + steps.join('') + disclaimer;
+  document.getElementById('results').innerHTML = banner + steps.join('') + graphsHTML + disclaimer;
   document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
@@ -734,6 +765,387 @@ function determinePattern(flags) {
 function clearAll() {
   document.querySelectorAll('input, select').forEach(el => { if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; });
   document.getElementById('results').style.display = 'none';
+}
+
+// ─── GRAPH RENDERING ─────────────────────────────────────────────
+
+// SVG layout constants
+const PL=52, PR=348, PT=22, PB=210; // plot edges inside 380×240 viewBox
+const PW=PR-PL, PH=PB-PT;
+
+function scX(x,x0,x1){ return PL + (x-x0)/(x1-x0)*PW; }
+function scY(y,y0,y1){ return PB - (y-y0)/(y1-y0)*PH; }
+
+function svgLine(x1,y1,x2,y2,color,w=1.5,dash=''){
+  return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+}
+function svgPath(pts, color, w=2, dash=''){
+  const d=pts.map(([x,y],i)=>`${i?'L':'M'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+}
+function svgRect(x,y,w,h,fill,op=1){
+  return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${fill}" opacity="${op}"/>`;
+}
+function svgText(x,y,s,opts={}){
+  const{a='middle',sz=9,c='#4a3a2a',b=false,rot=0}=opts;
+  const tr=rot?`transform="rotate(${rot} ${x.toFixed(1)} ${y.toFixed(1)})"`:'';
+  return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${a}" font-size="${sz}" fill="${c}" ${b?'font-weight="bold"':''} font-family="Inter,sans-serif" ${tr}>${s}</text>`;
+}
+function svgCircle(cx,cy,r,fill){ return `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r}" fill="${fill}"/>`; }
+
+function drawGrid(xMin,xMax,xStep,yMin,yMax,yStep){
+  let o='';
+  for(let x=xMin;x<=xMax+0.0001;x+=xStep){
+    const px=scX(x,xMin,xMax);
+    o+=svgLine(px,PT,px,PB,'#e8e0d4',0.8);
+    o+=svgText(px,PB+13,x<1?x.toFixed(1):Math.round(x)+'',{sz:8.5});
+  }
+  for(let y=yMin;y<=yMax+0.0001;y+=yStep){
+    const py=scY(y,yMin,yMax);
+    o+=svgLine(PL,py,PR,py,'#e8e0d4',0.8);
+    o+=svgText(PL-5,py+3,y<1?y.toFixed(1):Math.round(y)+'',{a:'end',sz:8.5});
+  }
+  // axis lines
+  o+=svgLine(PL,PT,PL,PB,'#1a2e4a',1.5);
+  o+=svgLine(PL,PB,PR,PB,'#1a2e4a',1.5);
+  return o;
+}
+
+function axisLabels(xLbl,yLbl){
+  return svgText((PL+PR)/2,PB+27,xLbl,{sz:10,c:'#1a2e4a'})
+       + svgText(11,(PT+PB)/2,yLbl,{sz:10,c:'#1a2e4a',rot:-90});
+}
+
+function interpPts(x0,y0,x1,y1,x2,y2,n=5){
+  // generate n points on two linear segments: (x0,y0)→(x1,y1) and (x1,y1)→(x2,y2)
+  const pts=[];
+  for(let i=0;i<=n;i++){
+    const t=i/n;
+    pts.push([x0+(x1-x0)*t, y0+(y1-y0)*t]);
+  }
+  for(let i=1;i<=n;i++){
+    const t=i/n;
+    pts.push([x1+(x2-x1)*t, y1+(y2-y1)*t]);
+  }
+  return pts;
+}
+
+function wrapSVG(inner){
+  return `<svg viewBox="0 0 380 240" style="width:100%;display:block;background:#faf7f2;">${inner}</svg>`;
+}
+
+// ── Graph 1: V-Slope (VCO2 vs VO2) ──────────────────────────────
+function graphVSlope(gd){
+  const {vo2r,vco2r,vo2at,vco2at,vo2pk,vco2pk,rer} = gd;
+  const xMax = Math.ceil(vo2pk*1.1*10)/10;
+  const yMax = Math.ceil(vco2pk*1.1*10)/10;
+  const xStep = xMax<=2?0.5:xMax<=4?0.5:1;
+  const yStep = xStep;
+
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xStep,0,yMax,yStep);
+
+  // Line of identity (slope=1, reference)
+  const idY = Math.min(xMax, yMax);
+  o += svgPath([[scX(0,0,xMax),scY(0,0,yMax)],[scX(idY,0,xMax),scY(idY,0,yMax)]],'#c0b4a8',1.5,'6,4');
+
+  // Normal range band (RQ 0.75–1.0 from rest to AT region)
+  const bndPts1=[[scX(0,0,xMax),scY(0,0,yMax)],[scX(xMax*0.5,0,xMax),scY(xMax*0.5*0.75,0,yMax)]];
+  const bndPts2=[[scX(0,0,xMax),scY(0,0,yMax)],[scX(xMax*0.5,0,xMax),scY(xMax*0.5*1.0,0,yMax)]];
+
+  // V-slope data curve
+  const pts = interpPts(vo2r,vco2r,vo2at,vco2at,vo2pk,vco2pk,6);
+  const screenPts = pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]);
+  o += svgPath(screenPts,'#0d7a6e',2.5);
+
+  // AT vertical dashed line
+  const atX = scX(vo2at,0,xMax);
+  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
+
+  // Data points
+  o += svgCircle(scX(vo2r,0,xMax),scY(vco2r,0,yMax),4,'#1a2e4a');
+  o += svgCircle(scX(vo2at,0,xMax),scY(vco2at,0,yMax),5,'#b87200');
+  o += svgCircle(scX(vo2pk,0,xMax),scY(vco2pk,0,yMax),5,'#b83232');
+
+  // Slope annotation
+  const slopeBelow = ((vco2at-vco2r)/(vo2at-vo2r)).toFixed(2);
+  const slopeAbove = ((vco2pk-vco2at)/(vo2pk-vo2at)).toFixed(2);
+  const midBelX = scX((vo2r+vo2at)/2,0,xMax)+8;
+  const midBelY = scY((vco2r+vco2at)/2,0,yMax)-8;
+  const midAbX = scX((vo2at+vo2pk)/2,0,xMax)+8;
+  const midAbY = scY((vco2at+vco2pk)/2,0,yMax)-8;
+  o += svgText(midBelX,midBelY,`S=${slopeBelow}`,{sz:8,c:'#0d7a6e',a:'start'});
+  o += svgText(midAbX,midAbY,`S=${slopeAbove}`,{sz:8,c:'#b83232',a:'start'});
+
+  // Identity label
+  o += svgText(scX(xMax*0.9,0,xMax),scY(xMax*0.9*1.02,0,yMax),'1:1',{sz:8,c:'#a09080',a:'start'});
+
+  o += axisLabels('VO₂ (L/min)','VCO₂ (L/min)');
+  return wrapSVG(o);
+}
+
+// ── Graph 2: HR & O2 Pulse vs VO2 ───────────────────────────────
+function graphHRO2Pulse(gd){
+  const {vo2r,vo2at,vo2pk,hrRest,hrAT,hrPeak,predHR,o2pulseRest,o2pulseAT,o2pulsePeak,predO2pulse} = gd;
+  const xMax = Math.ceil(vo2pk*1.1*10)/10;
+  const hrMax = Math.ceil(Math.max(hrPeak,predHR)*1.08/10)*10;
+  const hrMin = Math.max(0, Math.floor(hrRest*0.85/10)*10);
+  const o2Max = Math.ceil(predO2pulse*1.3/2)*2;
+
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xMax<=2?0.5:0.5,hrMin,hrMax,(hrMax-hrMin)<=40?10:20);
+
+  // Predicted max HR line
+  const pyPredHR = scY(predHR,hrMin,hrMax);
+  o += svgLine(PL,pyPredHR,PR,pyPredHR,'#b83232',1.2,'5,3');
+  o += svgText(PR-2,pyPredHR-4,`Pred max HR`,{sz:7.5,c:'#b83232',a:'end'});
+
+  // HR line (left axis, scale=HR)
+  const hrPts = interpPts(vo2r,hrRest,vo2at,hrAT,vo2pk,hrPeak,5);
+  const hrScreen = hrPts.map(([x,y])=>[scX(x,0,xMax),scY(y,hrMin,hrMax)]);
+  o += svgPath(hrScreen,'#b83232',2.5);
+  o += svgCircle(scX(vo2r,0,xMax),scY(hrRest,hrMin,hrMax),4,'#b83232');
+  o += svgCircle(scX(vo2at,0,xMax),scY(hrAT,hrMin,hrMax),5,'#b87200');
+  o += svgCircle(scX(vo2pk,0,xMax),scY(hrPeak,hrMin,hrMax),5,'#b83232');
+
+  // O2 pulse line (scale mapped onto same axis using dual scale)
+  // Map o2pulse 0→o2Max onto hrMin→hrMax
+  const o2ScaleToHR = (op) => hrMin + (op/o2Max)*(hrMax-hrMin);
+  const o2Pts = interpPts(vo2r,o2ScaleToHR(o2pulseRest),vo2at,o2ScaleToHR(o2pulseAT),vo2pk,o2ScaleToHR(o2pulsePeak),5);
+  const o2Screen = o2Pts.map(([x,y])=>[scX(x,0,xMax),scY(y,hrMin,hrMax)]);
+  // Detect plateau (cardiac pattern) - if o2pulsePeak < predO2pulse * 0.85
+  const isFlat = o2pulsePeak < predO2pulse * 0.82;
+  o += svgPath(o2Screen,'#0d7a6e',2.5, isFlat?'':'');
+  o += svgCircle(scX(vo2r,0,xMax),scY(o2ScaleToHR(o2pulseRest),hrMin,hrMax),4,'#0d7a6e');
+  o += svgCircle(scX(vo2pk,0,xMax),scY(o2ScaleToHR(o2pulsePeak),hrMin,hrMax),5,'#0d7a6e');
+
+  // AT line
+  const atX=scX(vo2at,0,xMax);
+  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
+
+  // Right-axis O2 pulse labels (manual ticks)
+  [0,o2Max*0.25,o2Max*0.5,o2Max*0.75,o2Max].forEach(op=>{
+    const py=scY(o2ScaleToHR(op),hrMin,hrMax);
+    o += svgText(PR+5,py+3,op.toFixed(0),{sz:8,c:'#0d7a6e',a:'start'});
+  });
+  o += svgText(PR+14,(PT+PB)/2,'O₂ Pulse (mL/beat)',{sz:9,c:'#0d7a6e',rot:90,a:'middle'});
+
+  // Axes
+  o += svgLine(PR,PT,PR,PB,'#0d7a6e',1,'3,2');
+
+  o += axisLabels('VO₂ (L/min)','HR (bpm)');
+  return wrapSVG(o);
+}
+
+// ── Graph 3: Ventilatory Equivalents (VE/VO2 and VE/VCO2 vs VO2) ─
+function graphVentEquiv(gd){
+  const {vo2r,vo2at,vo2pk,vevo2Rest,vevo2AT,vevo2Pk,vevco2Rest,vevco2AT,vevco2Pk} = gd;
+  const xMax = Math.ceil(vo2pk*1.1*10)/10;
+  const yMax = Math.ceil(Math.max(vevo2Rest,vevco2Rest,vevo2Pk,vevco2Pk)*1.1/5)*5;
+  const yMin = 0;
+  const yStep = yMax<=50?5:10;
+
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xMax<=2?0.5:0.5,yMin,yMax,yStep);
+
+  // Normal range band for VE/VCO2 (<34)
+  const normY34 = scY(34,yMin,yMax);
+  o += svgRect(PL,normY34,PW,PB-normY34,'#edf7f2',0.5);
+  o += svgText(PR-4,normY34-3,'VE/VCO₂ LLN 34',{sz:7.5,c:'#1a6e40',a:'end'});
+  o += svgLine(PL,normY34,PR,normY34,'#1a6e40',1,'4,3');
+
+  // VE/VCO2 line (teal)
+  const vco2Pts = interpPts(vo2r,vevco2Rest,vo2at,vevco2AT,vo2pk,vevco2Pk,6);
+  const vco2Screen = vco2Pts.map(([x,y])=>[scX(x,0,xMax),scY(y,yMin,yMax)]);
+  o += svgPath(vco2Screen,'#0d7a6e',2.5);
+  o += svgCircle(scX(vo2r,0,xMax),scY(vevco2Rest,yMin,yMax),4,'#0d7a6e');
+  o += svgCircle(scX(vo2at,0,xMax),scY(vevco2AT,yMin,yMax),5,'#b87200');
+  o += svgCircle(scX(vo2pk,0,xMax),scY(vevco2Pk,yMin,yMax),5,'#0d7a6e');
+
+  // VE/VO2 line (navy) — rises sharply at AT
+  const vo2Pts = interpPts(vo2r,vevo2Rest,vo2at,vevo2AT,vo2pk,vevo2Pk,6);
+  const vo2Screen = vo2Pts.map(([x,y])=>[scX(x,0,xMax),scY(y,yMin,yMax)]);
+  o += svgPath(vo2Screen,'#1a2e4a',2,'6,3');
+  o += svgCircle(scX(vo2r,0,xMax),scY(vevo2Rest,yMin,yMax),4,'#1a2e4a');
+  o += svgCircle(scX(vo2at,0,xMax),scY(vevo2AT,yMin,yMax),5,'#b87200');
+  o += svgCircle(scX(vo2pk,0,xMax),scY(vevo2Pk,yMin,yMax),5,'#1a2e4a');
+
+  // AT line
+  const atX=scX(vo2at,0,xMax);
+  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
+
+  // AT annotation: VE/VO2 rises while VE/VCO2 still at nadir
+  o += svgText(atX+4,scY(vevo2AT,yMin,yMax)-8,'↑VE/VO₂',{sz:7.5,c:'#1a2e4a',a:'start'});
+  o += svgText(atX+4,scY(vevco2AT,yMin,yMax)+14,'VE/VCO₂ nadir',{sz:7.5,c:'#0d7a6e',a:'start'});
+
+  o += axisLabels('VO₂ (L/min)','VE/VO₂ or VE/VCO₂');
+  return wrapSVG(o);
+}
+
+// ── Graph 4: Breathing Reserve (Ventilatory Ceiling) ────────────
+function graphBreathingReserve(gd){
+  const {mvv,vePeak,br,vo2r,vo2at,vo2pk,veRest,veAt} = gd;
+  if(!mvv||!vePeak) return '<div style="padding:20px;color:#a0a0a0;font-size:13px;">MVV and Peak VE required</div>';
+
+  // Draw a simple bar chart showing MVV vs Peak VE
+  // Also show VE progression: rest → AT → peak
+  const viewW=380, viewH=240;
+  const barL=60, barR=340, barTop=30, barBot=180;
+  const bh=barBot-barTop;
+
+  // Scale: 0 to MVV*1.15
+  const yMax = mvv*1.12;
+  const scYb = (y) => barBot - (y/yMax)*bh;
+
+  let o = `<svg viewBox="0 0 ${viewW} ${viewH}" style="width:100%;display:block;background:#faf7f2;" font-family="Inter,sans-serif">`;
+
+  // Background
+  o += `<rect x="${barL}" y="${barTop}" width="${barR-barL}" height="${bh}" fill="#f0ebe2"/>`;
+
+  // Draw 3 bars: Rest VE, AT VE, Peak VE
+  const bars = [
+    {x:90, w:50, val:veRest, label:'Rest VE', color:'#0d7a6e'},
+    {x:175, w:50, val:veAt, label:'AT VE', color:'#b87200'},
+    {x:260, w:50, val:vePeak, label:'Peak VE', color:'#b83232'},
+  ];
+  bars.forEach(b=>{
+    if(!b.val) return;
+    const bY = scYb(b.val);
+    const bH = barBot - bY;
+    o += `<rect x="${b.x}" y="${bY.toFixed(1)}" width="${b.w}" height="${bH.toFixed(1)}" fill="${b.color}" opacity="0.8" rx="2"/>`;
+    o += `<text x="${b.x+b.w/2}" y="${bY-5}" text-anchor="middle" font-size="9" fill="${b.color}">${b.val.toFixed(0)}</text>`;
+    o += `<text x="${b.x+b.w/2}" y="${barBot+14}" text-anchor="middle" font-size="9" fill="#6b5e52">${b.label}</text>`;
+  });
+
+  // MVV line
+  const mvvY = scYb(mvv);
+  o += `<line x1="${barL}" y1="${mvvY.toFixed(1)}" x2="${barR}" y2="${mvvY.toFixed(1)}" stroke="#1a2e4a" stroke-width="2" stroke-dasharray="6,3"/>`;
+  o += `<text x="${barR-4}" y="${mvvY-4}" text-anchor="end" font-size="9" fill="#1a2e4a" font-weight="bold">MVV = ${mvv.toFixed(0)} L/min</text>`;
+
+  // BR annotation on Peak VE bar
+  const peakBar = bars[2];
+  const peakY = scYb(vePeak);
+  o += `<rect x="${peakBar.x}" y="${mvvY.toFixed(1)}" width="${peakBar.w}" height="${(peakY-mvvY).toFixed(1)}" fill="#1a2e4a" opacity="0.12" rx="2"/>`;
+  const brColor = br<15?'#b83232':br<30?'#b87200':'#1a6e40';
+  o += `<text x="${peakBar.x+peakBar.w/2}" y="${(mvvY+(peakY-mvvY)/2+4).toFixed(1)}" text-anchor="middle" font-size="9" fill="${brColor}" font-weight="bold">BR=${br.toFixed(0)}%</text>`;
+
+  // Y axis
+  o += `<line x1="${barL}" y1="${barTop}" x2="${barL}" y2="${barBot}" stroke="#1a2e4a" stroke-width="1.5"/>`;
+  o += `<line x1="${barL}" y1="${barBot}" x2="${barR}" y2="${barBot}" stroke="#1a2e4a" stroke-width="1.5"/>`;
+
+  // Y ticks
+  [0,20,40,60,80,100,120,140].filter(t=>t<=yMax).forEach(t=>{
+    const py = scYb(t);
+    o += `<line x1="${barL}" y1="${py.toFixed(1)}" x2="${barL-4}" y2="${py.toFixed(1)}" stroke="#1a2e4a" stroke-width="1"/>`;
+    o += `<text x="${barL-7}" y="${(py+3).toFixed(1)}" text-anchor="end" font-size="8.5" fill="#4a3a2a">${t}</text>`;
+  });
+  o += `<text x="14" y="${((barTop+barBot)/2).toFixed(1)}" text-anchor="middle" font-size="10" fill="#1a2e4a" transform="rotate(-90 14 ${((barTop+barBot)/2).toFixed(1)})">VE (L/min)</text>`;
+
+  // BR status
+  const brMsg = br<15?'⚠ Ventilatory Limitation':br<30?'⚠ Reduced Reserve':'✓ Reserve Adequate';
+  o += `<text x="${(barL+barR)/2}" y="${viewH-8}" text-anchor="middle" font-size="10" fill="${brColor}" font-weight="bold">${brMsg}</text>`;
+
+  o += '</svg>';
+  return o;
+}
+
+function renderGraphs(gd) {
+  const g1 = graphVSlope(gd);
+  const g2 = graphHRO2Pulse(gd);
+  const g3 = graphVentEquiv(gd);
+  const g4 = graphBreathingReserve(gd);
+
+  return `<div class="graphs-section">
+    <div class="graphs-hdr">
+      <span class="graphs-hdr-label">📈 Graphical Analysis</span>
+      <span class="graphs-hdr-note">Schematic plots generated from entered values — illustrates key diagnostic patterns</span>
+    </div>
+    <div class="graphs-grid">
+      <div class="graph-panel">
+        <div class="graph-title">V-Slope (VCO₂ vs VO₂)</div>
+        <div class="graph-subtitle">Slope change at AT identifies anaerobic threshold. Dashed = line of identity (1:1).</div>
+        ${g1}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>V-Slope data</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#c0b4a8"></div>Line of identity</div>
+          <div class="legend-item"><div class="legend-line" style="background:#b87200;height:0;border-top:2px dashed"></div>AT</div>
+        </div>
+      </div>
+      <div class="graph-panel">
+        <div class="graph-title">HR & O₂ Pulse vs VO₂</div>
+        <div class="graph-subtitle">HR ceiling = cardiovascular limit. Flat O₂ pulse = stroke volume not augmenting.</div>
+        ${g2}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#b83232"></div>Heart Rate</div>
+          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>O₂ Pulse</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#b83232"></div>Predicted max HR</div>
+        </div>
+      </div>
+      <div class="graph-panel">
+        <div class="graph-title">Ventilatory Equivalents (VE/VO₂ &amp; VE/VCO₂ vs VO₂)</div>
+        <div class="graph-subtitle">AT = where VE/VO₂ rises while VE/VCO₂ still at nadir. Elevated VE/VCO₂ = dead space.</div>
+        ${g3}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>VE/VCO₂</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#1a2e4a"></div>VE/VO₂</div>
+          <div class="legend-item"><div class="legend-line" style="background:#1a6e40"></div>Normal (&lt;34)</div>
+        </div>
+      </div>
+      <div class="graph-panel">
+        <div class="graph-title">Ventilatory Reserve (Breathing Reserve)</div>
+        <div class="graph-subtitle">How close peak VE approached the MVV ceiling. BR &lt;15% = ventilatory limitation.</div>
+        ${g4}
+      </div>
+    </div>
+  </div>`;
+}
+
+// Call renderGraphs from analyze — inject graph data
+function buildGraphData(params) {
+  const { age, wt, vo2peak, vo2at, hrpeak, hrRest, vepeak, mvv, verest, rer,
+          vevco2at, predVO2_mL, predHR, predO2pulse, o2pulse, br } = params;
+
+  // Rest estimates
+  const vo2r  = wt ? wt*3.5/1000 : 0.25;
+  const vco2r = vo2r * 0.80;
+  const hrR   = hrRest || 70;
+  const veR   = verest || vo2r * 25; // typical VE at rest
+
+  // AT values
+  const vo2a  = vo2at || vo2peak * 0.50;
+  const vco2a = vo2a * 0.92;
+  const hrA   = hrR + (hrpeak - hrR) * (vo2a / vo2peak);
+  const o2pA  = vo2a * 1000 / hrA;
+
+  const veA   = veR + (vepeak - veR) * (vo2a / vo2peak);
+  const vevco2A = vevco2at || 30;
+  const vevo2A  = vevco2A * (vo2a / (vo2a * 0.92));  // ≈ VE/VO2 at AT, slightly above VE/VCO2
+
+  // Peak values
+  const vco2pk = vo2peak * rer;
+  const o2pPk  = o2pulse;
+  const o2pR   = vo2r * 1000 / hrR;
+
+  // Peak VE/VCO2 and VE/VO2
+  const vevco2Pk = vepeak / vco2pk;
+  const vevo2Pk  = vepeak / vo2peak;
+
+  // Rest VE/VCO2 and VE/VO2 (typically high at rest)
+  const vevco2R = vevco2A * 1.35;
+  const vevo2R  = vevco2R * 0.88;
+
+  return {
+    vo2r, vco2r, vo2at: vo2a, vco2at: vco2a, vo2pk: vo2peak, vco2pk, rer,
+    hrRest: hrR, hrAT: hrA, hrPeak: hrpeak, predHR, predO2pulse,
+    o2pulseRest: o2pR, o2pulseAT: o2pA, o2pulsePeak: o2pPk,
+    vepeak, mvv, veRest: veR, veAt: veA,
+    vevo2Rest: vevo2R, vevo2AT: vevo2A, vevo2Pk,
+    vevco2Rest: vevco2R, vevco2AT: vevco2A, vevco2Pk,
+    br
+  };
 }
 </script>
 </body>
