@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPET Interpreter — Educational Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&family=Courier+Prime&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1a2e4a; --navy-mid: #234060; --teal: #0d7a6e; --teal-light: #14a896;
+    --teal-pale: #e6f4f2; --amber: #b87200; --amber-pale: #fff8e6;
+    --red: #b83232; --red-pale: #fdf0f0; --green: #1a6e40; --green-pale: #edf7f2;
+    --purple: #5c3d8f; --purple-pale: #f3eeff;
+    --cream: #faf7f2; --white: #ffffff; --border: #e0d8ce;
+    --gray: #6b5e52; --gray-light: #f3ede4; --text: #1c1510;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+  header { background: var(--navy); color: white; padding: 16px 24px; display: flex; align-items: center; gap: 14px; }
+  header .icon { font-size: 22px; }
+  header h1 { font-family: 'Lora', serif; font-size: 20px; font-weight: 600; }
+  header p { font-size: 12px; opacity: 0.6; margin-top: 2px; }
+  header .back { margin-left: auto; color: rgba(255,255,255,0.6); font-size: 12px; text-decoration: none; }
+  header .back:hover { color: white; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* EXAMPLE CASES */
+  .cases-bar { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+  .cases-bar h3 { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray); margin-bottom: 12px; }
+  .cases-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .case-btn {
+    padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: white; font-size: 12px; font-weight: 500; cursor: pointer;
+    font-family: inherit; color: var(--text); transition: all 0.15s;
+  }
+  .case-btn:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-pale); }
+  .case-btn.normal { border-color: #1a6e40; color: #1a6e40; }
+  .case-btn.cardiac { border-color: #b83232; color: #b83232; }
+  .case-btn.vent { border-color: #b87200; color: #b87200; }
+  .case-btn.pvd { border-color: #5c3d8f; color: #5c3d8f; }
+  .case-btn.decond { border-color: #0d7a6e; color: #0d7a6e; }
+  .case-btn.effort { border-color: #6b5e52; color: #6b5e52; }
+
+  /* INPUTS */
+  .inputs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .card { background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .card-hdr { background: #f0ebe2; border-bottom: 1px solid var(--border); padding: 10px 16px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--navy); display: flex; align-items: center; gap: 6px; }
+  .card-body { padding: 16px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .row2:last-child, .row3:last-child { margin-bottom: 0; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 11px; font-weight: 500; color: var(--gray); display: flex; justify-content: space-between; }
+  label .norm { color: #b0a898; font-weight: 400; font-size: 10px; }
+  input[type="number"], select {
+    border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 10px;
+    font-size: 14px; font-family: inherit; color: var(--text); background: white;
+    width: 100%; -moz-appearance: textfield; transition: border-color 0.15s;
+  }
+  input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input:focus, select:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,122,110,0.1); }
+
+  .mvv-note { font-size: 11px; color: var(--gray); margin-top: 6px; font-style: italic; }
+
+  .btn-analyze {
+    display: block; width: 100%; background: var(--navy); color: white; border: none;
+    border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600;
+    cursor: pointer; font-family: inherit; margin-bottom: 20px; transition: background 0.15s;
+  }
+  .btn-analyze:hover { background: var(--navy-mid); }
+  .btn-clear {
+    display: block; width: 100%; background: white; color: var(--gray);
+    border: 1.5px solid var(--border); border-radius: 8px; padding: 10px;
+    font-size: 13px; cursor: pointer; font-family: inherit; margin-bottom: 24px;
+  }
+
+  /* RESULTS */
+  #results { display: none; }
+
+  .summary-banner {
+    border-radius: 8px; padding: 18px 22px; margin-bottom: 16px; border-left: 5px solid;
+  }
+  .summary-banner h2 { font-family: 'Lora', serif; font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .summary-banner p { font-size: 13px; opacity: 0.85; }
+  .banner-normal   { background: var(--green-pale); border-color: var(--green); color: #0f4226; }
+  .banner-cardiac  { background: var(--red-pale); border-color: var(--red); color: #7a2020; }
+  .banner-vent     { background: var(--amber-pale); border-color: var(--amber); color: #7a4c00; }
+  .banner-pvd      { background: var(--purple-pale); border-color: var(--purple); color: #3d2660; }
+  .banner-decond   { background: var(--teal-pale); border-color: var(--teal); color: #085048; }
+  .banner-effort   { background: var(--gray-light); border-color: #8a7a6a; color: #4a3d30; }
+  .banner-mixed    { background: #fff3e6; border-color: #c06020; color: #6a3010; }
+
+  /* STEPS */
+  .step { background: white; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 14px; overflow: hidden; }
+  .step-hdr { padding: 12px 16px; display: flex; align-items: center; gap: 10px; background: var(--gray-light); border-bottom: 1px solid var(--border); }
+  .step-num { width: 28px; height: 28px; background: var(--navy); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .step-title { font-weight: 600; font-size: 14px; }
+  .step-body { padding: 16px; }
+
+  /* physiology box */
+  .physio-box {
+    background: var(--teal-pale); border: 1px solid #a8ddd8; border-radius: 6px;
+    padding: 12px 14px; margin-bottom: 12px; font-size: 12.5px; color: #0a4f48; line-height: 1.7;
+  }
+  .physio-box strong { color: #085048; }
+  .physio-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 6px; display: block; }
+
+  /* formula */
+  .formula { background: #f8f4ee; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; font-family: 'Courier Prime', monospace; font-size: 13px; margin: 10px 0; line-height: 1.8; }
+  .formula .val { color: var(--teal); font-weight: 700; }
+  .formula .flag { color: var(--red); font-weight: 700; }
+  .formula .ok { color: var(--green); font-weight: 700; }
+
+  /* findings */
+  .finding { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 6px; margin-bottom: 8px; font-size: 13px; line-height: 1.6; }
+  .finding:last-child { margin-bottom: 0; }
+  .finding .fi { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .finding.ok     { background: var(--green-pale); color: #0f4226; }
+  .finding.bad    { background: var(--red-pale); color: #7a2020; }
+  .finding.warn   { background: var(--amber-pale); color: #7a4c00; }
+  .finding.info   { background: var(--teal-pale); color: #085048; }
+  .finding.purple { background: var(--purple-pale); color: #3d2660; }
+  .finding.neutral{ background: var(--gray-light); color: var(--gray); }
+
+  /* teaching pearl */
+  .pearl { background: #fffaed; border: 1px solid #f0d060; border-radius: 6px; padding: 12px 14px; margin-top: 12px; font-size: 12.5px; color: #6a5000; line-height: 1.7; }
+  .pearl-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--amber); margin-bottom: 5px; display: block; }
+
+  /* pattern card */
+  .pattern-card { border-radius: 8px; border: 2px solid; padding: 22px; }
+  .pattern-card h3 { font-family: 'Lora', serif; font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .pattern-card .pattern-sub { font-size: 13px; opacity: 0.8; margin-bottom: 16px; }
+  .pattern-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-bottom: 16px; }
+  .pf { padding: 8px 12px; border-radius: 6px; font-size: 12.5px; font-weight: 500; }
+
+  .ddx-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; opacity: 0.7; }
+  .ddx-list { font-size: 13px; line-height: 2; }
+
+  .disclaimer { background: #fffaed; border: 1px solid #f0d060; border-radius: 8px; padding: 14px 18px; font-size: 12px; color: #6a5000; margin-top: 16px; line-height: 1.6; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+
+  @media (max-width: 600px) { .row2, .row3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="icon">🫁</div>
+  <div>
+    <h1>CPET Interpreter</h1>
+    <p>Cardiopulmonary Exercise Testing — Educational Tool for Pulmonary Fellows</p>
+  </div>
+  <a href="../index.html" class="back">← Back to site</a>
+</header>
+
+<main>
+
+<!-- EXAMPLE CASES -->
+<div class="cases-bar">
+  <h3>📚 Load Teaching Case</h3>
+  <div class="cases-btns">
+    <button class="case-btn normal" onclick="loadCase('normal')">✅ Normal Study</button>
+    <button class="case-btn cardiac" onclick="loadCase('cardiac')">❤️ Cardiac Limitation</button>
+    <button class="case-btn vent" onclick="loadCase('vent')">💨 Ventilatory Limitation (COPD)</button>
+    <button class="case-btn pvd" onclick="loadCase('pvd')">🔵 Pulmonary Vascular Disease (PAH)</button>
+    <button class="case-btn decond" onclick="loadCase('decond')">🏃 Deconditioning</button>
+    <button class="case-btn effort" onclick="loadCase('effort')">⚠️ Poor Effort / Submaximal</button>
+  </div>
+</div>
+
+<!-- INPUTS -->
+<div class="inputs-grid">
+
+  <!-- Patient -->
+  <div class="card">
+    <div class="card-hdr">👤 Patient Demographics</div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="field"><label>Age <span class="norm">years</span></label><input type="number" id="age" placeholder="e.g. 55"></div>
+        <div class="field"><label>Sex</label>
+          <select id="sex"><option value="M">Male</option><option value="F">Female</option></select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Height <span class="norm">cm</span></label><input type="number" id="ht" placeholder="e.g. 175"></div>
+        <div class="field"><label>Weight <span class="norm">kg</span></label><input type="number" id="wt" placeholder="e.g. 75"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PFTs -->
+  <div class="card">
+    <div class="card-hdr">📊 Pulmonary Function</div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="field"><label>FEV₁ <span class="norm">L</span></label><input type="number" id="fev1" placeholder="e.g. 3.2" step="0.01"></div>
+        <div class="field"><label>FEV₁ % pred <span class="norm">%</span></label><input type="number" id="fev1pct" placeholder="e.g. 90"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>FVC <span class="norm">L</span></label><input type="number" id="fvc" placeholder="e.g. 4.0" step="0.01"></div>
+        <div class="field"><label>MVV <span class="norm">L/min (opt)</span></label><input type="number" id="mvv" placeholder="auto from FEV₁"></div>
+      </div>
+      <div class="mvv-note">If MVV not entered, estimated as FEV₁ × 40</div>
+    </div>
+  </div>
+
+  <!-- Peak Exercise -->
+  <div class="card">
+    <div class="card-hdr">⬆️ Peak Exercise Values</div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="field"><label>Peak VO₂ <span class="norm">L/min</span></label><input type="number" id="vo2peak" placeholder="e.g. 2.10" step="0.01"></div>
+        <div class="field"><label>Peak Work Rate <span class="norm">watts</span></label><input type="number" id="watt" placeholder="e.g. 150"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Peak HR <span class="norm">bpm</span></label><input type="number" id="hrpeak" placeholder="e.g. 162"></div>
+        <div class="field"><label>Peak VE <span class="norm">L/min</span></label><input type="number" id="vepeak" placeholder="e.g. 95"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Peak RER <span class="norm">norm ≥1.05</span></label><input type="number" id="rer" placeholder="e.g. 1.12" step="0.01"></div>
+        <div class="field"><label>Peak SpO₂ <span class="norm">% (norm ≥95)</span></label><input type="number" id="spo2peak" placeholder="e.g. 96"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>O₂ Pulse <span class="norm">mL/beat (opt)</span></label><input type="number" id="o2pulse" placeholder="auto-calc" step="0.1"></div>
+        <div class="field"><label>Resting SpO₂ <span class="norm">%</span></label><input type="number" id="spo2rest" placeholder="e.g. 97"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submaximal / AT -->
+  <div class="card">
+    <div class="card-hdr">📍 Anaerobic Threshold & Efficiency</div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="field"><label>VO₂ at AT <span class="norm">L/min</span></label><input type="number" id="vo2at" placeholder="e.g. 1.20" step="0.01"></div>
+        <div class="field"><label>VE/VCO₂ at AT <span class="norm">norm &lt;34</span></label><input type="number" id="vevco2at" placeholder="e.g. 30" step="0.1"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>VE/VCO₂ Slope <span class="norm">opt, norm &lt;34</span></label><input type="number" id="slope" placeholder="e.g. 28" step="0.1"></div>
+        <div class="field"><label>PETCO₂ at AT <span class="norm">mmHg, opt</span></label><input type="number" id="petco2" placeholder="e.g. 38" step="0.1"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Resting HR <span class="norm">bpm</span></label><input type="number" id="hrrest" placeholder="e.g. 72"></div>
+        <div class="field"><label>Resting VE <span class="norm">L/min, opt</span></label><input type="number" id="verest" placeholder="e.g. 10"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="btn-analyze" onclick="analyze()">▶ Interpret CPET Report</button>
+<button class="btn-clear" onclick="clearAll()">✕ Clear All</button>
+
+<!-- RESULTS -->
+<div id="results"></div>
+
+</main>
+
+<script>
+// ─── EXAMPLE CASES ───────────────────────────────────────────────
+const CASES = {
+  normal: {
+    label: 'Normal Study',
+    age:35, sex:'M', ht:178, wt:75,
+    fev1:3.8, fev1pct:98, fvc:4.7, mvv:152,
+    vo2peak:2.62, watt:210, hrpeak:183, vepeak:88, rer:1.14, spo2peak:97, spo2rest:98, o2pulse:14.3,
+    vo2at:1.55, vevco2at:26, slope:24, petco2:40, hrrest:68, verest:10,
+    note:'Healthy 35-year-old male. All parameters within normal limits. Classic features of a normal CPET.'
+  },
+  cardiac: {
+    label: 'Cardiac Limitation',
+    age:58, sex:'M', ht:174, wt:82,
+    fev1:3.1, fev1pct:88, fvc:3.9, mvv:124,
+    vo2peak:1.42, watt:90, hrpeak:160, vepeak:72, rer:1.12, spo2peak:94, spo2rest:96, o2pulse:8.9,
+    vo2at:0.80, vevco2at:38, slope:36, petco2:32, hrrest:78, verest:12,
+    note:'58M with ischemic cardiomyopathy (EF 30%). Classic cardiac limitation pattern: low VO₂max, near-maximal HR (low HRR), low O₂ pulse, elevated VE/VCO₂, preserved breathing reserve.'
+  },
+  vent: {
+    label: 'Ventilatory Limitation (COPD)',
+    age:62, sex:'M', ht:172, wt:74,
+    fev1:1.1, fev1pct:35, fvc:2.8, mvv:44,
+    vo2peak:1.08, watt:70, hrpeak:122, vepeak:41, rer:1.08, spo2peak:84, spo2rest:92, o2pulse:8.8,
+    vo2at:0.68, vevco2at:40, slope:38, petco2:28, hrrest:82, verest:14,
+    note:'62M with severe COPD (GOLD Stage 3). Classic ventilatory limitation: low BR (<15%), significant HR reserve (did not approach max HR), exercise-induced desaturation, mildly elevated VE/VCO₂.'
+  },
+  pvd: {
+    label: 'Pulmonary Vascular Disease (PAH)',
+    age:44, sex:'F', ht:163, wt:62,
+    fev1:2.8, fev1pct:92, fvc:3.3, mvv:112,
+    vo2peak:0.92, watt:58, hrpeak:148, vepeak:60, rer:1.10, spo2peak:88, spo2rest:94, o2pulse:6.2,
+    vo2at:0.48, vevco2at:56, slope:54, petco2:25, hrrest:88, verest:13,
+    note:'44F with Group 1 PAH. Hallmark features: severely elevated VE/VCO₂ (>45), very early AT, low O₂ pulse, preserved breathing reserve. Low PETCO₂ reflects dead space and hypocapnia from hypoxic ventilatory drive.'
+  },
+  decond: {
+    label: 'Deconditioning',
+    age:48, sex:'M', ht:176, wt:94,
+    fev1:3.3, fev1pct:91, fvc:4.1, mvv:132,
+    vo2peak:1.68, watt:110, hrpeak:148, vepeak:72, rer:1.13, spo2peak:97, spo2rest:98, o2pulse:11.4,
+    vo2at:0.84, vevco2at:30, slope:28, petco2:38, hrrest:80, verest:11,
+    note:'48M, sedentary lifestyle, BMI 30. Reduced VO₂max and early AT are explained entirely by deconditioning: normal BR, normal VE/VCO₂, normal SpO₂. HR reserve is present but O₂ pulse is proportionally reduced.'
+  },
+  effort: {
+    label: 'Poor Effort / Submaximal',
+    age:52, sex:'M', ht:175, wt:88,
+    fev1:3.0, fev1pct:85, fvc:3.8, mvv:120,
+    vo2peak:1.18, watt:72, hrpeak:115, vepeak:48, rer:0.98, spo2peak:97, spo2rest:97, o2pulse:10.3,
+    vo2at:0.72, vevco2at:29, slope:27, petco2:39, hrrest:76, verest:10,
+    note:'52M who terminated exercise early citing leg fatigue. Peak RER <1.05, very large HR reserve (> 50 bpm), high breathing reserve. CPET is non-diagnostic — cannot characterize exercise limitation from a submaximal test.'
+  }
+};
+
+function loadCase(key) {
+  const c = CASES[key];
+  const fields = ['age','sex','ht','wt','fev1','fev1pct','fvc','mvv','vo2peak','watt','hrpeak','vepeak','rer','spo2peak','spo2rest','o2pulse','vo2at','vevco2at','slope','petco2','hrrest','verest'];
+  fields.forEach(f => {
+    const el = document.getElementById(f);
+    if (el) el.value = c[f] !== undefined ? c[f] : '';
+  });
+  document.getElementById('results').style.display = 'none';
+  setTimeout(analyze, 100);
+}
+
+// ─── HELPERS ────────────────────────────────────────────────────
+const v = id => { const x = parseFloat(document.getElementById(id).value); return isNaN(x) ? null : x; };
+const sv = id => document.getElementById(id).value;
+const fmt = (n, d=1) => n === null ? '?' : n.toFixed(d);
+
+function finding(type, icon, html) {
+  return `<div class="finding ${type}"><span class="fi">${icon}</span><div>${html}</div></div>`;
+}
+function physio(text) {
+  return `<div class="physio-box"><span class="physio-label">📖 Physiology</span>${text}</div>`;
+}
+function pearl(text) {
+  return `<div class="pearl"><span class="pearl-label">💡 Teaching Pearl</span>${text}</div>`;
+}
+function formula(lines) {
+  return `<div class="formula">${lines.map(l=>`<div>${l}</div>`).join('')}</div>`;
+}
+function step(num, title, body) {
+  return `<div class="step"><div class="step-hdr"><div class="step-num">${num}</div><div class="step-title">${title}</div></div><div class="step-body">${body}</div></div>`;
+}
+
+// ─── PREDICTED VALUES ────────────────────────────────────────────
+function predictedVO2(age, sex, wt) {
+  // Wasserman reference equations (mL/min)
+  if (sex === 'M') return wt * (50.72 - 0.372 * age);
+  else             return wt * (22.78 - 0.17 * age);
+}
+function predictedMaxHR(age) { return 220 - age; }
+function predictedO2Pulse(predVO2, predHR) { return predVO2 / predHR; }
+
+// ─── MAIN ANALYSIS ───────────────────────────────────────────────
+function analyze() {
+  const age=v('age'), sex=sv('sex'), ht=v('ht'), wt=v('wt');
+  const fev1=v('fev1'), fev1pct=v('fev1pct'), fvc=v('fvc');
+  let mvv = v('mvv') || (fev1 ? fev1 * 40 : null);
+  const vo2peak=v('vo2peak'), watt=v('watt'), hrpeak=v('hrpeak'), vepeak=v('vepeak');
+  const rer=v('rer'), spo2peak=v('spo2peak'), spo2rest=v('spo2rest');
+  let o2pulse = v('o2pulse') || (vo2peak && hrpeak ? (vo2peak*1000)/hrpeak : null);
+  const vo2at=v('vo2at'), vevco2at=v('vevco2at'), slope=v('slope');
+  const petco2=v('petco2'), hrrest=v('hrrest'), verest=v('verest');
+
+  if (!age || !vo2peak || !hrpeak || !vepeak || !rer) {
+    alert('Please enter at minimum: Age, Peak VO₂, Peak HR, Peak VE, and Peak RER.');
+    return;
+  }
+
+  // Predicted values
+  const predVO2_mL = predictedVO2(age, sex, wt);
+  const predVO2_L = predVO2_mL / 1000;
+  const predVO2_mLkg = wt ? predVO2_mL / wt : null;
+  const predHR = predictedMaxHR(age);
+  const predO2pulse = predVO2_mL / predHR;
+
+  const vo2peak_mL = vo2peak * 1000;
+  const vo2peak_mLkg = wt ? vo2peak_mL / wt : null;
+  const pctPredVO2 = (vo2peak_mL / predVO2_mL) * 100;
+
+  const hrr = predHR - hrpeak;
+  const br = mvv ? ((mvv - vepeak) / mvv) * 100 : null;
+  const pctPredO2pulse = o2pulse ? (o2pulse / predO2pulse) * 100 : null;
+  const spo2drop = (spo2rest && spo2peak) ? spo2rest - spo2peak : null;
+  const atPctPredVO2 = vo2at ? (vo2at * 1000 / predVO2_mL) * 100 : null;
+
+  // Pattern flags
+  const testAdequate = rer >= 1.05;
+  const vo2reduced   = pctPredVO2 < 84;
+  const brLow        = br !== null && br < 15;
+  const hrrLow       = hrr < 15;
+  const hrrHigh      = hrr > 25;
+  const vevco2High   = vevco2at && vevco2at > 34;
+  const vevco2VeryHigh = vevco2at && vevco2at > 44;
+  const o2pulseLow   = pctPredO2pulse !== null && pctPredO2pulse < 80;
+  const desaturation = spo2drop !== null && (spo2drop >= 4 || spo2peak < 90);
+  const atLow        = atPctPredVO2 !== null && atPctPredVO2 < 40;
+
+  let steps = [];
+
+  // ── STEP 1: TEST ADEQUACY ─────────────────────────────────────
+  let s1 = physio(`
+    The <strong>Respiratory Exchange Ratio (RER)</strong> = VCO₂/VO₂ reflects substrate utilization and effort.
+    At rest, RER ≈ 0.7–0.85 (mixed substrates). As exercise intensity increases, lactate accumulates
+    and is buffered by bicarbonate: <strong>H⁺ + HCO₃⁻ → H₂O + CO₂</strong>. This extra CO₂ production
+    causes VCO₂ to rise disproportionately, driving RER above 1.0. RER ≥ 1.05 confirms the patient
+    exercised into the anaerobic zone — a valid effort threshold.
+  `);
+  s1 += formula([
+    `Peak RER = VCO₂ / VO₂ = <span class="${rer>=1.05?'ok':'flag'}">${fmt(rer,2)}</span>`,
+    `Adequate effort: ≥ 1.05 | Maximal effort: ≥ 1.10`
+  ]);
+  if (!testAdequate) {
+    s1 += finding('bad','⚠️',`<strong>Submaximal test (RER ${fmt(rer,2)} < 1.05).</strong> Patient did not achieve adequate metabolic stress. The study cannot reliably characterize exercise limitation — all subsequent values should be interpreted with caution.`);
+    s1 += pearl(`A non-maximal CPET is not "normal" — it is <em>non-diagnostic</em>. Common causes: pain, deconditioning with early leg fatigue, anxiety, or volitional termination. Consider repeat testing or 6-minute walk test if CPET is non-diagnostic.`);
+  } else if (rer >= 1.10) {
+    s1 += finding('ok','✅',`<strong>Maximal effort achieved (RER ${fmt(rer,2)} ≥ 1.10).</strong> Test is valid and results are interpretable.`);
+  } else {
+    s1 += finding('ok','✅',`<strong>Adequate effort (RER ${fmt(rer,2)}, ≥ 1.05).</strong> Test is valid. Note: RER 1.05–1.10 suggests adequate but not fully maximal effort.`);
+  }
+  steps.push(step(1, 'Test Adequacy — RER', s1));
+
+  // ── STEP 2: EXERCISE CAPACITY ────────────────────────────────
+  let s2 = physio(`
+    <strong>Peak VO₂</strong> is the gold standard measure of cardiorespiratory fitness. By the <strong>Fick equation</strong>:
+    <em>VO₂ = Cardiac Output (CO) × (CaO₂ − CvO₂)</em> — both oxygen delivery (CO) and peripheral extraction
+    determine VO₂max. A reduced VO₂max tells us exercise is limited, but not <em>why</em> — subsequent steps
+    dissect the mechanism. Predicted VO₂max is calculated using <strong>Wasserman reference equations</strong>
+    based on age, sex, and body weight.
+  `);
+  s2 += formula([
+    `Predicted VO₂max = Wt × (${sex==='M'?'50.72 − 0.372':'22.78 − 0.17'} × age)`,
+    `= ${fmt(wt,0)} × (${sex==='M'?fmt(50.72-0.372*age,2):fmt(22.78-0.17*age,2)}) = <span class="val">${fmt(predVO2_mL,0)} mL/min</span> (${predVO2_mLkg?fmt(predVO2_mLkg,1):'?'} mL/kg/min)`,
+    `Measured peak VO₂ = <span class="${pctPredVO2>=84?'ok':'flag'}">${fmt(vo2peak_mL,0)} mL/min</span> (${vo2peak_mLkg?fmt(vo2peak_mLkg,1):'?'} mL/kg/min)`,
+    `% Predicted = <span class="${pctPredVO2>=84?'ok':'flag'}">${fmt(pctPredVO2,1)}%</span>   (LLN = 84%)`
+  ]);
+  if (!vo2reduced) {
+    s2 += finding('ok','✅',`<strong>Exercise capacity normal — ${fmt(pctPredVO2,1)}% predicted.</strong> VO₂max ≥ 84% of predicted. Functional capacity is preserved.`);
+  } else if (pctPredVO2 >= 65) {
+    s2 += finding('warn','🟡',`<strong>Mildly-to-moderately reduced exercise capacity — ${fmt(pctPredVO2,1)}% predicted.</strong> VO₂max is below the lower limit of normal (84%). Further steps will characterize the limiting mechanism.`);
+  } else {
+    s2 += finding('bad','🔴',`<strong>Severely reduced exercise capacity — ${fmt(pctPredVO2,1)}% predicted.</strong> VO₂max is markedly below predicted. Significant impairment of cardiorespiratory function.`);
+  }
+  s2 += pearl(`Watts achieved at peak exercise (${watt ? watt + 'W' : 'not entered'}) provides clinical context. VO₂ and work rate should track linearly (~10 mL/min per watt). A disproportionately low VO₂ for achieved watts may suggest early anaerobic metabolism or equipment artifact.`);
+  steps.push(step(2, 'Exercise Capacity — Peak VO₂', s2));
+
+  // ── STEP 3: ANAEROBIC THRESHOLD ──────────────────────────────
+  if (vo2at) {
+    let s3 = physio(`
+      The <strong>Anaerobic Threshold (AT)</strong> — also called the ventilatory threshold — marks the exercise
+      intensity at which lactate production outpaces clearance. The resulting metabolic acidosis is buffered:
+      <strong>H⁺ + HCO₃⁻ → H₂O + CO₂</strong>, causing VCO₂ to rise faster than VO₂ (the <em>V-slope</em>).
+      Clinically identified as the point where VE/VO₂ rises without a concurrent rise in VE/VCO₂.
+      A low AT (<40% predicted VO₂max) indicates poor aerobic conditioning or limited cardiac output reserve.
+    `);
+    s3 += formula([
+      `AT VO₂ = <span class="val">${fmt(vo2at*1000,0)} mL/min</span>`,
+      `Predicted VO₂max = ${fmt(predVO2_mL,0)} mL/min`,
+      `AT as % predicted VO₂max = ${fmt(vo2at*1000,0)} / ${fmt(predVO2_mL,0)} = <span class="${atPctPredVO2>=40?'ok':'flag'}">${fmt(atPctPredVO2,1)}%</span>`,
+      `Normal: AT occurs at ≥ 40% of predicted VO₂max`
+    ]);
+    if (atPctPredVO2 >= 40) {
+      s3 += finding('ok','✅',`<strong>AT is normal — ${fmt(atPctPredVO2,1)}% of predicted VO₂max.</strong> Adequate aerobic capacity at submaximal workloads.`);
+    } else {
+      s3 += finding('bad','🔴',`<strong>Early AT — ${fmt(atPctPredVO2,1)}% of predicted VO₂max (normal ≥ 40%).</strong> Anaerobic metabolism begins at a relatively low workload. Seen in cardiac dysfunction, pulmonary vascular disease, deconditioning, or anemia.`);
+    }
+    s3 += pearl(`The AT is the most reproducible CPET parameter and is relatively independent of patient effort (effort affects peak VO₂ but not AT). An early AT with a normal peak VO₂ is rare but possible in athletes who exhibit supranormal aerobic capacity.`);
+    steps.push(step(3, 'Anaerobic Threshold (AT)', s3));
+  }
+
+  // ── STEP 4: CARDIOVASCULAR RESPONSE ──────────────────────────
+  let s4 = physio(`
+    Cardiac output (CO = HR × SV) is a primary determinant of exercise capacity. <strong>HR Reserve (HRR)</strong>
+    = Predicted max HR − Peak HR reveals how close the patient came to their cardiac ceiling.
+    <strong>O₂ Pulse</strong> = VO₂/HR estimates stroke volume × O₂ extraction (Fick equation: VO₂ = CO × ΔCO₂;
+    CO = HR × SV → VO₂/HR = SV × a-v̄O₂ difference). A low or plateau O₂ pulse suggests limited stroke
+    volume augmentation — the signature of cardiac limitation.
+  `);
+  s4 += formula([
+    `Predicted max HR = 220 − age = 220 − ${age} = <span class="val">${predHR} bpm</span>`,
+    `HR Reserve = ${predHR} − ${hrpeak} = <span class="${hrr<15?'flag':'ok'}">${hrr} bpm</span>   (Low HRR <15 bpm → near max HR)`,
+    `Peak O₂ Pulse = VO₂peak / HRpeak = ${fmt(vo2peak*1000,0)} / ${hrpeak} = <span class="${o2pulseLow?'flag':'ok'}">${fmt(o2pulse,1)} mL/beat</span>`,
+    `Predicted O₂ Pulse = ${fmt(predVO2_mL,0)} / ${predHR} = <span class="val">${fmt(predO2pulse,1)} mL/beat</span>  (${pctPredO2pulse?fmt(pctPredO2pulse,1)+'%':'?'} predicted)`
+  ]);
+  if (hrrLow && !brLow) {
+    s4 += finding('bad','🔴',`<strong>Low HR Reserve (${hrr} bpm) — approached maximum HR.</strong> Patient reached near-maximal heart rate before being limited by ventilation. Combined with preserved breathing reserve, this supports <strong>cardiovascular limitation</strong>.`);
+  } else if (!hrrLow && !hrrHigh) {
+    s4 += finding('warn','🟡',`<strong>Moderate HR Reserve (${hrr} bpm).</strong> HR did not reach predicted maximum, but reserve is not large. Interpret in context of other parameters.`);
+  } else {
+    s4 += finding('ok','ℹ️',`<strong>Significant HR Reserve (${hrr} bpm).</strong> Patient did not approach maximum HR — cardiovascular output was not the limiting factor at peak exercise.`);
+  }
+  if (o2pulseLow) {
+    s4 += finding('bad','🔴',`<strong>Low O₂ Pulse (${fmt(o2pulse,1)} mL/beat = ${fmt(pctPredO2pulse,1)}% predicted).</strong> Reduced VO₂/HR suggests limited stroke volume augmentation or impaired O₂ extraction. Seen in cardiac dysfunction, pulmonary vascular disease, or severe anemia.`);
+  } else if (pctPredO2pulse !== null) {
+    s4 += finding('ok','✅',`<strong>O₂ Pulse within acceptable range (${fmt(o2pulse,1)} mL/beat, ${fmt(pctPredO2pulse,1)}% predicted).</strong>`);
+  }
+  s4 += pearl(`A flat or declining O₂ pulse curve during exercise (if the full plot is available) is more informative than the peak value alone — it implies stroke volume is no longer increasing, which is a hallmark of myocardial ischemia or heart failure. The peak value alone can be low simply from low overall VO₂.`);
+  steps.push(step(4, 'Cardiovascular Response — HR Reserve & O₂ Pulse', s4));
+
+  // ── STEP 5: VENTILATORY MECHANICS ────────────────────────────
+  if (mvv && vepeak) {
+    const brL = mvv - vepeak;
+    let s5 = physio(`
+      The <strong>Breathing Reserve (BR)</strong> = (MVV − Peak VE) / MVV × 100 quantifies the ventilatory
+      ceiling. MVV (maximum voluntary ventilation) represents the mechanical limit of the respiratory system.
+      In healthy subjects, peak exercise ventilation reaches only ~60–70% of MVV (BR ~30–40%), leaving
+      substantial reserve. In obstructive lung disease, the ventilatory ceiling is low — as peak VE approaches
+      MVV, the patient cannot increase ventilation further, terminating exercise before cardiovascular or
+      metabolic maxima are reached.
+    `);
+    const mvvSource = v('mvv') ? 'measured' : `estimated (FEV₁ × 40 = ${fmt(fev1,2)} × 40)`;
+    s5 += formula([
+      `MVV = ${fmt(mvv,0)} L/min (${mvvSource})`,
+      `Breathing Reserve = (MVV − Peak VE) / MVV × 100`,
+      `= (${fmt(mvv,0)} − ${fmt(vepeak,0)}) / ${fmt(mvv,0)} × 100 = <span class="${brLow?'flag':'ok'}">${fmt(br,1)}%</span>`,
+      `Normal: BR > 15% (or > 11 L/min absolute)`
+    ]);
+    if (brLow) {
+      s5 += finding('bad','🔴',`<strong>Low Breathing Reserve — ${fmt(br,1)}% (${fmt(brL,0)} L/min absolute).</strong> Peak VE (${fmt(vepeak,0)} L/min) nearly reached MVV (${fmt(mvv,0)} L/min). The ventilatory system is the primary ceiling — <strong>ventilatory limitation</strong>.`);
+    } else if (br < 30) {
+      s5 += finding('warn','🟡',`<strong>Reduced Breathing Reserve — ${fmt(br,1)}%.</strong> Some ventilatory constraint present, though not meeting strict criteria for ventilatory limitation (>15%). Consider in clinical context.`);
+    } else {
+      s5 += finding('ok','✅',`<strong>Normal Breathing Reserve — ${fmt(br,1)}%.</strong> Ventilation did not reach its mechanical ceiling. The lungs are not the primary limiting factor.`);
+    }
+    if (fev1pct && fev1pct < 50 && !brLow) {
+      s5 += finding('warn','⚠️',`<strong>Note:</strong> FEV₁ is severely reduced (${fmt(fev1pct,0)}% predicted) but BR is above 15%. Consider whether MVV was underestimated, or whether the patient had submaximal effort or additional non-pulmonary limitation.`);
+    }
+    s5 += pearl(`In COPD patients, MVV is often measured directly (more accurate) rather than estimated from FEV₁ × 40, as hyperinflation and dynamic airflow limitation affect the relationship. If MVV is not measured, FEV₁ × 35 may be a better estimate in severe obstruction.`);
+    steps.push(step(5, 'Ventilatory Mechanics — Breathing Reserve', s5));
+  }
+
+  // ── STEP 6: VENTILATORY EFFICIENCY ───────────────────────────
+  if (vevco2at || slope) {
+    const vevco2val = vevco2at || slope;
+    const label = vevco2at ? 'at AT' : '(slope)';
+    let s6 = physio(`
+      <strong>VE/VCO₂</strong> is the ventilatory equivalent for CO₂ — liters of ventilation required to
+      expire 1 liter of CO₂. From the modified Bohr equation: <em>VE/VCO₂ = 1/(1 − VD/VT) × PB/PACO₂</em>.
+      Elevated VE/VCO₂ reflects <strong>increased dead space ventilation</strong> (VD/VT) or low PACO₂
+      (from hypoxic/anxiety-driven hyperventilation). Causes of elevated VE/VCO₂: pulmonary vascular
+      disease, heart failure, V/Q mismatch (COPD, ILD), chronic thromboembolic disease.
+      VE/VCO₂ at AT is the most reproducible and clinically validated measurement.
+    `);
+    s6 += formula([
+      `VE/VCO₂ ${label} = <span class="${vevco2val>44?'flag':vevco2val>34?'flag':'ok'}">${fmt(vevco2val,1)}</span>`,
+      vevco2at && slope ? `VE/VCO₂ slope = ${fmt(slope,1)}` : '',
+      `Normal: ≤ 34  |  Mild elevation: 34–44  |  Severe: > 44–45`,
+      petco2 ? `PETCO₂ at AT = <span class="${petco2<35?'flag':'ok'}">${fmt(petco2,1)} mmHg</span>   (Normal: 36–42, should rise slightly with exercise)` : ''
+    ].filter(Boolean));
+
+    if (vevco2VeryHigh) {
+      s6 += finding('purple','🟣',`<strong>Severely elevated VE/VCO₂ ${label} (${fmt(vevco2val,1)} > 45).</strong> Markedly inefficient ventilation suggesting significant dead space. Highly characteristic of <strong>pulmonary vascular disease (PAH/CTEPH)</strong> or severe heart failure. VE/VCO₂ > 45 carries prognostic significance in both PAH and heart failure.`);
+    } else if (vevco2High) {
+      s6 += finding('bad','🔴',`<strong>Elevated VE/VCO₂ ${label} (${fmt(vevco2val,1)} > 34).</strong> Inefficient ventilation — more ventilation than expected per unit of CO₂ produced. Consider: pulmonary vascular disease, heart failure, severe V/Q mismatch, or hyperventilation.`);
+    } else {
+      s6 += finding('ok','✅',`<strong>Normal VE/VCO₂ ${label} (${fmt(vevco2val,1)} ≤ 34).</strong> Ventilatory efficiency is preserved.`);
+    }
+    if (petco2) {
+      if (petco2 < 35) {
+        s6 += finding('bad','🔴',`<strong>Low PETCO₂ at AT (${fmt(petco2,1)} mmHg).</strong> Reduced end-tidal CO₂ at submaximal exercise suggests hypocapnia from increased dead space or hypoxic ventilatory drive — consistent with pulmonary vascular disease or heart failure.`);
+      } else {
+        s6 += finding('ok','✅',`<strong>Normal PETCO₂ at AT (${fmt(petco2,1)} mmHg).</strong>`);
+      }
+    }
+    s6 += pearl(`In heart failure, elevated VE/VCO₂ reflects neurohormonal activation driving ventilation, increased dead space, and early anaerobic threshold. VE/VCO₂ slope > 36 is a powerful independent predictor of mortality in heart failure — more powerful than peak VO₂ alone.`);
+    steps.push(step(6, 'Ventilatory Efficiency — VE/VCO₂', s6));
+  }
+
+  // ── STEP 7: GAS EXCHANGE / OXYGENATION ───────────────────────
+  if (spo2peak || spo2rest) {
+    let s7 = physio(`
+      <strong>Exercise-induced arterial desaturation (EIAD)</strong> occurs when the lung cannot maintain
+      oxygenation during increased cardiac output. Mechanisms: (1) <strong>V/Q mismatch worsening</strong>
+      (COPD, ILD); (2) <strong>diffusion limitation</strong> — reduced transit time at high CO; (3)
+      <strong>right-to-left shunt</strong> (patent foramen ovale in PAH); (4) <strong>alveolar hypoventilation</strong>.
+      Clinically significant: SpO₂ drop > 4% or nadir SpO₂ < 90%.
+    `);
+    if (spo2rest && spo2peak) {
+      s7 += formula([
+        `Resting SpO₂ = ${fmt(spo2rest,0)}%`,
+        `Peak SpO₂ = ${fmt(spo2peak,0)}%`,
+        `Drop = ${fmt(spo2drop,0)} percentage points`,
+        `Significant desaturation: drop ≥ 4% or nadir < 90%`
+      ]);
+    }
+    if (desaturation) {
+      s7 += finding('bad','🔴',`<strong>Significant exercise-induced desaturation — SpO₂ dropped from ${fmt(spo2rest,0)}% to ${fmt(spo2peak,0)}% (Δ${fmt(spo2drop,0)}%).</strong> Pulmonary gas exchange is impaired during exercise. Common causes: severe COPD, ILD, pulmonary vascular disease, cardiac shunt.`);
+    } else if (spo2peak && spo2peak < 95) {
+      s7 += finding('warn','🟡',`<strong>Mild SpO₂ reduction to ${fmt(spo2peak,0)}%</strong> — borderline. Monitor in clinical context.`);
+    } else if (spo2peak) {
+      s7 += finding('ok','✅',`<strong>No significant desaturation — peak SpO₂ ${fmt(spo2peak,0)}%.</strong> Gas exchange is maintained during exercise.`);
+    }
+    s7 += pearl(`Pulse oximetry during CPET can underestimate desaturation, especially with high cardiac output and motion artifact. When desaturation is suspected but SpO₂ appears preserved, concurrent arterial blood gas sampling (with co-oximetry) is the gold standard. The (A-a)O₂ gradient and VD/VT are calculated directly from arterial measurements.`);
+    steps.push(step(7, 'Gas Exchange — Oxygenation', s7));
+  }
+
+  // ── STEP 8: PATTERN RECOGNITION ──────────────────────────────
+  let pattern = determinePattern({
+    testAdequate, vo2reduced, brLow, hrrLow, hrrHigh,
+    vevco2High, vevco2VeryHigh, o2pulseLow, desaturation, atLow,
+    pctPredVO2, br, hrr, vevco2at, o2pulse, fev1pct
+  });
+
+  let s8 = '';
+  s8 += `<div class="pattern-card" style="background:${pattern.bg};border-color:${pattern.color};color:${pattern.textColor}">`;
+  s8 += `<h3>${pattern.title}</h3>`;
+  s8 += `<p class="pattern-sub">${pattern.subtitle}</p>`;
+  s8 += `<div class="pattern-features">`;
+  pattern.features.forEach(f => {
+    s8 += `<div class="pf" style="background:rgba(0,0,0,0.06);">${f}</div>`;
+  });
+  s8 += `</div>`;
+  if (pattern.ddx && pattern.ddx.length) {
+    s8 += `<div class="ddx-label">Differential Diagnosis</div>`;
+    s8 += `<div class="ddx-list">${pattern.ddx.map(d=>`· ${d}`).join('<br>')}</div>`;
+  }
+  s8 += `</div>`;
+  s8 += pearl(pattern.teachingNote);
+
+  steps.push(step(8, 'Pattern Recognition — Primary Limitation', s8));
+
+  // ── RENDER ───────────────────────────────────────────────────
+  const banner = `
+    <div class="summary-banner ${pattern.bannerClass}">
+      <h2>${pattern.title}</h2>
+      <p>${pattern.summary}</p>
+    </div>`;
+
+  const disclaimer = `<div class="disclaimer">
+    <strong>Educational Disclaimer:</strong> This tool is designed for learning and educational review of CPET interpretation. All results must be interpreted in full clinical context by a trained physician. Not a substitute for formal CPET training or clinical judgment. Reference: Wasserman K et al., <em>Principles of Exercise Testing and Interpretation</em> (6th ed.); ATS/ACCP Statement on Cardiopulmonary Exercise Testing (2003).
+  </div>`;
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').innerHTML = banner + steps.join('') + disclaimer;
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ─── PATTERN RECOGNITION LOGIC ───────────────────────────────────
+function determinePattern(flags) {
+  const {testAdequate, vo2reduced, brLow, hrrLow, hrrHigh, vevco2High, vevco2VeryHigh, o2pulseLow, desaturation, atLow, pctPredVO2, br, hrr, vevco2at, fev1pct} = flags;
+
+  if (!testAdequate) return {
+    title: '⚠️ Submaximal / Non-Diagnostic Test',
+    subtitle: 'Insufficient effort to characterize exercise limitation',
+    summary: 'Peak RER < 1.05. The study is non-diagnostic. A valid CPET interpretation requires achieving at least the anaerobic threshold with adequate metabolic stress.',
+    bg:'#f4f0ec', color:'#8a7a6a', textColor:'#3a2a1a',
+    bannerClass:'banner-effort',
+    features:['Peak RER < 1.05','Large HR Reserve','High Breathing Reserve','Early termination'],
+    ddx:['Volitional termination','Musculoskeletal pain / leg fatigue','Poor motivation','Repeat testing recommended'],
+    teachingNote:`A submaximal CPET should never be reported as "normal." Report it as non-diagnostic and document the RER, HR reserve, and breathing reserve achieved. If AT was clearly identified before test termination, AT-based parameters retain some validity.`
+  };
+
+  if (!vo2reduced) return {
+    title: '✅ Normal CPET',
+    subtitle: 'Exercise capacity within normal limits — no significant limitation identified',
+    summary: `VO₂max ≥ 84% predicted. All measured parameters are within normal range. Exercise capacity is preserved.`,
+    bg:'#edf7f2', color:'#1a6e40', textColor:'#0f4226',
+    bannerClass:'banner-normal',
+    features:['VO₂max ≥ 84% predicted','Normal HR Reserve','Normal Breathing Reserve','Normal VE/VCO₂','No desaturation'],
+    ddx:[],
+    teachingNote:`A normal CPET in the appropriate clinical context is powerful — it rules out significant cardiopulmonary limitation as a cause of dyspnea. Consider functional/psychogenic dyspnea, deconditioning at the mild end, or non-cardiopulmonary causes (anemia, metabolic).`
+  };
+
+  // Pulmonary vascular disease pattern (highest priority when VE/VCO2 very high)
+  if (vevco2VeryHigh && !brLow && atLow) return {
+    title: '🔵 Pulmonary Vascular / Inefficient Ventilation Pattern',
+    subtitle: 'Consistent with pulmonary vascular disease (PAH, CTEPH) or severe heart failure',
+    summary: `Severely elevated VE/VCO₂ (> 45), early AT, preserved breathing reserve, and low O₂ pulse point to pulmonary vascular disease or heart failure as the primary limitation.`,
+    bg:'#f3eeff', color:'#5c3d8f', textColor:'#3d2660',
+    bannerClass:'banner-pvd',
+    features:[`Severely elevated VE/VCO₂ (${vevco2at?fmt(vevco2at,1):'?'})`,`Early AT`,`Preserved Breathing Reserve (${fmt(br,1)}%)`,`Low O₂ Pulse`,desaturation?'Exercise desaturation':'SpO₂ preserved'],
+    ddx:['Pulmonary arterial hypertension (Group 1)','Chronic thromboembolic pulmonary hypertension (CTEPH)','HFrEF or HFpEF','Pulmonary veno-occlusive disease'],
+    teachingNote:`VE/VCO₂ > 45 at AT is the single most discriminating parameter for pulmonary vascular disease. The mechanism is massively increased dead space — blood traverses non-perfused or poorly-perfused lung, requiring more ventilation per unit CO₂ eliminated. Low PETCO₂ at rest and AT (often < 30 mmHg) accompanies this pattern.`
+  };
+
+  // Mixed cardiac + elevated VE/VCO2 (heart failure pattern)
+  if (vevco2High && hrrLow && o2pulseLow && !brLow) return {
+    title: '❤️ Cardiac Limitation (Heart Failure Pattern)',
+    subtitle: 'Cardiovascular limitation with ventilatory inefficiency — consistent with heart failure',
+    summary: `Low HR Reserve, low O₂ pulse, early AT, and elevated VE/VCO₂ with preserved breathing reserve characterize cardiac limitation due to heart failure.`,
+    bg:'#fdf0f0', color:'#b83232', textColor:'#7a2020',
+    bannerClass:'banner-cardiac',
+    features:[`Low HR Reserve (${fmt(hrr,0)} bpm)`,`Low O₂ Pulse`,`Early AT`,`Elevated VE/VCO₂ (${vevco2at?fmt(vevco2at,1):'?'})`,`Preserved Breathing Reserve (${fmt(br,1)}%)`],
+    ddx:['Heart failure with reduced EF (HFrEF)','Heart failure with preserved EF (HFpEF)','Coronary artery disease / ischemia','Valvular heart disease','Cardiac arrhythmia'],
+    teachingNote:`In heart failure, VE/VCO₂ elevation is driven by neurohormonal activation, increased physiologic dead space (from elevated pulmonary pressures), and early anaerobic threshold. A VE/VCO₂ slope > 36 in heart failure independently predicts cardiac mortality and guides transplant listing decisions (ISHLT criteria).`
+  };
+
+  // Pure cardiovascular limitation
+  if (hrrLow && !brLow && !vevco2VeryHigh) return {
+    title: '❤️ Cardiovascular Limitation',
+    subtitle: 'Exercise limited by cardiac output — cardiovascular ceiling reached before ventilatory ceiling',
+    summary: `Low HR Reserve with preserved breathing reserve identifies cardiovascular limitation. The heart reached its rate ceiling before the lungs reached their ventilatory ceiling.`,
+    bg:'#fdf0f0', color:'#b83232', textColor:'#7a2020',
+    bannerClass:'banner-cardiac',
+    features:[`Low HR Reserve (${fmt(hrr,0)} bpm)`,`Preserved Breathing Reserve (${fmt(br,1)}%)`,o2pulseLow?`Low O₂ Pulse`:`O₂ Pulse borderline`,`Reduced VO₂max (${fmt(pctPredVO2,1)}%)`],
+    ddx:['Coronary artery disease / ischemia','Cardiomyopathy (HFrEF or HFpEF)','Valvular heart disease','Chronotropic incompetence','Peripheral arterial disease'],
+    teachingNote:`Cardiovascular limitation is defined by the HR reaching its ceiling (low HRR < 15 bpm) in the presence of preserved ventilatory reserve (normal BR). Chronotropic incompetence — failure to achieve ≥ 80% of predicted HR despite adequate effort — is an underrecognized cause of cardiac-pattern limitation.`
+  };
+
+  // Ventilatory limitation
+  if (brLow) return {
+    title: '💨 Ventilatory / Mechanical Limitation',
+    subtitle: 'Exercise limited by the respiratory system — ventilatory ceiling reached',
+    summary: `Low breathing reserve (< 15%) indicates peak ventilation approached the mechanical limit of the respiratory system. The lungs are the primary limiting organ.`,
+    bg:'#fff8e6', color:'#b87200', textColor:'#7a4c00',
+    bannerClass:'banner-vent',
+    features:[`Low Breathing Reserve (${fmt(br,1)}%)`,`HR Reserve preserved (${fmt(hrr,0)} bpm)`,desaturation?`Exercise-induced desaturation`:`SpO₂ maintained`,fev1pct && fev1pct<60?`Obstructive pattern (FEV₁ ${fmt(fev1pct,0)}%)`:`Spirometry context`],
+    ddx:['Severe COPD (GOLD 3–4)','Interstitial lung disease (ILD)','Respiratory muscle weakness','Fixed upper airway obstruction','Morbid obesity'],
+    teachingNote:`In ventilatory limitation, the peak VE approaches MVV, leaving little breathing reserve. Because exercise terminates before the heart reaches its rate ceiling, HR reserve is typically preserved. Dynamic hyperinflation in COPD further reduces inspiratory capacity during exercise, compounding mechanical limitation beyond what spirometry alone predicts.`
+  };
+
+  // Deconditioning
+  return {
+    title: '🏃 Deconditioning / Non-Specific Reduction',
+    subtitle: 'Reduced exercise capacity without identifying a specific cardiopulmonary ceiling',
+    summary: `VO₂max is reduced, but neither the ventilatory nor cardiovascular ceiling was reached. Normal BR and preserved HR reserve point to deconditioning or non-cardiopulmonary limitation.`,
+    bg:'#e6f4f2', color:'#0d7a6e', textColor:'#085048',
+    bannerClass:'banner-decond',
+    features:[`Reduced VO₂max (${fmt(pctPredVO2,1)}%)`,`Normal Breathing Reserve (${fmt(br,1)}%)`,`HR Reserve present (${fmt(hrr,0)} bpm)`,atLow?`Early AT`:`AT mildly reduced`,`Normal VE/VCO₂`],
+    ddx:['Deconditioning / sedentary lifestyle','Obesity','Anemia (check hemoglobin)','Dysfunctional breathing / hyperventilation','Musculoskeletal limitation','Malingering / submaximal effort'],
+    teachingNote:`Deconditioning is a diagnosis of exclusion on CPET — made when VO₂max is reduced but no specific ceiling (ventilatory or cardiovascular) is reached. The critical insight: deconditioning limits exercise through an early AT (reduced aerobic capacity) and submaximal cardiac output, not by reaching any organ's physiologic limit. Exercise rehabilitation directly addresses this pattern.`
+  };
+}
+
+function clearAll() {
+  document.querySelectorAll('input, select').forEach(el => { if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; });
+  document.getElementById('results').style.display = 'none';
+}
+</script>
+</body>
+</html>
