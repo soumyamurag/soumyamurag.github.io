@@ -429,13 +429,19 @@ function analyze() {
     <em>VO₂ = Cardiac Output (CO) × (CaO₂ − CvO₂)</em> — both oxygen delivery (CO) and peripheral extraction
     determine VO₂max. A reduced VO₂max tells us exercise is limited, but not <em>why</em> — subsequent steps
     dissect the mechanism. Predicted VO₂max is calculated using <strong>Wasserman reference equations</strong>
-    based on age, sex, and body weight.
+    based on age, sex, and body weight.<br><br>
+    <strong>Normal threshold: ≥ 84% of predicted VO₂max</strong> (ATS/ERS lower limit of normal).
+    Typical absolute values: sedentary men ~30–40 mL/kg/min; sedentary women ~25–35 mL/kg/min;
+    trained athletes 50–80+ mL/kg/min. Values decline ~1% per year after age 30.
   `);
   s2 += formula([
-    `Predicted VO₂max = Wt × (${sex==='M'?'50.72 − 0.372':'22.78 − 0.17'} × age)`,
+    `Predicted VO₂max = Wt × (${sex==='M'?'50.72 − 0.372':'22.78 − 0.17'} × age)  [Wasserman]`,
     `= ${fmt(wt,0)} × (${sex==='M'?fmt(50.72-0.372*age,2):fmt(22.78-0.17*age,2)}) = <span class="val">${fmt(predVO2_mL,0)} mL/min</span> (${predVO2_mLkg?fmt(predVO2_mLkg,1):'?'} mL/kg/min)`,
     `Measured peak VO₂ = <span class="${pctPredVO2>=84?'ok':'flag'}">${fmt(vo2peak_mL,0)} mL/min</span> (${vo2peak_mLkg?fmt(vo2peak_mLkg,1):'?'} mL/kg/min)`,
-    `% Predicted = <span class="${pctPredVO2>=84?'ok':'flag'}">${fmt(pctPredVO2,1)}%</span>   (LLN = 84%)`
+    `% Predicted = <span class="${pctPredVO2>=84?'ok':'flag'}">${fmt(pctPredVO2,1)}%</span>`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `Normal threshold (LLN): ≥ 84% of predicted  (ATS/ERS)`,
+    `Severity scale:  ≥84% Normal  |  65–83% Mildly reduced  |  50–64% Moderately reduced  |  &lt;50% Severely reduced`
   ]);
   if (!vo2reduced) {
     s2 += finding('ok','✅',`<strong>Exercise capacity normal — ${fmt(pctPredVO2,1)}% predicted.</strong> VO₂max ≥ 84% of predicted. Functional capacity is preserved.`);
