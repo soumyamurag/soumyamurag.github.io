@@ -189,14 +189,23 @@
 
 <!-- EXAMPLE CASES -->
 <div class="cases-bar">
-  <h3>📚 Load Teaching Case</h3>
+  <h3>📚 Classic Teaching Cases</h3>
   <div class="cases-btns">
     <button class="case-btn normal" onclick="loadCase('normal')">✅ Normal Study</button>
     <button class="case-btn cardiac" onclick="loadCase('cardiac')">❤️ Cardiac Limitation</button>
     <button class="case-btn vent" onclick="loadCase('vent')">💨 Ventilatory Limitation (COPD)</button>
     <button class="case-btn pvd" onclick="loadCase('pvd')">🔵 Pulmonary Vascular Disease (PAH)</button>
     <button class="case-btn decond" onclick="loadCase('decond')">🏃 Deconditioning</button>
-    <button class="case-btn effort" onclick="loadCase('effort')">⚠️ Poor Effort / Submaximal</button>
+    <button class="case-btn effort" onclick="loadCase('effort')">⚠️ Submaximal Effort</button>
+  </div>
+  <h3 style="margin-top:12px;">🎓 SEEK Board-Style Cases</h3>
+  <div class="cases-btns">
+    <button class="case-btn" style="border-color:#e65100;color:#e65100;" onclick="loadCase('seek1')">🫁 Q1 — ILD</button>
+    <button class="case-btn" style="border-color:#b87200;color:#b87200;" onclick="loadCase('seek2')">✂️ Q2 — Restriction / Surgery</button>
+    <button class="case-btn" style="border-color:#b87200;color:#b87200;" onclick="loadCase('seek3')">💨 Q3 — COPD Submaximal</button>
+    <button class="case-btn" style="border-color:#1a6e40;color:#1a6e40;" onclick="loadCase('seek4')">🌿 Q4 — EIB</button>
+    <button class="case-btn" style="border-color:#0d7a6e;color:#0d7a6e;" onclick="loadCase('seek5')">🔴 Q5 — Deconditioning</button>
+    <button class="case-btn" style="border-color:#3050a0;color:#3050a0;" onclick="loadCase('seek6')">🌬️ Q6 — Hyperventilation</button>
   </div>
 </div>
 
@@ -363,6 +372,62 @@ const CASES = {
     vo2at:0.72, vevco2at:29, slope:27, petco2:39, hrrest:76, verest:10,
     vtrest:0.65, vtpeak:1.6, wattat:45, petco2peak:37, peto2at:101, peto2peak:104,
     note:'52M who terminated exercise early citing leg fatigue. Peak RER <1.05, very large HR reserve (> 50 bpm), high breathing reserve. CPET is non-diagnostic — cannot characterize exercise limitation from a submaximal test.'
+  },
+
+  // ── SEEK Board-Style Teaching Cases ──────────────────────────────
+  seek1: {
+    label: 'SEEK Q1 — ILD Pattern',
+    age:76, sex:'M', ht:170, wt:72,
+    fev1:2.21, fev1pct:73, fvc:2.73, mvv:null,
+    vo2peak:0.90, watt:55, hrpeak:143, vepeak:82, rer:1.11, spo2peak:85, spo2rest:95, o2pulse:6.3,
+    vo2at:0.52, vevco2at:40, slope:38, petco2:32, hrrest:82, verest:13,
+    vtrest:0.60, vtpeak:1.5, wattat:35, petco2peak:28, peto2at:106, peto2peak:114,
+    note:'76M, HTN, LVH. Spirometry: FEV₁ 73%, FVC 59%, FEV₁/FVC 0.81 — restrictive pattern. Near-absent breathing reserve (VE 82 vs MVV 88), significant desaturation (95→85%), elevated VE/VCO₂ with low PETCO₂ (dead space, not hyperventilation). O₂ pulse reduced in absolute terms but reflects ventilatory/GE ceiling — cardiac function preserved. SEEK answer: ILD.'
+  },
+  seek2: {
+    label: 'SEEK Q2 — Restriction, Absent VR',
+    age:29, sex:'M', ht:178, wt:82,
+    fev1:2.80, fev1pct:75, fvc:3.50, mvv:112,
+    vo2peak:2.60, watt:200, hrpeak:188, vepeak:104, rer:1.15, spo2peak:88, spo2rest:97, o2pulse:13.8,
+    vo2at:1.60, vevco2at:31, slope:29, petco2:38, hrrest:66, verest:11,
+    vtrest:0.70, vtpeak:1.9, wattat:138, petco2peak:35, peto2at:102, peto2peak:108,
+    note:'29M, thoracic surgery in infancy (left thoracotomy). Moderate restriction on spirometry. Near-absent breathing reserve (BR 7%), significant desaturation (97→88%), but HR >90% predicted (near maximal effort), normal VE/VCO₂, VO₂max 79% predicted (mildly reduced but functionally adequate). Ventilatory limitation is present but aerobic capacity is sufficient for physical work. SEEK answer: Sufficient aerobic capacity for firefighting.'
+  },
+  seek3: {
+    label: 'SEEK Q3 — COPD Submaximal',
+    age:66, sex:'M', ht:172, wt:76,
+    fev1:1.54, fev1pct:49, fvc:3.90, mvv:62,
+    vo2peak:1.30, watt:82, hrpeak:130, vepeak:42, rer:0.97, spo2peak:94, spo2rest:94, o2pulse:10.0,
+    vo2at:null, vevco2at:null, slope:null, petco2:null, hrrest:80, verest:14,
+    vtrest:0.80, vtpeak:1.5, wattat:null, petco2peak:null, peto2at:null, peto2peak:null,
+    note:'66M, severe COPD (FEV₁ 49%), 45-pack-year smoker, worsening dyspnea. Submaximal effort (RER 0.97) — test is non-diagnostic. Significant HR reserve (>20 bpm), adequate breathing reserve (BR 32%). AT not achieved. Pattern consistent with deconditioning as dominant limitation despite severe COPD. SEEK answer: Prescribe exercise program / refer to pulmonary rehabilitation.'
+  },
+  seek4: {
+    label: 'SEEK Q4 — Exercise-Induced Bronchospasm',
+    age:48, sex:'F', ht:168, wt:62,
+    fev1:3.00, fev1pct:98, fvc:3.70, mvv:120,
+    vo2peak:1.55, watt:152, hrpeak:160, vepeak:70, rer:1.16, spo2peak:97, spo2rest:98, o2pulse:9.7,
+    vo2at:1.00, vevco2at:28, slope:26, petco2:39, hrrest:72, verest:10,
+    vtrest:0.65, vtpeak:2.0, wattat:105, petco2peak:36, peto2at:102, peto2peak:107,
+    note:'48F, active jogger, normal spirometry, normal PFTs. CPET itself is normal — no ventilatory limitation, no cardiac limitation, no desaturation, no hyperventilation. The CPET pattern is normal. The diagnosis is established by post-exercise spirometry: FEV₁ falls ≥15% at 10–15 min post-exercise (diagnostic of EIB). A fall of 10% is abnormal; ≥15% is diagnostic. SEEK answer: Exercise-induced bronchoconstriction.'
+  },
+  seek5: {
+    label: 'SEEK Q5 — Deconditioning (Amyloidosis)',
+    age:57, sex:'M', ht:175, wt:80,
+    fev1:3.40, fev1pct:90, fvc:4.20, mvv:136,
+    vo2peak:1.85, watt:130, hrpeak:152, vepeak:67, rer:1.12, spo2peak:97, spo2rest:98, o2pulse:12.2,
+    vo2at:1.10, vevco2at:29, slope:27, petco2:39, hrrest:74, verest:11,
+    vtrest:0.65, vtpeak:2.0, wattat:88, petco2peak:35, peto2at:102, peto2peak:107,
+    note:'57M, tracheal/laryngeal amyloidosis. Slightly impaired work capacity (VO₂max ~78% predicted). Near-maximal cardiac effort (HR >90% predicted), significant breathing reserve (VE/MVV 49%, BR >60 L/min), normal gas exchange, normal VE/VCO₂. The central airway obstruction is NOT the exercise-limiting factor. Pattern is consistent with probable deconditioning. SEEK answer: Pulmonary rehabilitation is likely to improve activity limitation.'
+  },
+  seek6: {
+    label: 'SEEK Q6 — Hyperventilation Syndrome',
+    age:18, sex:'F', ht:165, wt:56,
+    fev1:2.97, fev1pct:102, fvc:3.29, mvv:119,
+    vo2peak:1.38, watt:95, hrpeak:165, vepeak:92, rer:1.08, spo2peak:98, spo2rest:98, o2pulse:8.4,
+    vo2at:0.75, vevco2at:46, slope:44, petco2:27, hrrest:88, verest:14,
+    vtrest:0.65, vtpeak:1.6, wattat:48, petco2peak:22, peto2at:112, peto2peak:120,
+    note:'18F, unexplained dyspnea, normal spirometry, negative methacholine. Reduced VO₂max (70% predicted). Markedly elevated VE/VCO₂ (46) WITH low PETCO₂ (27 mmHg) — the low PETCO₂ confirms hyperventilation, not dead space. Erratic breathing, tachypnea, large HR reserve (no cardiac ceiling), normal SpO₂. Both VE/VO₂ and VE/VCO₂ elevated together (contrast with PVD where VE/VCO₂ is disproportionately elevated). SEEK answer: Primary hyperventilation syndrome.'
   }
 };
 
@@ -440,6 +505,10 @@ function analyze() {
   const spo2drop = (spo2rest && spo2peak) ? spo2rest - spo2peak : null;
   const atPctPredVO2 = vo2at ? (vo2at * 1000 / predVO2_mL) * 100 : null;
 
+  // Spirometry pattern
+  const fev1fvc = (fev1 && fvc) ? fev1/fvc : null;
+  const obstructive = fev1fvc !== null && fev1fvc < 0.70;
+
   // Pattern flags
   const testAdequate = rer >= 1.05;
   const vo2reduced   = pctPredVO2 < 84;
@@ -451,6 +520,7 @@ function analyze() {
   const o2pulseLow   = pctPredO2pulse !== null && pctPredO2pulse < 80;
   const desaturation = spo2drop !== null && (spo2drop >= 4 || spo2peak < 90);
   const atLow        = atPctPredVO2 !== null && atPctPredVO2 < 40;
+  const hyperventilation = vevco2High && petco2 && petco2 < 33 && !desaturation && !brLow && !hrrLow;
 
   let steps = [];
 
@@ -664,7 +734,8 @@ function analyze() {
   let pattern = determinePattern({
     testAdequate, vo2reduced, brLow, hrrLow, hrrHigh,
     vevco2High, vevco2VeryHigh, o2pulseLow, desaturation, atLow,
-    pctPredVO2, br, hrr, vevco2at, o2pulse, fev1pct
+    pctPredVO2, br, hrr, vevco2at, o2pulse, fev1pct,
+    petco2, obstructive, hyperventilation
   });
 
   let s8 = '';
@@ -716,7 +787,7 @@ function analyze() {
 
 // ─── PATTERN RECOGNITION LOGIC ───────────────────────────────────
 function determinePattern(flags) {
-  const {testAdequate, vo2reduced, brLow, hrrLow, hrrHigh, vevco2High, vevco2VeryHigh, o2pulseLow, desaturation, atLow, pctPredVO2, br, hrr, vevco2at, fev1pct} = flags;
+  const {testAdequate, vo2reduced, brLow, hrrLow, hrrHigh, vevco2High, vevco2VeryHigh, o2pulseLow, desaturation, atLow, pctPredVO2, br, hrr, vevco2at, fev1pct, petco2, obstructive, hyperventilation} = flags;
 
   if (!testAdequate) return {
     title: '⚠️ Submaximal / Non-Diagnostic Test',
@@ -737,7 +808,19 @@ function determinePattern(flags) {
     bannerClass:'banner-normal',
     features:['VO₂max ≥ 84% predicted','Normal HR Reserve','Normal Breathing Reserve','Normal VE/VCO₂','No desaturation'],
     ddx:[],
-    teachingNote:`A normal CPET in the appropriate clinical context is powerful — it rules out significant cardiopulmonary limitation as a cause of dyspnea. Consider functional/psychogenic dyspnea, deconditioning at the mild end, or non-cardiopulmonary causes (anemia, metabolic).`
+    teachingNote:`A normal CPET powerfully rules out significant cardiopulmonary limitation as a cause of dyspnea. Exceptions where CPET is diagnostic: exercise-induced bronchoconstriction (requires post-exercise spirometry) and hyperventilation syndrome (erratic breathing, low PETCO₂, both VE/VO₂ and VE/VCO₂ elevated together). Normal CPET supports consideration of deconditioning, dysfunctional breathing, or non-cardiopulmonary causes.`
+  };
+
+  // Hyperventilation syndrome — elevated VE/VCO2 WITH low PETCO2, no desaturation, no ventilatory ceiling
+  if (hyperventilation) return {
+    title: '🌬️ Hyperventilation / Dysfunctional Breathing Pattern',
+    subtitle: 'Elevated VE/VCO₂ with low PETCO₂ — consistent with primary hyperventilation, not dead space',
+    summary: `Elevated VE/VCO₂ combined with low PETCO₂ (< 33 mmHg) confirms hyperventilation rather than dead space elevation. No desaturation, adequate breathing reserve, no cardiac ceiling.`,
+    bg:'#f0f4ff', color:'#3050a0', textColor:'#1a2860',
+    bannerClass:'banner-effort',
+    features:[`Elevated VE/VCO₂ (${vevco2at?fmt(vevco2at,1):'?'})`,`Low PETCO₂ (${petco2?fmt(petco2,1):'?'} mmHg)`,`Normal Breathing Reserve`,`No desaturation`,`HR Reserve present`],
+    ddx:['Primary hyperventilation syndrome','Dysfunctional breathing / vocal cord dysfunction','Anxiety / panic disorder','Early pulmonary vascular disease (if PETCO₂ borderline — consider arterial line study)'],
+    teachingNote:`The key distinction: elevated VE/VCO₂ WITH a fall in PETCO₂ = hyperventilation (blowing off CO₂). Elevated VE/VCO₂ WITHOUT a fall in PETCO₂ (normal or high PETCO₂) = dead space ventilation from PVD, ILD, or COPD. Both raise VE/VCO₂ but through different mechanisms. PETCO₂ < 30 mmHg should always raise suspicion for pulmonary vascular disease, even when hyperventilation is suspected — an arterial line study may be needed to distinguish true dead space elevation (elevated VD/VT) from hyperventilation.`
   };
 
   // Pulmonary vascular disease pattern (highest priority when VE/VCO2 very high)
@@ -776,16 +859,39 @@ function determinePattern(flags) {
     teachingNote:`Cardiovascular limitation is defined by the HR reaching its ceiling (low HRR < 15 bpm) in the presence of preserved ventilatory reserve (normal BR). Chronotropic incompetence — failure to achieve ≥ 80% of predicted HR despite adequate effort — is an underrecognized cause of cardiac-pattern limitation.`
   };
 
-  // Ventilatory limitation
+  // Ventilatory limitation — split by FEV1/FVC (obstructive vs restrictive)
+  if (brLow && obstructive) return {
+    title: '💨 Ventilatory Limitation — Obstructive (COPD Pattern)',
+    subtitle: 'Exercise limited by obstructive lung disease — ventilatory ceiling reached',
+    summary: `Low breathing reserve (< 15%) with obstructive spirometry (FEV₁/FVC < 0.70). Dynamic hyperinflation and airflow obstruction create the ventilatory ceiling. HR reserve is preserved, confirming the lungs — not the heart — are the limiting organ.`,
+    bg:'#fff8e6', color:'#b87200', textColor:'#7a4c00',
+    bannerClass:'banner-vent',
+    features:[`Low Breathing Reserve (${fmt(br,1)}%)`,`Obstructive spirometry (FEV₁/FVC < 0.70)`,`HR Reserve present (${fmt(hrr,0)} bpm)`,desaturation?`Exercise-induced desaturation (V/Q mismatch)`:`SpO₂ maintained`,`VE/VCO₂ elevated (dead space + V/Q)`],
+    ddx:['Severe COPD (GOLD 3–4)','Emphysema-predominant COPD','Chronic severe asthma','Bronchiectasis with airflow obstruction'],
+    teachingNote:`In COPD, the ventilatory ceiling is reached before the cardiovascular ceiling — hence preserved HR reserve. Dynamic hyperinflation during exercise progressively reduces inspiratory capacity (IC), further constraining tidal volume and breathing reserve. In very severe COPD, the AT may not be identifiable non-invasively: the patient terminates exercise from dyspnea before lactate accumulates enough to drive CO₂ off bicarbonate. The VE/VCO₂ is elevated primarily from increased dead space (V/Q mismatch) and low PETCO₂ reflects hyperventilation.`
+  };
+
+  if (brLow && !obstructive) return {
+    title: '🫁 Ventilatory Limitation — Restrictive (ILD Pattern)',
+    subtitle: 'Exercise limited by restrictive lung disease — gas exchange impairment and reduced MVV',
+    summary: `Low breathing reserve with preserved FEV₁/FVC (restrictive physiology). Elevated VE/VCO₂ reflects alveolar dead space from fibrosis. Significant desaturation from diffusion impairment. Cardiac function is often preserved (O₂ pulse may be normal for achieved work rate).`,
+    bg:'#fff3e0', color:'#e65100', textColor:'#7a2c00',
+    bannerClass:'banner-vent',
+    features:[`Low Breathing Reserve (${fmt(br,1)}%)`,`Restrictive spirometry (FEV₁/FVC preserved)`,`HR Reserve present (${fmt(hrr,0)} bpm)`,desaturation?`Significant desaturation — diffusion limitation`:`SpO₂ maintained (mild restriction)`,vevco2High?`Elevated VE/VCO₂ (alveolar dead space)`:`VE/VCO₂ borderline`],
+    ddx:['Interstitial lung disease (IPF, NSIP, HP)','Sarcoidosis with parenchymal involvement','Pleural disease / thoracic restriction','Chest wall deformity / kyphoscoliosis','Respiratory muscle weakness'],
+    teachingNote:`ILD creates a ventilatory ceiling through two mechanisms: (1) reduced lung compliance → low MVV despite normal FEV₁/FVC; (2) alveolar destruction increases dead space → elevated VE/VCO₂. Diffusion impairment (thickened alveolar membrane + reduced surface area) causes significant exercise-induced desaturation at high cardiac outputs. Distinguish from COPD by: preserved FEV₁/FVC, more severe desaturation, and O₂ pulse may be relatively preserved (cardiac function intact). Elevated VE/VCO₂ WITHOUT low PETCO₂ = dead space, not hyperventilation.`
+  };
+
+  // Ventilatory limitation — spirometry not available
   if (brLow) return {
     title: '💨 Ventilatory / Mechanical Limitation',
     subtitle: 'Exercise limited by the respiratory system — ventilatory ceiling reached',
     summary: `Low breathing reserve (< 15%) indicates peak ventilation approached the mechanical limit of the respiratory system. The lungs are the primary limiting organ.`,
     bg:'#fff8e6', color:'#b87200', textColor:'#7a4c00',
     bannerClass:'banner-vent',
-    features:[`Low Breathing Reserve (${fmt(br,1)}%)`,`HR Reserve preserved (${fmt(hrr,0)} bpm)`,desaturation?`Exercise-induced desaturation`:`SpO₂ maintained`,fev1pct && fev1pct<60?`Obstructive pattern (FEV₁ ${fmt(fev1pct,0)}%)`:`Spirometry context`],
-    ddx:['Severe COPD (GOLD 3–4)','Interstitial lung disease (ILD)','Respiratory muscle weakness','Fixed upper airway obstruction','Morbid obesity'],
-    teachingNote:`In ventilatory limitation, the peak VE approaches MVV, leaving little breathing reserve. Because exercise terminates before the heart reaches its rate ceiling, HR reserve is typically preserved. Dynamic hyperinflation in COPD further reduces inspiratory capacity during exercise, compounding mechanical limitation beyond what spirometry alone predicts.`
+    features:[`Low Breathing Reserve (${fmt(br,1)}%)`,`HR Reserve preserved (${fmt(hrr,0)} bpm)`,desaturation?`Exercise-induced desaturation`:`SpO₂ maintained`,`Enter FEV₁/FVC to distinguish COPD vs ILD`],
+    ddx:['Severe COPD (GOLD 3–4)','Interstitial lung disease (ILD)','Respiratory muscle weakness','Fixed upper airway obstruction','Chest wall restriction'],
+    teachingNote:`Ventilatory limitation pattern confirmed. Enter FEV₁/FVC ratio to distinguish obstructive (COPD: FEV₁/FVC < 0.70, dynamic hyperinflation) from restrictive (ILD: FEV₁/FVC ≥ 0.70, diffusion impairment + dead space). Both reach the ventilatory ceiling but through different mechanisms with different clinical implications.`
   };
 
   // Deconditioning
