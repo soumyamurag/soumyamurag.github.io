@@ -463,6 +463,124 @@
 
     .aside-value a:hover { opacity: 0.7; }
 
+    /* CV button */
+    .cv-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 28px;
+      padding: 12px 20px;
+      border: 1px solid var(--border-mid);
+      border-radius: 2px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .cv-download:hover {
+      color: var(--teal);
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+
+    /* ── PORTFOLIO ── */
+    #portfolio { background: var(--bg-2); }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .project-card:not(.project-placeholder):hover {
+      border-color: var(--teal-dim);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(11,122,110,0.08);
+    }
+
+    .project-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .project-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .project-type {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--teal);
+      border: 1px solid var(--teal-dim);
+      padding: 3px 8px;
+      border-radius: 1px;
+    }
+
+    .project-card h3 {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .project-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      flex: 1;
+      font-weight: 300;
+    }
+
+    .project-link {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: gap 0.2s;
+      margin-top: 4px;
+    }
+
+    .project-card:hover .project-link { gap: 10px; }
+
+    .project-placeholder {
+      opacity: 0.4;
+      border-style: dashed;
+      cursor: default;
+    }
+
+    .project-placeholder .project-type {
+      border-color: var(--text-faint);
+      color: var(--text-faint);
+    }
+
     /* ── TOOLS ── */
     #tools { background: var(--bg); }
 
@@ -803,6 +921,7 @@
   <a href="#hero" class="nav-logo">Soumya Murag<span>, MD</span></a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#tools">Tools</a></li>
     <li><a href="#writing">Writing</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -874,6 +993,9 @@
         <p>
           Her scholarly interests span AI-enabled pulmonary diagnostics, remote monitoring for respiratory conditions, point-of-care ultrasound education, and the role of digital health tools in transforming pulmonary and critical care practice. She writes on the evolving relationship between artificial intelligence and physician identity.
         </p>
+        <a href="cv.pdf" download class="cv-download">
+          ↓ &nbsp;Download CV
+        </a>
       </div>
       <div class="about-aside reveal">
         <div class="aside-item">
@@ -897,9 +1019,63 @@
   </div>
 </section>
 
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="ghost-num">02</div>
+  <div class="section-inner wide">
+    <div class="section-kicker reveal">
+      <div class="kicker-line"></div>
+      <span class="kicker-text">Portfolio</span>
+    </div>
+    <h2 class="section-title reveal">Work at the intersection of<br><em>medicine and technology.</em></h2>
+    <div class="portfolio-grid reveal">
+
+      <a href="tools/acid_base_analyzer.html" class="project-card">
+        <div class="project-card-top">
+          <div class="project-icon">🫁</div>
+          <span class="project-type">Clinical Tool</span>
+        </div>
+        <h3>Acid-Base Analyzer</h3>
+        <p>A step-by-step ICU bedside tool for interpreting acid-base disturbances from BMP and ABG/VBG. Built on UCSF clinical algorithms with ventilator analysis and osmolal gap.</p>
+        <div class="project-link">Launch Tool →</div>
+      </a>
+
+      <a href="https://substack.com/@soumyamurag" target="_blank" class="project-card">
+        <div class="project-card-top">
+          <div class="project-icon">✍️</div>
+          <span class="project-type">Writing</span>
+        </div>
+        <h3>Substack</h3>
+        <p>Essays on critical care, AI in medicine, physician identity, and the human side of healthcare — for clinicians and curious readers alike.</p>
+        <div class="project-link">Read on Substack →</div>
+      </a>
+
+      <a href="mailto:soumyamurag@gmail.com" class="project-card">
+        <div class="project-card-top">
+          <div class="project-icon">🤝</div>
+          <span class="project-type">Advisory</span>
+        </div>
+        <h3>Digital Health Advisory</h3>
+        <p>Clinical advisory and validation roles for digital health startups at the intersection of respiratory medicine and artificial intelligence.</p>
+        <div class="project-link">Get in Touch →</div>
+      </a>
+
+      <div class="project-card project-placeholder">
+        <div class="project-card-top">
+          <div class="project-icon">🔬</div>
+          <span class="project-type">Coming Soon</span>
+        </div>
+        <h3>More Projects</h3>
+        <p>Additional tools and projects in development.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- TOOLS -->
 <section id="tools">
-  <div class="ghost-num">02</div>
+  <div class="ghost-num">03</div>
   <div class="section-inner">
     <div class="section-kicker reveal">
       <div class="kicker-line"></div>
@@ -930,7 +1106,7 @@
 
 <!-- WRITING -->
 <section id="writing">
-  <div class="ghost-num">03</div>
+  <div class="ghost-num">04</div>
   <div class="section-inner">
     <div class="section-kicker reveal">
       <div class="kicker-line"></div>
@@ -958,7 +1134,7 @@
 
 <!-- CONTACT -->
 <section id="contact">
-  <div class="ghost-num">04</div>
+  <div class="ghost-num">05</div>
   <div class="section-inner">
     <div class="section-kicker reveal">
       <div class="kicker-line"></div>
