@@ -148,21 +148,28 @@
   .graphs-hdr { background: var(--gray-light); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: baseline; gap: 12px; }
   .graphs-hdr-label { font-weight: 700; font-size: 14px; }
   .graphs-hdr-note { font-size: 11px; color: var(--gray); font-style: italic; }
-  .graphs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-  .graph-panel { padding: 16px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .graph-panel:nth-child(2n) { border-right: none; }
-  .graph-panel:nth-child(3), .graph-panel:nth-child(4) { border-bottom: none; }
-  .graph-title { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
-  .graph-subtitle { font-size: 10.5px; color: var(--gray); margin-bottom: 10px; font-style: italic; }
-  .graph-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--gray); }
-  .legend-line { width: 20px; height: 2.5px; border-radius: 1px; flex-shrink: 0; }
-  .legend-dash { width: 20px; height: 0; border-top: 2px dashed; flex-shrink: 0; }
+  .graphs-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+  .graph-panel { padding: 12px 14px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .graph-panel:nth-child(3n) { border-right: none; }
+  .graph-panel:nth-child(n+7) { border-bottom: none; }
+  .graph-title { font-size: 11.5px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .graph-subtitle { font-size: 10px; color: var(--gray); margin-bottom: 8px; font-style: italic; line-height: 1.4; }
+  .graph-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--gray); }
+  .legend-line { width: 18px; height: 2.5px; border-radius: 1px; flex-shrink: 0; }
+  .legend-dash { width: 18px; height: 0; border-top: 2px dashed; flex-shrink: 0; }
 
-  @media (max-width: 700px) {
+  @media (max-width: 900px) {
+    .graphs-grid { grid-template-columns: 1fr 1fr; }
+    .graph-panel:nth-child(3n) { border-right: 1px solid var(--border); }
+    .graph-panel:nth-child(2n) { border-right: none; }
+    .graph-panel:nth-child(n+7) { border-bottom: 1px solid var(--border); }
+    .graph-panel:nth-child(n+9) { border-bottom: none; }
+  }
+  @media (max-width: 600px) {
     .graphs-grid { grid-template-columns: 1fr; }
-    .graph-panel { border-right: none !important; }
-    .graph-panel:nth-child(3) { border-bottom: 1px solid var(--border) !important; }
+    .graph-panel { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+    .graph-panel:last-child { border-bottom: none !important; }
   }
   @media (max-width: 600px) { .row2, .row3 { grid-template-columns: 1fr; } }
 </style>
@@ -271,6 +278,25 @@
     </div>
   </div>
 
+  <!-- Ventilatory Pattern & End-Tidal Gas -->
+  <div class="card">
+    <div class="card-hdr">🌬️ Ventilatory Pattern & End-Tidal Gas</div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="field"><label>VT rest <span class="norm">L (opt)</span></label><input type="number" id="vtrest" placeholder="e.g. 0.65" step="0.01"></div>
+        <div class="field"><label>VT peak <span class="norm">L</span></label><input type="number" id="vtpeak" placeholder="e.g. 2.2" step="0.01"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Work Rate at AT <span class="norm">watts</span></label><input type="number" id="wattat" placeholder="e.g. 80"></div>
+        <div class="field"><label>PETCO₂ peak <span class="norm">mmHg</span></label><input type="number" id="petco2peak" placeholder="e.g. 36" step="0.1"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>PETO₂ at AT <span class="norm">mmHg (opt)</span></label><input type="number" id="peto2at" placeholder="e.g. 102" step="0.1"></div>
+        <div class="field"><label>PETO₂ peak <span class="norm">mmHg (opt)</span></label><input type="number" id="peto2peak" placeholder="e.g. 108" step="0.1"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <button class="btn-analyze" onclick="analyze()">▶ Interpret CPET Report</button>
@@ -290,6 +316,7 @@ const CASES = {
     fev1:3.8, fev1pct:98, fvc:4.7, mvv:152,
     vo2peak:2.62, watt:210, hrpeak:183, vepeak:88, rer:1.14, spo2peak:97, spo2rest:98, o2pulse:14.3,
     vo2at:1.55, vevco2at:26, slope:24, petco2:40, hrrest:68, verest:10,
+    vtrest:0.65, vtpeak:2.2, wattat:130, petco2peak:36, peto2at:102, peto2peak:108,
     note:'Healthy 35-year-old male. All parameters within normal limits. Classic features of a normal CPET.'
   },
   cardiac: {
@@ -298,6 +325,7 @@ const CASES = {
     fev1:3.1, fev1pct:88, fvc:3.9, mvv:124,
     vo2peak:1.42, watt:90, hrpeak:160, vepeak:72, rer:1.12, spo2peak:94, spo2rest:96, o2pulse:8.9,
     vo2at:0.80, vevco2at:38, slope:36, petco2:32, hrrest:78, verest:12,
+    vtrest:0.60, vtpeak:1.8, wattat:55, petco2peak:29, peto2at:104, peto2peak:112,
     note:'58M with ischemic cardiomyopathy (EF 30%). Classic cardiac limitation pattern: low VO₂max, near-maximal HR (low HRR), low O₂ pulse, elevated VE/VCO₂, preserved breathing reserve.'
   },
   vent: {
@@ -306,6 +334,7 @@ const CASES = {
     fev1:1.1, fev1pct:35, fvc:2.8, mvv:44,
     vo2peak:1.08, watt:70, hrpeak:122, vepeak:41, rer:1.08, spo2peak:84, spo2rest:92, o2pulse:8.8,
     vo2at:0.68, vevco2at:40, slope:38, petco2:28, hrrest:82, verest:14,
+    vtrest:0.75, vtpeak:1.4, wattat:40, petco2peak:26, peto2at:105, peto2peak:108,
     note:'62M with severe COPD (GOLD Stage 3). Classic ventilatory limitation: low BR (<15%), significant HR reserve (did not approach max HR), exercise-induced desaturation, mildly elevated VE/VCO₂.'
   },
   pvd: {
@@ -314,6 +343,7 @@ const CASES = {
     fev1:2.8, fev1pct:92, fvc:3.3, mvv:112,
     vo2peak:0.92, watt:58, hrpeak:148, vepeak:60, rer:1.10, spo2peak:88, spo2rest:94, o2pulse:6.2,
     vo2at:0.48, vevco2at:56, slope:54, petco2:25, hrrest:88, verest:13,
+    vtrest:0.55, vtpeak:1.5, wattat:30, petco2peak:20, peto2at:110, peto2peak:120,
     note:'44F with Group 1 PAH. Hallmark features: severely elevated VE/VCO₂ (>45), very early AT, low O₂ pulse, preserved breathing reserve. Low PETCO₂ reflects dead space and hypocapnia from hypoxic ventilatory drive.'
   },
   decond: {
@@ -322,6 +352,7 @@ const CASES = {
     fev1:3.3, fev1pct:91, fvc:4.1, mvv:132,
     vo2peak:1.68, watt:110, hrpeak:148, vepeak:72, rer:1.13, spo2peak:97, spo2rest:98, o2pulse:11.4,
     vo2at:0.84, vevco2at:30, slope:28, petco2:38, hrrest:80, verest:11,
+    vtrest:0.65, vtpeak:2.0, wattat:65, petco2peak:33, peto2at:102, peto2peak:107,
     note:'48M, sedentary lifestyle, BMI 30. Reduced VO₂max and early AT are explained entirely by deconditioning: normal BR, normal VE/VCO₂, normal SpO₂. HR reserve is present but O₂ pulse is proportionally reduced.'
   },
   effort: {
@@ -330,13 +361,14 @@ const CASES = {
     fev1:3.0, fev1pct:85, fvc:3.8, mvv:120,
     vo2peak:1.18, watt:72, hrpeak:115, vepeak:48, rer:0.98, spo2peak:97, spo2rest:97, o2pulse:10.3,
     vo2at:0.72, vevco2at:29, slope:27, petco2:39, hrrest:76, verest:10,
+    vtrest:0.65, vtpeak:1.6, wattat:45, petco2peak:37, peto2at:101, peto2peak:104,
     note:'52M who terminated exercise early citing leg fatigue. Peak RER <1.05, very large HR reserve (> 50 bpm), high breathing reserve. CPET is non-diagnostic — cannot characterize exercise limitation from a submaximal test.'
   }
 };
 
 function loadCase(key) {
   const c = CASES[key];
-  const fields = ['age','sex','ht','wt','fev1','fev1pct','fvc','mvv','vo2peak','watt','hrpeak','vepeak','rer','spo2peak','spo2rest','o2pulse','vo2at','vevco2at','slope','petco2','hrrest','verest'];
+  const fields = ['age','sex','ht','wt','fev1','fev1pct','fvc','mvv','vo2peak','watt','hrpeak','vepeak','rer','spo2peak','spo2rest','o2pulse','vo2at','vevco2at','slope','petco2','hrrest','verest','vtrest','vtpeak','wattat','petco2peak','peto2at','peto2peak'];
   fields.forEach(f => {
     const el = document.getElementById(f);
     if (el) el.value = c[f] !== undefined ? c[f] : '';
@@ -661,7 +693,10 @@ function analyze() {
   if (vo2peak && hrpeak && vepeak) {
     const graphData = buildGraphData({
       age, wt, vo2peak, vo2at, hrpeak, hrRest: hrrest, vepeak, mvv,
-      verest, rer, vevco2at, predVO2_mL, predHR, predO2pulse, o2pulse, br
+      verest, rer, vevco2at, predVO2_mL, predHR, predO2pulse, o2pulse, br,
+      watt, petco2,
+      vtrest: v('vtrest'), vtpeak: v('vtpeak'), wattat: v('wattat'),
+      petco2peak: v('petco2peak'), peto2at: v('peto2at'), peto2peak: v('peto2peak')
     });
     graphsHTML = renderGraphs(graphData);
   }
@@ -1053,89 +1088,165 @@ function graphBreathingReserve(gd){
 }
 
 function renderGraphs(gd) {
-  const g1 = graphVSlope(gd);
-  const g2 = graphHRO2Pulse(gd);
-  const g3 = graphVentEquiv(gd);
-  const g4 = graphBreathingReserve(gd);
+  const p1 = graphVEVTvsWR(gd);
+  const p2 = graphHRO2Pulse(gd);
+  const p3 = graphVO2VCO2vsWR(gd);
+  const p4 = graphVentEquiv(gd);
+  const p5 = graphVSlope(gd);
+  const p6 = graphVTvsVE(gd);
+  const p7 = graphWRvsVO2(gd);
+  const p8 = graphBreathingReserve(gd);
+  const p9 = graphPETCO2PETO2(gd);
 
   return `<div class="graphs-section">
     <div class="graphs-hdr">
-      <span class="graphs-hdr-label">📈 Graphical Analysis</span>
-      <span class="graphs-hdr-note">Schematic plots generated from entered values — illustrates key diagnostic patterns</span>
+      <span class="graphs-hdr-label">📈 Wasserman 9-Panel Graphical Analysis</span>
+      <span class="graphs-hdr-note">Schematic plots from entered values — illustrates key diagnostic patterns. ● amber = AT, ● red = peak.</span>
     </div>
     <div class="graphs-grid">
+
       <div class="graph-panel">
-        <div class="graph-title">V-Slope (VCO₂ vs VO₂)</div>
-        <div class="graph-subtitle">Slope change at AT identifies anaerobic threshold. Dashed = line of identity (1:1).</div>
-        ${g1}
+        <div class="graph-title">1 — VE &amp; VT vs Work Rate</div>
+        <div class="graph-subtitle">Ventilatory response to exercise. VT rises until IC limit; then RR increases.</div>
+        ${p1}
         <div class="graph-legend">
-          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>V-Slope data</div>
-          <div class="legend-item"><div class="legend-dash" style="border-color:#c0b4a8"></div>Line of identity</div>
-          <div class="legend-item"><div class="legend-line" style="background:#b87200;height:0;border-top:2px dashed"></div>AT</div>
+          <div class="legend-item"><div class="legend-line" style="background:#1a2e4a"></div>VE</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#0d7a6e"></div>VT (right axis)</div>
         </div>
       </div>
+
       <div class="graph-panel">
-        <div class="graph-title">HR & O₂ Pulse vs VO₂</div>
-        <div class="graph-subtitle">HR ceiling = cardiovascular limit. Flat O₂ pulse = stroke volume not augmenting.</div>
-        ${g2}
+        <div class="graph-title">2 — HR &amp; O₂ Pulse vs VO₂</div>
+        <div class="graph-subtitle">Cardiovascular response. Flat O₂ pulse = stroke volume plateau (cardiac pattern).</div>
+        ${p2}
         <div class="graph-legend">
-          <div class="legend-item"><div class="legend-line" style="background:#b83232"></div>Heart Rate</div>
+          <div class="legend-item"><div class="legend-line" style="background:#b83232"></div>HR</div>
           <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>O₂ Pulse</div>
-          <div class="legend-item"><div class="legend-dash" style="border-color:#b83232"></div>Predicted max HR</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#b83232"></div>Pred max HR</div>
         </div>
       </div>
+
       <div class="graph-panel">
-        <div class="graph-title">Ventilatory Equivalents (VE/VO₂ &amp; VE/VCO₂ vs VO₂)</div>
-        <div class="graph-subtitle">AT = where VE/VO₂ rises while VE/VCO₂ still at nadir. Elevated VE/VCO₂ = dead space.</div>
-        ${g3}
+        <div class="graph-title">3 — VO₂ &amp; VCO₂ vs Work Rate</div>
+        <div class="graph-subtitle">Metabolic response. VCO₂ rises steeply after AT as lactate is buffered.</div>
+        ${p3}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#1a2e4a"></div>VO₂</div>
+          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>VCO₂</div>
+        </div>
+      </div>
+
+      <div class="graph-panel">
+        <div class="graph-title">4 — VE/VO₂ &amp; VE/VCO₂ vs VO₂</div>
+        <div class="graph-subtitle">AT = VE/VO₂ rises while VE/VCO₂ still at nadir. Elevated VE/VCO₂ = dead space.</div>
+        ${p4}
         <div class="graph-legend">
           <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>VE/VCO₂</div>
           <div class="legend-item"><div class="legend-dash" style="border-color:#1a2e4a"></div>VE/VO₂</div>
-          <div class="legend-item"><div class="legend-line" style="background:#1a6e40"></div>Normal (&lt;34)</div>
         </div>
       </div>
+
       <div class="graph-panel">
-        <div class="graph-title">Ventilatory Reserve (Breathing Reserve)</div>
-        <div class="graph-subtitle">How close peak VE approached the MVV ceiling. BR &lt;15% = ventilatory limitation.</div>
-        ${g4}
+        <div class="graph-title">5 — V-Slope (VCO₂ vs VO₂)</div>
+        <div class="graph-subtitle">Slope steepens above AT as buffered lactate drives extra CO₂ production.</div>
+        ${p5}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>V-slope</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#c0b4a8"></div>1:1 identity</div>
+        </div>
       </div>
+
+      <div class="graph-panel">
+        <div class="graph-title">6 — VT vs VE (Breathing Pattern)</div>
+        <div class="graph-subtitle">VT rises until IC limit, then RR takes over. In COPD, VT plateau is low and early.</div>
+        ${p6}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>Tidal Volume</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#b87200"></div>IC limit</div>
+        </div>
+      </div>
+
+      <div class="graph-panel">
+        <div class="graph-title">7 — Work Rate vs VO₂</div>
+        <div class="graph-subtitle">Should be linear (~10W per 100 mL VO₂). Deviation suggests early anaerobiosis.</div>
+        ${p7}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#5c3d8f"></div>WR vs VO₂</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#c0b4a8"></div>Expected slope</div>
+        </div>
+      </div>
+
+      <div class="graph-panel">
+        <div class="graph-title">8 — Breathing Reserve</div>
+        <div class="graph-subtitle">Peak VE relative to MVV ceiling. BR &lt;15% defines ventilatory limitation.</div>
+        ${p8}
+      </div>
+
+      <div class="graph-panel">
+        <div class="graph-title">9 — PETCO₂ &amp; PETO₂ vs VO₂</div>
+        <div class="graph-subtitle">PETCO₂ rises then falls at AT; PETO₂ rises sharply at AT. Used to identify AT non-invasively.</div>
+        ${p9}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#b83232"></div>PETCO₂</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#1a2e4a"></div>PETO₂ (right axis)</div>
+        </div>
+      </div>
+
     </div>
   </div>`;
 }
 
-// Call renderGraphs from analyze — inject graph data
+// ─── BUILD GRAPH DATA ─────────────────────────────────────────────
 function buildGraphData(params) {
   const { age, wt, vo2peak, vo2at, hrpeak, hrRest, vepeak, mvv, verest, rer,
-          vevco2at, predVO2_mL, predHR, predO2pulse, o2pulse, br } = params;
+          vevco2at, predVO2_mL, predHR, predO2pulse, o2pulse, br,
+          watt, petco2, vtrest, vtpeak, wattat, petco2peak, peto2at, peto2peak } = params;
 
   // Rest estimates
   const vo2r  = wt ? wt*3.5/1000 : 0.25;
   const vco2r = vo2r * 0.80;
   const hrR   = hrRest || 70;
-  const veR   = verest || vo2r * 25; // typical VE at rest
+  const veR   = verest || vo2r * 25;
 
   // AT values
   const vo2a  = vo2at || vo2peak * 0.50;
   const vco2a = vo2a * 0.92;
   const hrA   = hrR + (hrpeak - hrR) * (vo2a / vo2peak);
   const o2pA  = vo2a * 1000 / hrA;
-
   const veA   = veR + (vepeak - veR) * (vo2a / vo2peak);
   const vevco2A = vevco2at || 30;
-  const vevo2A  = vevco2A * (vo2a / (vo2a * 0.92));  // ≈ VE/VO2 at AT, slightly above VE/VCO2
+  const vevo2A  = vevco2A * (vo2a / (vo2a * 0.92));
 
   // Peak values
   const vco2pk = vo2peak * rer;
   const o2pPk  = o2pulse;
   const o2pR   = vo2r * 1000 / hrR;
 
-  // Peak VE/VCO2 and VE/VO2
+  // VE equivalents
   const vevco2Pk = vepeak / vco2pk;
   const vevo2Pk  = vepeak / vo2peak;
+  const vevco2R  = vevco2A * 1.35;
+  const vevo2R   = vevco2R * 0.88;
 
-  // Rest VE/VCO2 and VE/VO2 (typically high at rest)
-  const vevco2R = vevco2A * 1.35;
-  const vevo2R  = vevco2R * 0.88;
+  // Work rate points
+  const wattR = 0;
+  const wattA = wattat || (watt ? watt * (vo2a / vo2peak) : vo2a * 100);
+  const wattPk = watt || vo2peak * 100;
+
+  // Tidal volume
+  const vtR  = vtrest || 0.60;
+  const vtPk = vtpeak || (vepeak / 40);
+  const vtA  = vtR + (vtPk - vtR) * (vo2a / vo2peak);
+
+  // PETCO2 (rest, AT, peak)
+  const petco2A  = petco2 || 38;
+  const petco2R  = petco2A * 0.97;
+  const petco2Pk = petco2peak || petco2A * 0.90;
+
+  // PETO2 (rest, AT, peak) — rises with increasing ventilation/AT
+  const peto2R  = 100;
+  const peto2A  = peto2at  || 102;
+  const peto2Pk = peto2peak || 108;
 
   return {
     vo2r, vco2r, vo2at: vo2a, vco2at: vco2a, vo2pk: vo2peak, vco2pk, rer,
@@ -1144,8 +1255,228 @@ function buildGraphData(params) {
     vePeak: vepeak, mvv, veRest: veR, veAt: veA,
     vevo2Rest: vevo2R, vevo2AT: vevo2A, vevo2Pk,
     vevco2Rest: vevco2R, vevco2AT: vevco2A, vevco2Pk,
-    br
+    br,
+    wattR, wattAT: wattA, wattPeak: wattPk,
+    vtRest: vtR, vtAT: vtA, vtPeak: vtPk,
+    petco2Rest: petco2R, petco2AT: petco2A, petco2Peak: petco2Pk,
+    peto2Rest: peto2R, peto2AT: peto2A, peto2Peak: peto2Pk
   };
+}
+
+// ── Panel 1: VE & VT vs Work Rate ────────────────────────────────
+function graphVEVTvsWR(gd) {
+  const {veRest, veAt, vePeak, vtRest, vtAT, vtPeak, wattR, wattAT, wattPeak, mvv} = gd;
+  const xMax = Math.ceil(wattPeak * 1.15 / 25) * 25;
+  const veMax = Math.ceil(Math.max(vePeak, mvv||vePeak) * 1.12 / 20) * 20;
+  const vtMax = Math.max(vtPeak * 1.35, 2.5);
+
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xMax<=150?25:50,0,veMax,veMax<=60?10:20);
+
+  // MVV ceiling
+  if (mvv && mvv <= veMax) {
+    const mvvY = scY(mvv,0,veMax);
+    o += svgLine(PL,mvvY,PR,mvvY,'#1a2e4a',1.5,'6,3');
+    o += svgText(PR-4,mvvY-4,`MVV=${mvv.toFixed(0)}`,{sz:7.5,c:'#1a2e4a',a:'end'});
+  }
+
+  // VE curve (navy)
+  const vePts = interpPts(wattR,veRest,wattAT,veAt,wattPeak,vePeak,6);
+  o += svgPath(vePts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,veMax)]),'#1a2e4a',2.5);
+  o += svgCircle(scX(wattR,0,xMax),scY(veRest,0,veMax),3,'#1a2e4a');
+  o += svgCircle(scX(wattPeak,0,xMax),scY(vePeak,0,veMax),4,'#1a2e4a');
+
+  // VT curve (teal) — mapped onto VE scale
+  const vtScaleToVE = vt => (vt/vtMax)*veMax;
+  const vtPts = interpPts(wattR,vtScaleToVE(vtRest),wattAT,vtScaleToVE(vtAT),wattPeak,vtScaleToVE(vtPeak),6);
+  o += svgPath(vtPts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,veMax)]),'#0d7a6e',2,'6,3');
+  o += svgCircle(scX(wattPeak,0,xMax),scY(vtScaleToVE(vtPeak),0,veMax),4,'#0d7a6e');
+
+  // Right axis for VT
+  [0,vtMax*0.33,vtMax*0.67,vtMax].forEach(vt=>{
+    const py=scY(vtScaleToVE(vt),0,veMax);
+    o += svgText(PR+5,py+3,vt.toFixed(1),{sz:8,c:'#0d7a6e',a:'start'});
+  });
+  o += svgLine(PR,PT,PR,PB,'#0d7a6e',1,'3,2');
+  o += svgText(PR+14,(PT+PB)/2,'VT (L)',{sz:9,c:'#0d7a6e',rot:90,a:'middle'});
+
+  // AT line
+  const atX=scX(wattAT,0,xMax);
+  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
+
+  o += axisLabels('Work Rate (W)','VE (L/min)');
+  return wrapSVG(o);
+}
+
+// ── Panel 3: VO₂ & VCO₂ vs Work Rate ────────────────────────────
+function graphVO2VCO2vsWR(gd) {
+  const {vo2r,vco2r,vo2at:vo2a,vco2at:vco2a,vo2pk,vco2pk,wattR,wattAT,wattPeak} = gd;
+  const xMax = Math.ceil(wattPeak*1.15/25)*25;
+  const yMax = Math.ceil(Math.max(vo2pk,vco2pk)*1.15*10)/10;
+
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xMax<=150?25:50,0,yMax,yMax<=2?0.5:0.5);
+
+  // VO₂ (navy)
+  const vo2Pts = interpPts(wattR,vo2r,wattAT,vo2a,wattPeak,vo2pk,6);
+  o += svgPath(vo2Pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#1a2e4a',2.5);
+  o += svgCircle(scX(wattAT,0,xMax),scY(vo2a,0,yMax),5,'#b87200');
+  o += svgCircle(scX(wattPeak,0,xMax),scY(vo2pk,0,yMax),4,'#1a2e4a');
+
+  // VCO₂ (teal)
+  const vco2Pts = interpPts(wattR,vco2r,wattAT,vco2a,wattPeak,vco2pk,6);
+  o += svgPath(vco2Pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#0d7a6e',2.5);
+  o += svgCircle(scX(wattPeak,0,xMax),scY(vco2pk,0,yMax),4,'#0d7a6e');
+
+  // Labels on lines
+  const lx = scX(wattPeak*0.45,0,xMax);
+  o += svgText(lx,scY(vo2pk*0.48,0,yMax)-7,'VO₂',{sz:9,c:'#1a2e4a'});
+  o += svgText(lx+12,scY(vco2pk*0.55,0,yMax)+12,'VCO₂',{sz:9,c:'#0d7a6e'});
+
+  // AT line
+  const atX=scX(wattAT,0,xMax);
+  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
+
+  o += axisLabels('Work Rate (W)','VO₂, VCO₂ (L/min)');
+  return wrapSVG(o);
+}
+
+// ── Panel 6: VT vs VE (Breathing Pattern) ───────────────────────
+function graphVTvsVE(gd) {
+  const {veRest,veAt,vePeak,vtRest,vtAT,vtPeak,mvv} = gd;
+  const xMax = Math.ceil(Math.max(vePeak,mvv||vePeak)*1.15/20)*20;
+  const yMax = Math.max(vtPeak*1.35,2.5);
+
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xMax<=80?20:40,0,yMax,yMax<=3?0.5:1);
+
+  // Inspiratory capacity boundary (approximated at vtPeak * 1.08)
+  const icEst = vtPeak * 1.08;
+  const icY = scY(icEst,0,yMax);
+  o += svgLine(PL,icY,PR,icY,'#b87200',1.2,'5,4');
+  o += svgText(PR-4,icY-4,'IC limit',{sz:7.5,c:'#b87200',a:'end'});
+
+  // VT vs VE curve (X=VE, Y=VT)
+  const pts = interpPts(veRest,vtRest,veAt,vtAT,vePeak,vtPeak,6);
+  o += svgPath(pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#0d7a6e',2.5);
+  o += svgCircle(scX(veRest,0,xMax),scY(vtRest,0,yMax),3,'#1a2e4a');
+  o += svgCircle(scX(veAt,0,xMax),scY(vtAT,0,yMax),5,'#b87200');
+  o += svgCircle(scX(vePeak,0,xMax),scY(vtPeak,0,yMax),5,'#b83232');
+
+  // AT annotation
+  o += svgText(scX(veAt,0,xMax)+5,scY(vtAT,0,yMax)-6,'AT',{sz:8,c:'#b87200',a:'start'});
+
+  // MVV vertical line
+  if (mvv && mvv <= xMax) {
+    const mvvX = scX(mvv,0,xMax);
+    o += svgLine(mvvX,PT,mvvX,PB,'#1a2e4a',1.2,'5,3');
+    o += svgText(mvvX,PT-4,'MVV',{sz:8,c:'#1a2e4a'});
+  }
+
+  o += axisLabels('VE (L/min)','VT (L)');
+  return wrapSVG(o);
+}
+
+// ── Panel 7: Work Rate vs VO₂ ────────────────────────────────────
+function graphWRvsVO2(gd) {
+  const {vo2r,vo2at:vo2a,vo2pk,wattR,wattAT,wattPeak} = gd;
+  const xMax = Math.ceil(vo2pk*1.15*10)/10;
+  const yMax = Math.ceil(wattPeak*1.15/25)*25;
+
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xMax<=2?0.5:0.5,0,yMax,yMax<=150?25:50);
+
+  // Expected linearity reference (10 W per 100 mL ~ 100W per L)
+  const refSlope = wattPeak/vo2pk;
+  const refX2 = Math.min(xMax, yMax/refSlope);
+  o += svgPath([[scX(0,0,xMax),scY(0,0,yMax)],[scX(refX2,0,xMax),scY(refX2*refSlope,0,yMax)]],'#c0b4a8',1.5,'6,4');
+
+  // Data curve (purple)
+  const pts = interpPts(vo2r,wattR,vo2a,wattAT,vo2pk,wattPeak,6);
+  o += svgPath(pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#5c3d8f',2.5);
+  o += svgCircle(scX(vo2r,0,xMax),scY(wattR,0,yMax),3,'#1a2e4a');
+  o += svgCircle(scX(vo2a,0,xMax),scY(wattAT,0,yMax),5,'#b87200');
+  o += svgCircle(scX(vo2pk,0,xMax),scY(wattPeak,0,yMax),5,'#5c3d8f');
+
+  // AT line
+  const atX=scX(vo2a,0,xMax);
+  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
+
+  // Efficiency annotation
+  const eff = (wattPeak/vo2pk).toFixed(0);
+  o += svgText((PL+PR)/2,PT+14,`ΔWR/ΔVO₂ ≈ ${eff} W/L`,{sz:8.5,c:'#5c3d8f'});
+
+  o += axisLabels('VO₂ (L/min)','Work Rate (W)');
+  return wrapSVG(o);
+}
+
+// ── Panel 9: PETCO₂ & PETO₂ vs VO₂ ─────────────────────────────
+function graphPETCO2PETO2(gd) {
+  const {vo2r,vo2at:vo2a,vo2pk,petco2Rest,petco2AT,petco2Peak,peto2Rest,peto2AT,peto2Peak} = gd;
+  const xMax = Math.ceil(vo2pk*1.15*10)/10;
+  const co2Min=15,co2Max=55;
+  const o2Min=85, o2Max=130;
+
+  // Map CO2 value → pixel Y (left axis)
+  const mapCO2 = v => PB - ((v-co2Min)/(co2Max-co2Min))*PH;
+  // Map O2 value → pixel Y (right axis, same pixel range)
+  const mapO2  = v => PB - ((v-o2Min)/(o2Max-o2Min))*PH;
+
+  const xStep = xMax<=2?0.5:0.5;
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+
+  // Grid lines (CO2 scale)
+  for(let y=co2Min;y<=co2Max;y+=5){
+    const py=mapCO2(y);
+    if(py>=PT&&py<=PB){ o+=svgLine(PL,py,PR,py,'#e8e0d4',0.8); o+=svgText(PL-5,py+3,y+'',{a:'end',sz:8.5,c:'#b83232'}); }
+  }
+  for(let x=0;x<=xMax+0.001;x+=xStep){
+    const px=scX(x,0,xMax);
+    o+=svgLine(px,PT,px,PB,'#e8e0d4',0.8);
+    o+=svgText(px,PB+13,x<1?x.toFixed(1):Math.round(x)+'',{sz:8.5});
+  }
+  o+=svgLine(PL,PT,PL,PB,'#1a2e4a',1.5);
+  o+=svgLine(PL,PB,PR,PB,'#1a2e4a',1.5);
+
+  // Normal PETCO₂ band (36–42)
+  const y42=mapCO2(42),y36=mapCO2(36);
+  o+=svgRect(PL,y42,PW,y36-y42,'#edf7f2',0.45);
+  o+=svgLine(PL,y42,PR,y42,'#1a6e40',0.8,'3,2');
+  o+=svgLine(PL,y36,PR,y36,'#1a6e40',0.8,'3,2');
+  o+=svgText(PL+4,y42-3,'PETCO₂ normal',{sz:7,c:'#1a6e40',a:'start'});
+
+  // PETCO₂ curve (red)
+  const co2Pts=interpPts(vo2r,petco2Rest,vo2a,petco2AT,vo2pk,petco2Peak,6);
+  o+=svgPath(co2Pts.map(([x,y])=>[scX(x,0,xMax),mapCO2(y)]),'#b83232',2.5);
+  o+=svgCircle(scX(vo2r,0,xMax),mapCO2(petco2Rest),3,'#b83232');
+  o+=svgCircle(scX(vo2a,0,xMax),mapCO2(petco2AT),5,'#b87200');
+  o+=svgCircle(scX(vo2pk,0,xMax),mapCO2(petco2Peak),4,'#b83232');
+
+  // PETO₂ curve (navy dashed)
+  const o2Pts=interpPts(vo2r,peto2Rest,vo2a,peto2AT,vo2pk,peto2Peak,6);
+  o+=svgPath(o2Pts.map(([x,y])=>[scX(x,0,xMax),mapO2(y)]),'#1a2e4a',2,'6,3');
+  o+=svgCircle(scX(vo2r,0,xMax),mapO2(peto2Rest),3,'#1a2e4a');
+  o+=svgCircle(scX(vo2a,0,xMax),mapO2(peto2AT),5,'#b87200');
+  o+=svgCircle(scX(vo2pk,0,xMax),mapO2(peto2Peak),4,'#1a2e4a');
+
+  // Right axis (PETO₂)
+  [90,95,100,105,110,115,120,125].filter(v=>v<=o2Max&&mapO2(v)>=PT&&mapO2(v)<=PB).forEach(v=>{
+    const py=mapO2(v);
+    o+=svgText(PR+5,py+3,v+'',{sz:8,c:'#1a2e4a',a:'start'});
+  });
+  o+=svgLine(PR,PT,PR,PB,'#1a2e4a',1,'3,2');
+  o+=svgText(PR+14,(PT+PB)/2,'PETO₂ (mmHg)',{sz:9,c:'#1a2e4a',rot:90,a:'middle'});
+
+  // AT line
+  const atX=scX(vo2a,0,xMax);
+  o+=svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o+=svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
+
+  o+=axisLabels('VO₂ (L/min)','PETCO₂ (mmHg)');
+  return wrapSVG(o);
 }
 </script>
 </body>
