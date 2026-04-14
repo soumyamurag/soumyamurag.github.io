@@ -817,7 +817,7 @@ function analyze() {
     const graphData = buildGraphData({
       age, wt, vo2peak, vo2at, hrpeak, hrRest: hrrest, vepeak, mvv,
       verest, rer, vevco2at, predVO2_mL, predHR, predO2pulse, o2pulse, br,
-      watt, petco2,
+      watt, petco2, fvc, spo2rest, spo2peak, predVO2_L,
       vtrest: v('vtrest'), vtpeak: v('vtpeak'), wattat: v('wattat'),
       petco2peak: v('petco2peak'), peto2at: v('peto2at'), peto2peak: v('peto2peak')
     });
@@ -1178,105 +1178,91 @@ function graphVentEquiv(gd){
   return wrapSVG(o);
 }
 
-// ── Graph 4: Breathing Reserve (Ventilatory Ceiling) ────────────
-function graphBreathingReserve(gd){
-  const {mvv,vePeak,br,vo2r,vo2at,vo2pk,veRest,veAt} = gd;
-  if(!mvv||!vePeak) return '<div style="padding:20px;color:#a0a0a0;font-size:13px;">MVV and Peak VE required</div>';
+// ── Panel H: SpO₂ vs VO₂ ─────────────────────────────────────────
+function graphSpO2vsVO2(gd) {
+  const {vo2r, vo2at:vo2a, vo2pk, spo2Rest, spo2AT, spo2Peak} = gd;
+  if (!spo2Peak && !spo2Rest) return '<div style="padding:20px;color:#a0a0a0;font-size:13px;text-align:center;">Enter SpO₂ rest/peak to view oxygenation panel.</div>';
 
-  // Draw a simple bar chart showing MVV vs Peak VE
-  // Also show VE progression: rest → AT → peak
-  const viewW=380, viewH=240;
-  const barL=60, barR=340, barTop=30, barBot=180;
-  const bh=barBot-barTop;
+  const spo2R  = spo2Rest  || 97;
+  const spo2Pk = spo2Peak  || 96;
+  const spo2A  = spo2AT    || (spo2R + spo2Pk) / 2;
+  const xMax   = Math.ceil(vo2pk * 1.15 * 10) / 10;
+  const yMin   = Math.max(Math.floor((Math.min(spo2Pk, 88) - 3) / 5) * 5, 75);
+  const yMax   = 101;
+  const yRange = yMax - yMin;
+  const yStep  = yRange <= 20 ? 2 : 5;
 
-  // Scale: 0 to MVV*1.15
-  const yMax = mvv*1.12;
-  const scYb = (y) => barBot - (y/yMax)*bh;
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xMax<=2?0.5:0.5,yMin,yMax,yStep);
 
-  let o = `<svg viewBox="0 0 ${viewW} ${viewH}" style="width:100%;display:block;background:#faf7f2;" font-family="Inter,sans-serif">`;
+  // Normal fill above 95%
+  const y95 = scY(95,yMin,yMax);
+  o += svgRect(PL,PT,PW,y95-PT,'#edf7f2',0.4);
 
-  // Background
-  o += `<rect x="${barL}" y="${barTop}" width="${barR-barL}" height="${bh}" fill="#f0ebe2"/>`;
+  // 95% reference
+  o += svgLine(PL,y95,PR,y95,'#b87200',1,'4,3');
+  o += svgText(PR-2,y95-3,'95%',{sz:7.5,c:'#b87200',a:'end'});
 
-  // Draw 3 bars: Rest VE, AT VE, Peak VE
-  const bars = [
-    {x:90, w:50, val:veRest, label:'Rest VE', color:'#0d7a6e'},
-    {x:175, w:50, val:veAt, label:'AT VE', color:'#b87200'},
-    {x:260, w:50, val:vePeak, label:'Peak VE', color:'#b83232'},
-  ];
-  bars.forEach(b=>{
-    if(!b.val) return;
-    const bY = scYb(b.val);
-    const bH = barBot - bY;
-    o += `<rect x="${b.x}" y="${bY.toFixed(1)}" width="${b.w}" height="${bH.toFixed(1)}" fill="${b.color}" opacity="0.8" rx="2"/>`;
-    o += `<text x="${b.x+b.w/2}" y="${bY-5}" text-anchor="middle" font-size="9" fill="${b.color}">${b.val.toFixed(0)}</text>`;
-    o += `<text x="${b.x+b.w/2}" y="${barBot+14}" text-anchor="middle" font-size="9" fill="#6b5e52">${b.label}</text>`;
-  });
+  // 90% reference (if in range)
+  if (yMin <= 90) {
+    const y90 = scY(90,yMin,yMax);
+    o += svgLine(PL,y90,PR,y90,'#b83232',1,'4,3');
+    o += svgText(PR-2,y90-3,'90%',{sz:7.5,c:'#b83232',a:'end'});
+  }
 
-  // MVV line
-  const mvvY = scYb(mvv);
-  o += `<line x1="${barL}" y1="${mvvY.toFixed(1)}" x2="${barR}" y2="${mvvY.toFixed(1)}" stroke="#1a2e4a" stroke-width="2" stroke-dasharray="6,3"/>`;
-  o += `<text x="${barR-4}" y="${mvvY-4}" text-anchor="end" font-size="9" fill="#1a2e4a" font-weight="bold">MVV = ${mvv.toFixed(0)} L/min</text>`;
+  // SpO₂ curve
+  const lineColor = spo2Pk < 90 ? '#b83232' : spo2Pk < 95 ? '#b87200' : '#1a6e40';
+  const pts = interpPts(vo2r,spo2R,vo2a,spo2A,vo2pk,spo2Pk,6);
+  o += svgPath(pts.map(([x,y])=>[scX(x,0,xMax),scY(y,yMin,yMax)]),lineColor,2.5);
+  o += svgCircle(scX(vo2r,0,xMax),scY(spo2R,yMin,yMax),3,'#1a2e4a');
+  o += svgCircle(scX(vo2a,0,xMax),scY(spo2A,yMin,yMax),5,'#b87200');
+  o += svgCircle(scX(vo2pk,0,xMax),scY(spo2Pk,yMin,yMax),5,lineColor);
 
-  // BR annotation on Peak VE bar
-  const peakBar = bars[2];
-  const peakY = scYb(vePeak);
-  o += `<rect x="${peakBar.x}" y="${mvvY.toFixed(1)}" width="${peakBar.w}" height="${(peakY-mvvY).toFixed(1)}" fill="#1a2e4a" opacity="0.12" rx="2"/>`;
-  const brColor = br<15?'#b83232':br<30?'#b87200':'#1a6e40';
-  o += `<text x="${peakBar.x+peakBar.w/2}" y="${(mvvY+(peakY-mvvY)/2+4).toFixed(1)}" text-anchor="middle" font-size="9" fill="${brColor}" font-weight="bold">BR=${br.toFixed(0)}%</text>`;
+  // AT line
+  const atX=scX(vo2a,0,xMax);
+  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
 
-  // Y axis
-  o += `<line x1="${barL}" y1="${barTop}" x2="${barL}" y2="${barBot}" stroke="#1a2e4a" stroke-width="1.5"/>`;
-  o += `<line x1="${barL}" y1="${barBot}" x2="${barR}" y2="${barBot}" stroke="#1a2e4a" stroke-width="1.5"/>`;
+  // Peak annotation
+  o += svgText(scX(vo2pk,0,xMax)+5,scY(spo2Pk,yMin,yMax)+3,`${spo2Pk.toFixed(0)}%`,{sz:8,c:lineColor,a:'start'});
 
-  // Y ticks
-  [0,20,40,60,80,100,120,140].filter(t=>t<=yMax).forEach(t=>{
-    const py = scYb(t);
-    o += `<line x1="${barL}" y1="${py.toFixed(1)}" x2="${barL-4}" y2="${py.toFixed(1)}" stroke="#1a2e4a" stroke-width="1"/>`;
-    o += `<text x="${barL-7}" y="${(py+3).toFixed(1)}" text-anchor="end" font-size="8.5" fill="#4a3a2a">${t}</text>`;
-  });
-  o += `<text x="14" y="${((barTop+barBot)/2).toFixed(1)}" text-anchor="middle" font-size="10" fill="#1a2e4a" transform="rotate(-90 14 ${((barTop+barBot)/2).toFixed(1)})">VE (L/min)</text>`;
-
-  // BR status
-  const brMsg = br<15?'⚠ Ventilatory Limitation':br<30?'⚠ Reduced Reserve':'✓ Reserve Adequate';
-  o += `<text x="${(barL+barR)/2}" y="${viewH-8}" text-anchor="middle" font-size="10" fill="${brColor}" font-weight="bold">${brMsg}</text>`;
-
-  o += '</svg>';
-  return o;
+  o += axisLabels('VO₂ (L/min)','SpO₂ (%)');
+  return wrapSVG(o);
 }
 
 function renderGraphs(gd) {
-  const p1 = graphVEVTvsWR(gd);
-  const p2 = graphHRO2Pulse(gd);
-  const p3 = graphVO2VCO2vsWR(gd);
-  const p4 = graphVentEquiv(gd);
-  const p5 = graphVSlope(gd);
-  const p6 = graphVTvsVE(gd);
-  const p7 = graphWRvsVO2(gd);
-  const p8 = graphBreathingReserve(gd);
-  const p9 = graphPETCO2PETO2(gd);
+  // True Wasserman 9-panel layout (Reddy/Wasserman arrangement)
+  const pA = graphVO2vsWR(gd);       // A: VO₂ vs Work Rate
+  const pB = graphHRO2Pulse(gd);     // B: HR & O₂ Pulse vs VO₂
+  const pC = graphVSlope(gd);        // C: VCO₂ vs VO₂ (V-slope)
+  const pD = graphVEvsVCO2(gd);      // D: VE vs VCO₂ (slope panel)
+  const pE = graphVTvsVO2(gd);       // E: VT vs VO₂
+  const pF = graphVentEquiv(gd);     // F: VE/VO₂ & VE/VCO₂ vs VO₂
+  const pG = graphVEvsVO2(gd);       // G: VE vs VO₂
+  const pH = graphSpO2vsVO2(gd);     // H: SpO₂ vs VO₂
+  const pI = graphPETCO2PETO2(gd);   // I: PETCO₂ & PETO₂ vs VO₂
 
   return `<div class="graphs-section">
     <div class="graphs-hdr">
       <span class="graphs-hdr-label">📈 Wasserman 9-Panel Graphical Analysis</span>
-      <span class="graphs-hdr-note">Schematic plots from entered values — illustrates key diagnostic patterns. ● amber = AT, ● red = peak.</span>
+      <span class="graphs-hdr-note">Schematic plots — Wasserman layout. ● amber = AT, ● red = peak.</span>
     </div>
     <div class="graphs-grid">
 
       <div class="graph-panel">
-        <div class="graph-title">1 — VE &amp; VT vs Work Rate</div>
-        <div class="graph-subtitle">Ventilatory response to exercise. VT rises until IC limit; then RR increases.</div>
-        ${p1}
+        <div class="graph-title">A — VO₂ vs Work Rate</div>
+        <div class="graph-subtitle">Aerobic capacity. VO₂ should rise linearly ~10 mL/min/W. Flattening = anaerobic threshold exceeded.</div>
+        ${pA}
         <div class="graph-legend">
-          <div class="legend-item"><div class="legend-line" style="background:#1a2e4a"></div>VE</div>
-          <div class="legend-item"><div class="legend-dash" style="border-color:#0d7a6e"></div>VT (right axis)</div>
+          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>VO₂</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#b83232"></div>Max Pred VO₂</div>
         </div>
       </div>
 
       <div class="graph-panel">
-        <div class="graph-title">2 — HR &amp; O₂ Pulse vs VO₂</div>
-        <div class="graph-subtitle">Cardiovascular response. Flat O₂ pulse = stroke volume plateau (cardiac pattern).</div>
-        ${p2}
+        <div class="graph-title">B — HR &amp; O₂ Pulse vs VO₂</div>
+        <div class="graph-subtitle">Cardiovascular response. Flat O₂ pulse = stroke volume plateau (cardiac limitation).</div>
+        ${pB}
         <div class="graph-legend">
           <div class="legend-item"><div class="legend-line" style="background:#b83232"></div>HR</div>
           <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>O₂ Pulse</div>
@@ -1285,29 +1271,9 @@ function renderGraphs(gd) {
       </div>
 
       <div class="graph-panel">
-        <div class="graph-title">3 — VO₂ &amp; VCO₂ vs Work Rate</div>
-        <div class="graph-subtitle">Metabolic response. VCO₂ rises steeply after AT as lactate is buffered.</div>
-        ${p3}
-        <div class="graph-legend">
-          <div class="legend-item"><div class="legend-line" style="background:#1a2e4a"></div>VO₂</div>
-          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>VCO₂</div>
-        </div>
-      </div>
-
-      <div class="graph-panel">
-        <div class="graph-title">4 — VE/VO₂ &amp; VE/VCO₂ vs VO₂</div>
-        <div class="graph-subtitle">AT = VE/VO₂ rises while VE/VCO₂ still at nadir. Elevated VE/VCO₂ = dead space.</div>
-        ${p4}
-        <div class="graph-legend">
-          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>VE/VCO₂</div>
-          <div class="legend-item"><div class="legend-dash" style="border-color:#1a2e4a"></div>VE/VO₂</div>
-        </div>
-      </div>
-
-      <div class="graph-panel">
-        <div class="graph-title">5 — V-Slope (VCO₂ vs VO₂)</div>
-        <div class="graph-subtitle">Slope steepens above AT as buffered lactate drives extra CO₂ production.</div>
-        ${p5}
+        <div class="graph-title">C — V-Slope (VCO₂ vs VO₂)</div>
+        <div class="graph-subtitle">Slope steepens above AT as buffered lactate drives excess CO₂ production.</div>
+        ${pC}
         <div class="graph-legend">
           <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>V-slope</div>
           <div class="legend-item"><div class="legend-dash" style="border-color:#c0b4a8"></div>1:1 identity</div>
@@ -1315,35 +1281,60 @@ function renderGraphs(gd) {
       </div>
 
       <div class="graph-panel">
-        <div class="graph-title">6 — VT vs VE (Breathing Pattern)</div>
-        <div class="graph-subtitle">VT rises until IC limit, then RR takes over. In COPD, VT plateau is low and early.</div>
-        ${p6}
+        <div class="graph-title">D — VE vs VCO₂ (Ventilatory Slope)</div>
+        <div class="graph-subtitle">Spe = slope below AT. MVV ceiling shown. Elevated slope = dead space (PVD, HF, ILD).</div>
+        ${pD}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#5c3d8f"></div>VE vs VCO₂</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#1a2e4a"></div>MVV ceiling</div>
+        </div>
+      </div>
+
+      <div class="graph-panel">
+        <div class="graph-title">E — VT vs VO₂</div>
+        <div class="graph-subtitle">Tidal volume recruitment with increasing aerobic demand. VC reference shown.</div>
+        ${pE}
         <div class="graph-legend">
           <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>Tidal Volume</div>
-          <div class="legend-item"><div class="legend-dash" style="border-color:#b87200"></div>IC limit</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#b87200"></div>VC ceiling</div>
         </div>
       </div>
 
       <div class="graph-panel">
-        <div class="graph-title">7 — Work Rate vs VO₂</div>
-        <div class="graph-subtitle">Should be linear (~10W per 100 mL VO₂). Deviation suggests early anaerobiosis.</div>
-        ${p7}
+        <div class="graph-title">F — VE/VO₂ &amp; VE/VCO₂ vs VO₂</div>
+        <div class="graph-subtitle">AT = VE/VO₂ rises while VE/VCO₂ still at nadir. Elevated VE/VCO₂ = dead space.</div>
+        ${pF}
         <div class="graph-legend">
-          <div class="legend-item"><div class="legend-line" style="background:#5c3d8f"></div>WR vs VO₂</div>
-          <div class="legend-item"><div class="legend-dash" style="border-color:#c0b4a8"></div>Expected slope</div>
+          <div class="legend-item"><div class="legend-line" style="background:#0d7a6e"></div>VE/VCO₂</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#1a2e4a"></div>VE/VO₂</div>
         </div>
       </div>
 
       <div class="graph-panel">
-        <div class="graph-title">8 — Breathing Reserve</div>
-        <div class="graph-subtitle">Peak VE relative to MVV ceiling. BR &lt;15% defines ventilatory limitation.</div>
-        ${p8}
+        <div class="graph-title">G — VE vs VO₂</div>
+        <div class="graph-subtitle">Ventilation vs oxygen uptake. MVV ceiling shows remaining ventilatory reserve at peak.</div>
+        ${pG}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#1a2e4a"></div>VE</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#1a2e4a"></div>MVV ceiling</div>
+        </div>
       </div>
 
       <div class="graph-panel">
-        <div class="graph-title">9 — PETCO₂ &amp; PETO₂ vs VO₂</div>
-        <div class="graph-subtitle">PETCO₂ rises then falls at AT; PETO₂ rises sharply at AT. Used to identify AT non-invasively.</div>
-        ${p9}
+        <div class="graph-title">H — SpO₂ vs VO₂</div>
+        <div class="graph-subtitle">Gas exchange adequacy. Drop ≥4% or nadir &lt;90% = exercise-induced arterial desaturation.</div>
+        ${pH}
+        <div class="graph-legend">
+          <div class="legend-item"><div class="legend-line" style="background:#1a6e40"></div>SpO₂</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#b87200"></div>95% reference</div>
+          <div class="legend-item"><div class="legend-dash" style="border-color:#b83232"></div>90% reference</div>
+        </div>
+      </div>
+
+      <div class="graph-panel">
+        <div class="graph-title">I — PETCO₂ &amp; PETO₂ vs VO₂</div>
+        <div class="graph-subtitle">PETCO₂ rises then falls at AT; PETO₂ rises sharply at AT. Non-invasive AT detection.</div>
+        ${pI}
         <div class="graph-legend">
           <div class="legend-item"><div class="legend-line" style="background:#b83232"></div>PETCO₂</div>
           <div class="legend-item"><div class="legend-dash" style="border-color:#1a2e4a"></div>PETO₂ (right axis)</div>
@@ -1358,7 +1349,8 @@ function renderGraphs(gd) {
 function buildGraphData(params) {
   const { age, wt, vo2peak, vo2at, hrpeak, hrRest, vepeak, mvv, verest, rer,
           vevco2at, predVO2_mL, predHR, predO2pulse, o2pulse, br,
-          watt, petco2, vtrest, vtpeak, wattat, petco2peak, peto2at, peto2peak } = params;
+          watt, petco2, fvc, spo2rest, spo2peak, predVO2_L,
+          vtrest, vtpeak, wattat, petco2peak, peto2at, peto2peak } = params;
 
   // Rest estimates
   const vo2r  = wt ? wt*3.5/1000 : 0.25;
@@ -1406,6 +1398,11 @@ function buildGraphData(params) {
   const peto2A  = peto2at  || 102;
   const peto2Pk = peto2peak || 108;
 
+  // SpO₂ (rest, AT, peak)
+  const spo2R  = spo2rest || null;
+  const spo2Pk = spo2peak || null;
+  const spo2A  = (spo2R && spo2Pk) ? spo2R + (spo2Pk - spo2R) * (vo2a / vo2peak) : null;
+
   return {
     vo2r, vco2r, vo2at: vo2a, vco2at: vco2a, vo2pk: vo2peak, vco2pk, rer,
     hrRest: hrR, hrAT: hrA, hrPeak: hrpeak, predHR, predO2pulse,
@@ -1413,161 +1410,149 @@ function buildGraphData(params) {
     vePeak: vepeak, mvv, veRest: veR, veAt: veA,
     vevo2Rest: vevo2R, vevo2AT: vevo2A, vevo2Pk,
     vevco2Rest: vevco2R, vevco2AT: vevco2A, vevco2Pk,
-    br,
+    br, fvc, predVO2: predVO2_L,
     wattR, wattAT: wattA, wattPeak: wattPk,
     vtRest: vtR, vtAT: vtA, vtPeak: vtPk,
     petco2Rest: petco2R, petco2AT: petco2A, petco2Peak: petco2Pk,
-    peto2Rest: peto2R, peto2AT: peto2A, peto2Peak: peto2Pk
+    peto2Rest: peto2R, peto2AT: peto2A, peto2Peak: peto2Pk,
+    spo2Rest: spo2R, spo2AT: spo2A, spo2Peak: spo2Pk
   };
 }
 
-// ── Panel 1: VE & VT vs Work Rate ────────────────────────────────
-function graphVEVTvsWR(gd) {
-  const {veRest, veAt, vePeak, vtRest, vtAT, vtPeak, wattR, wattAT, wattPeak, mvv} = gd;
+// ── Panel A: VO₂ vs Work Rate ─────────────────────────────────────
+function graphVO2vsWR(gd) {
+  const {vo2r, vo2at:vo2a, vo2pk, wattR, wattAT, wattPeak, predVO2} = gd;
   const xMax = Math.ceil(wattPeak * 1.15 / 25) * 25;
-  const veMax = Math.ceil(Math.max(vePeak, mvv||vePeak) * 1.12 / 20) * 20;
-  const vtMax = Math.max(vtPeak * 1.35, 2.5);
+  const yMax = Math.ceil(Math.max(vo2pk, predVO2||vo2pk) * 1.25 * 10) / 10;
+  const yStep = yMax <= 2 ? 0.5 : yMax <= 4 ? 0.5 : 1;
 
   let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
-  o += drawGrid(0,xMax,xMax<=150?25:50,0,veMax,veMax<=60?10:20);
+  o += drawGrid(0,xMax,xMax<=150?25:50,0,yMax,yStep);
+
+  // Max predicted VO₂ dashed line
+  if (predVO2 && predVO2 > 0) {
+    const predY = scY(Math.min(predVO2, yMax),0,yMax);
+    o += svgLine(PL,predY,PR,predY,'#b83232',1.2,'5,3');
+    o += svgText(PR-4,predY-4,'Max Pred VO₂',{sz:7.5,c:'#b83232',a:'end'});
+  }
+
+  // VO₂ vs WR curve (teal)
+  const pts = interpPts(wattR,vo2r,wattAT,vo2a,wattPeak,vo2pk,6);
+  o += svgPath(pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#0d7a6e',2.5);
+  o += svgCircle(scX(wattR,0,xMax),scY(vo2r,0,yMax),3,'#1a2e4a');
+  o += svgCircle(scX(wattAT,0,xMax),scY(vo2a,0,yMax),5,'#b87200');
+  o += svgCircle(scX(wattPeak,0,xMax),scY(vo2pk,0,yMax),5,'#b83232');
+
+  // AT line
+  const atX=scX(wattAT,0,xMax);
+  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
+
+  o += axisLabels('Work Rate (W)','VO₂ (L/min)');
+  return wrapSVG(o);
+}
+
+// ── Panel D: VE vs VCO₂ (VE/VCO₂ slope panel) ───────────────────
+function graphVEvsVCO2(gd) {
+  const {vco2r, vco2at:vco2a, vco2pk, veRest, veAt, vePeak, mvv, vevco2AT} = gd;
+  const xMax = Math.ceil(vco2pk * 1.15 * 10) / 10;
+  const yMax = Math.ceil(Math.max(vePeak, mvv||vePeak) * 1.12 / 20) * 20;
+
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xMax<=2?0.5:0.5,0,yMax,yMax<=60?10:20);
 
   // MVV ceiling
-  if (mvv && mvv <= veMax) {
-    const mvvY = scY(mvv,0,veMax);
+  if (mvv) {
+    const mvvY = scY(Math.min(mvv,yMax),0,yMax);
     o += svgLine(PL,mvvY,PR,mvvY,'#1a2e4a',1.5,'6,3');
     o += svgText(PR-4,mvvY-4,`MVV=${mvv.toFixed(0)}`,{sz:7.5,c:'#1a2e4a',a:'end'});
   }
 
-  // VE curve (navy)
-  const vePts = interpPts(wattR,veRest,wattAT,veAt,wattPeak,vePeak,6);
-  o += svgPath(vePts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,veMax)]),'#1a2e4a',2.5);
-  o += svgCircle(scX(wattR,0,xMax),scY(veRest,0,veMax),3,'#1a2e4a');
-  o += svgCircle(scX(wattPeak,0,xMax),scY(vePeak,0,veMax),4,'#1a2e4a');
+  // VE vs VCO₂ curve (purple)
+  const pts = interpPts(vco2r,veRest,vco2a,veAt,vco2pk,vePeak,6);
+  o += svgPath(pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#5c3d8f',2.5);
+  o += svgCircle(scX(vco2r,0,xMax),scY(veRest,0,yMax),3,'#1a2e4a');
+  o += svgCircle(scX(vco2a,0,xMax),scY(veAt,0,yMax),5,'#b87200');
+  o += svgCircle(scX(vco2pk,0,xMax),scY(vePeak,0,yMax),5,'#5c3d8f');
 
-  // VT curve (teal) — mapped onto VE scale
-  const vtScaleToVE = vt => (vt/vtMax)*veMax;
-  const vtPts = interpPts(wattR,vtScaleToVE(vtRest),wattAT,vtScaleToVE(vtAT),wattPeak,vtScaleToVE(vtPeak),6);
-  o += svgPath(vtPts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,veMax)]),'#0d7a6e',2,'6,3');
-  o += svgCircle(scX(wattPeak,0,xMax),scY(vtScaleToVE(vtPeak),0,veMax),4,'#0d7a6e');
+  // Slope reference line from origin through AT point
+  const spe = vevco2AT || Math.round(veAt / Math.max(vco2a,0.01));
+  const refX2 = Math.min(xMax, yMax/spe);
+  o += svgPath([[scX(0,0,xMax),scY(0,0,yMax)],[scX(refX2,0,xMax),scY(refX2*spe,0,yMax)]],'#c0b4a8',1.2,'4,3');
 
-  // Right axis for VT
-  [0,vtMax*0.33,vtMax*0.67,vtMax].forEach(vt=>{
-    const py=scY(vtScaleToVE(vt),0,veMax);
-    o += svgText(PR+5,py+3,vt.toFixed(1),{sz:8,c:'#0d7a6e',a:'start'});
-  });
-  o += svgLine(PR,PT,PR,PB,'#0d7a6e',1,'3,2');
-  o += svgText(PR+14,(PT+PB)/2,'VT (L)',{sz:9,c:'#0d7a6e',rot:90,a:'middle'});
-
-  // AT line
-  const atX=scX(wattAT,0,xMax);
-  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
-  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
-
-  o += axisLabels('Work Rate (W)','VE (L/min)');
-  return wrapSVG(o);
-}
-
-// ── Panel 3: VO₂ & VCO₂ vs Work Rate ────────────────────────────
-function graphVO2VCO2vsWR(gd) {
-  const {vo2r,vco2r,vo2at:vo2a,vco2at:vco2a,vo2pk,vco2pk,wattR,wattAT,wattPeak} = gd;
-  const xMax = Math.ceil(wattPeak*1.15/25)*25;
-  const yMax = Math.ceil(Math.max(vo2pk,vco2pk)*1.15*10)/10;
-
-  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
-  o += drawGrid(0,xMax,xMax<=150?25:50,0,yMax,yMax<=2?0.5:0.5);
-
-  // VO₂ (navy)
-  const vo2Pts = interpPts(wattR,vo2r,wattAT,vo2a,wattPeak,vo2pk,6);
-  o += svgPath(vo2Pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#1a2e4a',2.5);
-  o += svgCircle(scX(wattAT,0,xMax),scY(vo2a,0,yMax),5,'#b87200');
-  o += svgCircle(scX(wattPeak,0,xMax),scY(vo2pk,0,yMax),4,'#1a2e4a');
-
-  // VCO₂ (teal)
-  const vco2Pts = interpPts(wattR,vco2r,wattAT,vco2a,wattPeak,vco2pk,6);
-  o += svgPath(vco2Pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#0d7a6e',2.5);
-  o += svgCircle(scX(wattPeak,0,xMax),scY(vco2pk,0,yMax),4,'#0d7a6e');
-
-  // Labels on lines
-  const lx = scX(wattPeak*0.45,0,xMax);
-  o += svgText(lx,scY(vo2pk*0.48,0,yMax)-7,'VO₂',{sz:9,c:'#1a2e4a'});
-  o += svgText(lx+12,scY(vco2pk*0.55,0,yMax)+12,'VCO₂',{sz:9,c:'#0d7a6e'});
-
-  // AT line
-  const atX=scX(wattAT,0,xMax);
-  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
-  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
-
-  o += axisLabels('Work Rate (W)','VO₂, VCO₂ (L/min)');
-  return wrapSVG(o);
-}
-
-// ── Panel 6: VT vs VE (Breathing Pattern) ───────────────────────
-function graphVTvsVE(gd) {
-  const {veRest,veAt,vePeak,vtRest,vtAT,vtPeak,mvv} = gd;
-  const xMax = Math.ceil(Math.max(vePeak,mvv||vePeak)*1.15/20)*20;
-  const yMax = Math.max(vtPeak*1.35,2.5);
-
-  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
-  o += drawGrid(0,xMax,xMax<=80?20:40,0,yMax,yMax<=3?0.5:1);
-
-  // Inspiratory capacity boundary (approximated at vtPeak * 1.08)
-  const icEst = vtPeak * 1.08;
-  const icY = scY(icEst,0,yMax);
-  o += svgLine(PL,icY,PR,icY,'#b87200',1.2,'5,4');
-  o += svgText(PR-4,icY-4,'IC limit',{sz:7.5,c:'#b87200',a:'end'});
-
-  // VT vs VE curve (X=VE, Y=VT)
-  const pts = interpPts(veRest,vtRest,veAt,vtAT,vePeak,vtPeak,6);
-  o += svgPath(pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#0d7a6e',2.5);
-  o += svgCircle(scX(veRest,0,xMax),scY(vtRest,0,yMax),3,'#1a2e4a');
-  o += svgCircle(scX(veAt,0,xMax),scY(vtAT,0,yMax),5,'#b87200');
-  o += svgCircle(scX(vePeak,0,xMax),scY(vtPeak,0,yMax),5,'#b83232');
+  // Slope annotation
+  o += svgText((PL+PR)*0.55,PT+16,`Spe=${spe.toFixed(0)}`,{sz:9.5,c:'#5c3d8f',b:true});
 
   // AT annotation
-  o += svgText(scX(veAt,0,xMax)+5,scY(vtAT,0,yMax)-6,'AT',{sz:8,c:'#b87200',a:'start'});
+  const atPx = scX(vco2a,0,xMax);
+  o += svgLine(atPx,PT,atPx,PB,'#b87200',1,'4,3');
 
-  // MVV vertical line
-  if (mvv && mvv <= xMax) {
-    const mvvX = scX(mvv,0,xMax);
-    o += svgLine(mvvX,PT,mvvX,PB,'#1a2e4a',1.2,'5,3');
-    o += svgText(mvvX,PT-4,'MVV',{sz:8,c:'#1a2e4a'});
-  }
-
-  o += axisLabels('VE (L/min)','VT (L)');
+  o += axisLabels('VCO₂ (L/min)','VE (L/min)');
   return wrapSVG(o);
 }
 
-// ── Panel 7: Work Rate vs VO₂ ────────────────────────────────────
-function graphWRvsVO2(gd) {
-  const {vo2r,vo2at:vo2a,vo2pk,wattR,wattAT,wattPeak} = gd;
-  const xMax = Math.ceil(vo2pk*1.15*10)/10;
-  const yMax = Math.ceil(wattPeak*1.15/25)*25;
+// ── Panel E: VT vs VO₂ ───────────────────────────────────────────
+function graphVTvsVO2(gd) {
+  const {vo2r, vo2at:vo2a, vo2pk, vtRest, vtAT, vtPeak, fvc} = gd;
+  const xMax = Math.ceil(vo2pk * 1.15 * 10) / 10;
+  const yMax = Math.max(vtPeak * 1.45, fvc ? fvc * 0.85 : 2.5, 2.5);
+  const yStep = yMax <= 3 ? 0.5 : 1;
 
   let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
-  o += drawGrid(0,xMax,xMax<=2?0.5:0.5,0,yMax,yMax<=150?25:50);
+  o += drawGrid(0,xMax,xMax<=2?0.5:0.5,0,yMax,yStep);
 
-  // Expected linearity reference (10 W per 100 mL ~ 100W per L)
-  const refSlope = wattPeak/vo2pk;
-  const refX2 = Math.min(xMax, yMax/refSlope);
-  o += svgPath([[scX(0,0,xMax),scY(0,0,yMax)],[scX(refX2,0,xMax),scY(refX2*refSlope,0,yMax)]],'#c0b4a8',1.5,'6,4');
+  // VC (FVC) ceiling line
+  if (fvc && fvc <= yMax) {
+    const vcY = scY(fvc,0,yMax);
+    o += svgLine(PL,vcY,PR,vcY,'#b87200',1.2,'5,4');
+    o += svgText(PR-4,vcY-4,`VC=${fvc.toFixed(1)}L`,{sz:7.5,c:'#b87200',a:'end'});
+  }
 
-  // Data curve (purple)
-  const pts = interpPts(vo2r,wattR,vo2a,wattAT,vo2pk,wattPeak,6);
-  o += svgPath(pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#5c3d8f',2.5);
-  o += svgCircle(scX(vo2r,0,xMax),scY(wattR,0,yMax),3,'#1a2e4a');
-  o += svgCircle(scX(vo2a,0,xMax),scY(wattAT,0,yMax),5,'#b87200');
-  o += svgCircle(scX(vo2pk,0,xMax),scY(wattPeak,0,yMax),5,'#5c3d8f');
+  // VT vs VO₂ curve (teal)
+  const pts = interpPts(vo2r,vtRest,vo2a,vtAT,vo2pk,vtPeak,6);
+  o += svgPath(pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#0d7a6e',2.5);
+  o += svgCircle(scX(vo2r,0,xMax),scY(vtRest,0,yMax),3,'#1a2e4a');
+  o += svgCircle(scX(vo2a,0,xMax),scY(vtAT,0,yMax),5,'#b87200');
+  o += svgCircle(scX(vo2pk,0,xMax),scY(vtPeak,0,yMax),5,'#b83232');
 
   // AT line
   const atX=scX(vo2a,0,xMax);
   o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
   o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
 
-  // Efficiency annotation
-  const eff = (wattPeak/vo2pk).toFixed(0);
-  o += svgText((PL+PR)/2,PT+14,`ΔWR/ΔVO₂ ≈ ${eff} W/L`,{sz:8.5,c:'#5c3d8f'});
+  o += axisLabels('VO₂ (L/min)','VT (L)');
+  return wrapSVG(o);
+}
 
-  o += axisLabels('VO₂ (L/min)','Work Rate (W)');
+// ── Panel G: VE vs VO₂ (with MVV ceiling) ────────────────────────
+function graphVEvsVO2(gd) {
+  const {vo2r, vo2at:vo2a, vo2pk, veRest, veAt, vePeak, mvv} = gd;
+  const xMax = Math.ceil(vo2pk * 1.15 * 10) / 10;
+  const yMax = Math.ceil(Math.max(vePeak, mvv||vePeak) * 1.12 / 20) * 20;
+
+  let o = svgRect(PL,PT,PW,PH,'#f8f4ee');
+  o += drawGrid(0,xMax,xMax<=2?0.5:0.5,0,yMax,yMax<=60?10:20);
+
+  // MVV ceiling
+  if (mvv) {
+    const mvvY = scY(Math.min(mvv,yMax),0,yMax);
+    o += svgLine(PL,mvvY,PR,mvvY,'#1a2e4a',1.5,'6,3');
+    o += svgText(PR-4,mvvY-4,`MVV=${mvv.toFixed(0)}`,{sz:7.5,c:'#1a2e4a',a:'end'});
+  }
+
+  // VE vs VO₂ curve (navy)
+  const pts = interpPts(vo2r,veRest,vo2a,veAt,vo2pk,vePeak,6);
+  o += svgPath(pts.map(([x,y])=>[scX(x,0,xMax),scY(y,0,yMax)]),'#1a2e4a',2.5);
+  o += svgCircle(scX(vo2r,0,xMax),scY(veRest,0,yMax),3,'#1a2e4a');
+  o += svgCircle(scX(vo2a,0,xMax),scY(veAt,0,yMax),5,'#b87200');
+  o += svgCircle(scX(vo2pk,0,xMax),scY(vePeak,0,yMax),5,'#b83232');
+
+  // AT line
+  const atX=scX(vo2a,0,xMax);
+  o += svgLine(atX,PT,atX,PB,'#b87200',1.5,'5,4');
+  o += svgText(atX,PT-4,'AT',{sz:8.5,c:'#b87200'});
+
+  o += axisLabels('VO₂ (L/min)','VE (L/min)');
   return wrapSVG(o);
 }
 
