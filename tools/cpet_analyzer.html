@@ -198,6 +198,13 @@
     <button class="case-btn decond" onclick="loadCase('decond')">🏃 Deconditioning</button>
     <button class="case-btn effort" onclick="loadCase('effort')">⚠️ Submaximal Effort</button>
   </div>
+  <h3 style="margin-top:12px;">🏥 Kaminsky Real Patient Cases (ATS PG-15, 2018)</h3>
+  <div class="cases-btns">
+    <button class="case-btn normal" onclick="loadCase('kaminsky1')">✅ P1 — Normal (18M)</button>
+    <button class="case-btn vent" onclick="loadCase('kaminsky3')">💨 P3 — Severe COPD (56F)</button>
+    <button class="case-btn" style="border-color:#e65100;color:#e65100;" onclick="loadCase('kaminsky4')">🫁 P4 — ILD (53F)</button>
+    <button class="case-btn cardiac" onclick="loadCase('kaminsky5')">❤️ P5 — Pulmonic Stenosis (51M)</button>
+  </div>
   <h3 style="margin-top:12px;">🎓 SEEK Board-Style Cases</h3>
   <div class="cases-btns">
     <button class="case-btn" style="border-color:#e65100;color:#e65100;" onclick="loadCase('seek1')">🫁 Q1 — ILD</button>
@@ -374,6 +381,44 @@ const CASES = {
     note:'52M who terminated exercise early citing leg fatigue. Peak RER <1.05, very large HR reserve (> 50 bpm), high breathing reserve. CPET is non-diagnostic — cannot characterize exercise limitation from a submaximal test.'
   },
 
+  // ── Kaminsky Real Patient Cases (ATS PG-15, 2018) ────────────────
+  kaminsky1: {
+    label: 'Kaminsky P1 — Normal',
+    age:18, sex:'M', ht:182, wt:74,
+    fev1:4.10, fev1pct:88, fvc:4.66, mvv:165,
+    vo2peak:4.60, watt:326, hrpeak:185, vepeak:132, rer:1.26, spo2peak:null, spo2rest:null, o2pulse:24.9,
+    vo2at:3.30, vevco2at:28, slope:null, petco2:36, hrrest:78, verest:9,
+    vtrest:0.84, vtpeak:2.5, wattat:210, petco2peak:31, peto2at:102, peto2peak:106,
+    note:'Real patient, Kaminsky ATS PG-15 (2018). 18M, SOB with exercise. VO₂max 129% predicted — supranormal aerobic capacity. Maximal effort (RER 1.26). Near-maximal HR (92% predicted). Excellent breathing reserve (VE/MVV 80%). VE/VCO₂ 28 (low — very efficient ventilation in a fit individual). Vd/Vt falls normally 0.30→0.20. Diagnosis: Normal study. Functional dyspnea, likely anxiety or performance-related.'
+  },
+  kaminsky3: {
+    label: 'Kaminsky P3 — Severe COPD',
+    age:56, sex:'F', ht:152, wt:37,
+    fev1:0.83, fev1pct:36, fvc:2.15, mvv:30,
+    vo2peak:0.64, watt:90, hrpeak:164, vepeak:30, rer:1.08, spo2peak:null, spo2rest:null, o2pulse:3.9,
+    vo2at:0.56, vevco2at:50, slope:null, petco2:28, hrrest:97, verest:10,
+    vtrest:0.50, vtpeak:0.75, wattat:45, petco2peak:null, peto2at:105, peto2peak:108,
+    note:'Real patient, Kaminsky ATS PG-15 (2018). 56F, severe COPD (FEV₁ 36%, BMI 16, TLC 143%, DLCO 39%). Zero breathing reserve (VE/MVV 100%). Near-maximal HR (99% predicted). VE/VCO₂ = 50 (severely elevated dead space). Vd/Vt does NOT fall with exercise (0.45→0.44) — hallmark of COPD. CO₂ retention at peak (PaCO₂ rises to 45). A-a gradient = 40 mmHg at both rest and peak. Diagnosis: Ventilatory and gas exchange limitation (severe COPD).'
+  },
+  kaminsky4: {
+    label: 'Kaminsky P4 — ILD',
+    age:53, sex:'F', ht:165, wt:81,
+    fev1:1.48, fev1pct:52, fvc:1.96, mvv:51,
+    vo2peak:0.78, watt:95, hrpeak:167, vepeak:44, rer:1.16, spo2peak:null, spo2rest:null, o2pulse:4.7,
+    vo2at:0.63, vevco2at:40, slope:null, petco2:31, hrrest:80, verest:11,
+    vtrest:0.70, vtpeak:1.18, wattat:60, petco2peak:null, peto2at:106, peto2peak:115,
+    note:'Real patient, Kaminsky ATS PG-15 (2018). 53F, ILD (FVC 53%, TLC 69%, DLCO 33%). Near-absent breathing reserve (VE/MVV 86%). Near-maximal HR (cardiovascular response intact). VE/VCO₂ = 40 (dead space from fibrosis). A-a gradient widens dramatically 43→64 mmHg (diffusion limitation at high cardiac output). Vd/Vt does not fall (0.45→0.43). Diagnosis: Ventilatory and gas exchange limitation (ILD). Compare COPD (P3): same pattern but different spirometry.'
+  },
+  kaminsky5: {
+    label: 'Kaminsky P5 — Pulmonic Stenosis',
+    age:51, sex:'M', ht:185, wt:100,
+    fev1:3.79, fev1pct:89, fvc:5.02, mvv:152,
+    vo2peak:1.55, watt:212, hrpeak:169, vepeak:62, rer:1.40, spo2peak:null, spo2rest:null, o2pulse:9.2,
+    vo2at:0.90, vevco2at:32, slope:null, petco2:39, hrrest:71, verest:7,
+    vtrest:0.35, vtpeak:1.81, wattat:210, petco2peak:30, peto2at:102, peto2peak:106,
+    note:'Real patient, Kaminsky ATS PG-15 (2018). 51M, pulmonic stenosis. Normal work rate achieved (99% predicted watts) but VO₂max severely reduced (47% predicted). Key teaching: VO₂/WR slope is flat — patient does normal external work but cannot deliver oxygen (RV outflow obstruction limits stroke volume). O₂ pulse 47% predicted with early plateau (stroke volume cannot augment). AT at 27% of predicted VO₂max — extremely early. Excellent breathing reserve (VE/MVV 41%). Normal gas exchange. Diagnosis: Cardiovascular limitation. Normal watts ≠ normal exercise capacity.'
+  },
+
   // ── SEEK Board-Style Teaching Cases ──────────────────────────────
   seek1: {
     label: 'SEEK Q1 — ILD Pattern',
@@ -534,7 +579,7 @@ function analyze() {
   `);
   s1 += formula([
     `Peak RER = VCO₂ / VO₂ = <span class="${rer>=1.05?'ok':'flag'}">${fmt(rer,2)}</span>`,
-    `Adequate effort: ≥ 1.05 | Maximal effort: ≥ 1.10`
+    `Adequate effort: ≥ 1.05  |  Maximal effort: ≥ 1.10  |  Preferred maximal threshold: ≥ 1.15`
   ]);
   if (!testAdequate) {
     s1 += finding('bad','⚠️',`<strong>Submaximal test (RER ${fmt(rer,2)} < 1.05).</strong> Patient did not achieve adequate metabolic stress. The study cannot reliably characterize exercise limitation — all subsequent values should be interpreted with caution.`);
@@ -645,11 +690,14 @@ function analyze() {
       metabolic maxima are reached.
     `);
     const mvvSource = v('mvv') ? 'measured' : `estimated (FEV₁ × 40 = ${fmt(fev1,2)} × 40)`;
+    const brAbsolute = mvv - vepeak;
+    const veMVVpct = (vepeak/mvv*100);
     s5 += formula([
       `MVV = ${fmt(mvv,0)} L/min (${mvvSource})`,
       `Breathing Reserve = (MVV − Peak VE) / MVV × 100`,
       `= (${fmt(mvv,0)} − ${fmt(vepeak,0)}) / ${fmt(mvv,0)} × 100 = <span class="${brLow?'flag':'ok'}">${fmt(br,1)}%</span>`,
-      `Normal: BR > 15% (or > 11 L/min absolute)`
+      `Absolute BR = ${fmt(brAbsolute,0)} L/min  |  VE/MVV = <span class="${veMVVpct>85?'flag':'ok'}">${fmt(veMVVpct,0)}%</span>`,
+      `Normal: BR% > 15%  |  Absolute BR ≥ 11 L/min  |  VE/MVV < 85%  [Kaminsky/ATS]`
     ]);
     if (brLow) {
       s5 += finding('bad','🔴',`<strong>Low Breathing Reserve — ${fmt(br,1)}% (${fmt(brL,0)} L/min absolute).</strong> Peak VE (${fmt(vepeak,0)} L/min) nearly reached MVV (${fmt(mvv,0)} L/min). The ventilatory system is the primary ceiling — <strong>ventilatory limitation</strong>.`);
@@ -680,7 +728,7 @@ function analyze() {
     s6 += formula([
       `VE/VCO₂ ${label} = <span class="${vevco2val>44?'flag':vevco2val>34?'flag':'ok'}">${fmt(vevco2val,1)}</span>`,
       vevco2at && slope ? `VE/VCO₂ slope = ${fmt(slope,1)}` : '',
-      `Normal: ≤ 34  |  Mild elevation: 34–44  |  Severe: > 44–45`,
+      `Normal: ≤ 34 at AT  |  ≤ 36 at peak  |  Mild elevation: 34–44  |  Severe: > 44–45`,
       petco2 ? `PETCO₂ at AT = <span class="${petco2<35?'flag':'ok'}">${fmt(petco2,1)} mmHg</span>   (Normal: 36–42, should rise slightly with exercise)` : ''
     ].filter(Boolean));
 
