@@ -1,0 +1,2435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulmonary Function Tests — A Complete Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #f78166;
+    --accent3: #3fb950;
+    --accent4: #d2a8ff;
+    --accent5: #ffa657;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --warn: #e3b341;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 60px 40px 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: radial-gradient(ellipse at 50% 0%, #1a2744 0%, var(--bg) 70%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(88,166,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #e6edf3 30%, #58a6ff 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(88,166,255,0.15);
+    border: 1px solid rgba(88,166,255,0.3);
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* NAV */
+  .nav {
+    display: flex;
+    gap: 4px;
+    padding: 12px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .nav-btn:hover { color: var(--text); border-color: var(--border); }
+  .nav-btn.active {
+    background: rgba(88,166,255,0.15);
+    border-color: rgba(88,166,255,0.4);
+    color: var(--accent);
+  }
+
+  /* LAYOUT */
+  .content { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SECTION HEADERS */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .section-sub {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+  .card p { color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
+  .card p + p { margin-top: 8px; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 680px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* METRIC CHIPS */
+  .metric {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .metric .val {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .metric .label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+  .metric .norm { font-size: 0.7rem; color: var(--accent3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+  }
+  .tag-blue { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .tag-red { background: rgba(247,129,102,0.15); color: var(--accent2); }
+  .tag-green { background: rgba(63,185,80,0.15); color: var(--accent3); }
+  .tag-purple { background: rgba(210,168,255,0.15); color: var(--accent4); }
+  .tag-orange { background: rgba(255,166,87,0.15); color: var(--accent5); }
+  .tag-yellow { background: rgba(227,179,65,0.15); color: var(--warn); }
+
+  /* FLOWCHART */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    position: relative;
+    font-size: 0.85rem;
+  }
+  .flow-node.decision {
+    background: rgba(88,166,255,0.07);
+    border-color: rgba(88,166,255,0.3);
+  }
+  .flow-node.action {
+    background: rgba(63,185,80,0.07);
+    border-color: rgba(63,185,80,0.3);
+  }
+  .flow-node.result {
+    background: rgba(247,129,102,0.07);
+    border-color: rgba(247,129,102,0.3);
+  }
+  .flow-arrow {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 4px 0;
+  }
+  .flow-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 3px;
+  }
+
+  /* SPIROMETRY VISUAL */
+  .spiro-canvas { position: relative; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  canvas { display: block; width: 100%; }
+
+  /* HIGHLIGHT BOX */
+  .highlight {
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    background: rgba(88,166,255,0.06);
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .highlight.warn { border-color: var(--warn); background: rgba(227,179,65,0.06); }
+  .highlight.danger { border-color: var(--accent2); background: rgba(247,129,102,0.06); }
+  .highlight.success { border-color: var(--accent3); background: rgba(63,185,80,0.06); }
+
+  /* SEVERITY BARS */
+  .sev-bar { margin: 8px 0; }
+  .sev-bar .sev-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .sev-bar .bar { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; }
+  .sev-bar .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+
+  /* LIST */
+  ul.styled { list-style: none; padding: 0; }
+  ul.styled li {
+    padding: 8px 0 8px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--muted);
+    position: relative;
+    line-height: 1.5;
+  }
+  ul.styled li:last-child { border-bottom: none; }
+  ul.styled li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+  ul.styled li strong { color: var(--text); }
+
+  /* INTERACTIVE SLIDER */
+  .slider-section { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .slider-label { font-size: 0.78rem; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    margin: 12px 0;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+  .interp-result {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    transition: all 0.3s;
+  }
+
+  /* TOOLTIP */
+  abbr { text-decoration: underline dotted; cursor: help; color: var(--accent4); }
+
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+
+  h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--text); margin: 20px 0 8px; }
+  h4 { font-size: 0.8rem; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px; }
+  small { font-size: 0.75rem; color: var(--muted); }
+  .mono { font-family: 'DM Mono', monospace; font-size: 0.82rem; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">ATS/ERS 2022 Interpretive Strategy · GLI-2012 Reference Equations</div>
+  <h1>Pulmonary Function Tests</h1>
+  <p class="subtitle">A Complete Clinical Guide · From Basics to Advanced Interpretation</p>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="show('basics')">01 · Overview</button>
+  <button class="nav-btn" onclick="show('acceptability')">02 · Quality &amp; Acceptability</button>
+  <button class="nav-btn" onclick="show('fvcdive')">03 · SVC vs FVC</button>
+  <button class="nav-btn" onclick="show('fvldive')">04 · FVL Deep Dive</button>
+  <button class="nav-btn" onclick="show('spirometry')">05 · Reading Spirometry</button>
+  <button class="nav-btn" onclick="show('volumes')">06 · Reading Lung Volumes</button>
+  <button class="nav-btn" onclick="show('dlco')">07 · DLCO</button>
+  <button class="nav-btn" onclick="show('caveats')">08 · Caveats &amp; Pitfalls</button>
+  <button class="nav-btn" onclick="show('special')">09 · Special Tests</button>
+  <button class="nav-btn" onclick="show('clinical')">10 · Cases</button>
+  <button class="nav-btn" onclick="show('simulator')">11 · Simulator</button>
+</nav>
+
+<div class="content">
+
+<!-- ===================== 01 BASICS ===================== -->
+<div class="section active" id="basics">
+  <p class="section-title">The Basics</p>
+  <p class="section-sub">Why we do PFTs · What we measure · How it all fits together</p>
+
+  <div class="card">
+    <div class="card-title">What Are PFTs?</div>
+    <p>Pulmonary function tests (PFTs) are a battery of non-invasive tests that measure how well the lungs move air (spirometry), how much air they hold (lung volumes), and how efficiently they transfer gas across the alveolar-capillary membrane (DLCO). Together they characterize lung physiology in a way no imaging study can.</p>
+    <p>Per the <strong>2022 ATS/ERS Interpretive Strategy</strong>, the goal of interpretation is to identify the <em>pattern</em> of abnormality, its <em>severity</em>, and to guide clinical reasoning — not to diagnose diseases directly.</p>
+  </div>
+
+  <div class="grid-3">
+    <div class="metric"><div class="val">Spirometry</div><div class="label">Airflow & forced volumes</div><div class="norm">FVC, FEV₁, FEV₁/FVC, FEF 25-75</div></div>
+    <div class="metric"><div class="val">Volumes</div><div class="label">Static lung volumes</div><div class="norm">TLC, RV, FRC, IC, ERV</div></div>
+    <div class="metric"><div class="val">DLCO</div><div class="label">Gas transfer efficiency</div><div class="norm">DLCO, KCO, VA</div></div>
+  </div>
+
+  <h3>Why the Lower Limit of Normal (LLN) Matters</h3>
+  <div class="card">
+    <p>The old approach of calling anything <strong>&lt;80% predicted "abnormal"</strong> is <span style="color:var(--accent2)">no longer recommended</span>. The ATS/ERS 2022 guidelines mandate using the <strong>5th percentile (LLN)</strong> derived from reference equations (GLI-2012) as the threshold for abnormality.</p>
+    <div class="highlight warn" style="margin-top:12px">
+      ⚠ Using 80% predicted creates a fixed cutoff that misclassifies young, tall individuals (over-diagnosis) and older, shorter individuals (under-diagnosis). LLN accounts for age, sex, height, and ethnicity.
+    </div>
+    <p style="margin-top:10px">The GLI-2012 equations now include <strong>race-neutral</strong> and race-specific options. ATS 2023 statement encourages clinicians to be aware of the potential for race-based equations to introduce bias.</p>
+  </div>
+
+  <h3>The Z-Score Framework</h3>
+  <div class="card">
+    <p>A <strong>Z-score</strong> expresses how many standard deviations a value falls from the predicted mean. The LLN corresponds to <strong>Z = −1.645</strong> (5th percentile). Z-scores allow comparison across different parameters and track longitudinal change.</p>
+    <div class="grid-2" style="margin-top:16px">
+      <div class="metric"><div class="val" style="font-size:1.2rem">Z ≥ −1.64</div><div class="label">Within Normal Limits</div></div>
+      <div class="metric"><div class="val" style="font-size:1.2rem; color:var(--accent2)">Z &lt; −1.64</div><div class="label">Below LLN = Abnormal</div></div>
+    </div>
+  </div>
+
+  <h3>Order of Testing</h3>
+  <div class="flow">
+    <div class="flow-node action"><div class="flow-label">STEP 1</div><strong>Spirometry</strong> — Always first. Assess quality (ATS acceptability & reproducibility criteria).</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node action"><div class="flow-label">STEP 2</div><strong>Post-bronchodilator spirometry</strong> — If obstruction present or suspected. BD = albuterol 400 mcg inhaled.</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node action"><div class="flow-label">STEP 3</div><strong>Lung Volumes</strong> — Plethysmography preferred. Needed to confirm restriction, quantify hyperinflation/air trapping.</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node action"><div class="flow-label">STEP 4</div><strong>DLCO</strong> — After spirometry and volumes. Requires stable breathing, adequate hemoglobin.</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-node action"><div class="flow-label">STEP 5 (if indicated)</div><strong>Special tests</strong> — Methacholine challenge, MIP/MEP, 6MWT, CPET, FeNO.</div>
+  </div>
+</div>
+
+<!-- ===================== 02 ACCEPTABILITY ===================== -->
+<div class="section" id="acceptability">
+  <p class="section-title">Quality, Acceptability & Picking the Best Maneuver</p>
+  <p class="section-sub">Before interpreting anything — you must know if you can trust the numbers · ATS/ERS 2019 Technical Standards</p>
+
+  <div class="card">
+    <div class="card-title">The Big Picture: What Happens During Spirometry</div>
+    <p>The patient performs up to 8 forced expiratory maneuvers. Each one generates a flow-volume loop and a volume-time curve simultaneously. Your job before any interpretation: (1) decide which maneuvers are <strong>acceptable</strong>, and (2) from acceptable maneuvers, check <strong>reproducibility</strong>. Only then do you extract values.</p>
+    <div class="highlight" style="margin-top:12px">
+      💡 You report the <strong>highest FEV₁</strong> and <strong>highest FVC</strong> from any acceptable maneuver — they do not have to come from the same maneuver. The FEV₁/FVC ratio is then calculated from the maneuver with the best combined FEV₁ + FVC.
+    </div>
+  </div>
+
+  <h3>Step 1 — Acceptability Criteria (Each Maneuver)</h3>
+  <div class="card">
+    <p style="margin-bottom:14px">Each maneuver must pass ALL of the following to be considered acceptable:</p>
+
+    <h4>A · Good Start — Back-Extrapolation Volume (BEV)</h4>
+    <div class="card" style="background:var(--bg);margin:8px 0">
+      <p>The patient must blast air out from the very first millisecond. In reality, there is always a tiny ramp-up. Back-extrapolation projects the steepest part of the volume-time curve back to find the <strong>true time zero</strong> — the theoretical instant of maximal flow onset.</p>
+      <div class="highlight" style="margin-top:10px">
+        <strong>BEV must be &lt;5% of FVC OR &lt;150 mL</strong> (whichever is greater).<br><br>
+        If BEV is too large → patient hesitated before blasting → FEV₁ is <em>overestimated</em> (you're counting volume exhaled before true time zero). On the VTC this looks like a slow rounded start rather than a sharp vertical rise.
+      </div>
+      <p style="margin-top:10px;font-size:0.83rem;color:var(--muted)">Coaching fix: <em>"The moment you seal your lips around the mouthpiece — blast. No hesitation. Like you're blowing out birthday candles as fast as you can."</em></p>
+    </div>
+
+    <h4 style="margin-top:16px">B · No Cough in the First Second</h4>
+    <div class="card" style="background:var(--bg);margin:8px 0">
+      <p>A cough during the first second creates a pressure transient that invalidates FEV₁ — it's no longer a pure measure of airflow limitation. A cough after the first second is acceptable but should be noted. On the VTC: visible as a sharp spike or step. On the FVL: notch in the expiratory limb.</p>
+      <div class="highlight warn" style="margin-top:8px">⚠ Cough in the first second = unacceptable maneuver, full stop. Do not extract FEV₁ from it.</div>
+    </div>
+
+    <h4 style="margin-top:16px">C · Satisfactory Exhalation — No Early Termination</h4>
+    <div class="card" style="background:var(--bg);margin:8px 0">
+      <p>The patient must exhale until a true plateau is reached OR for a minimum duration:</p>
+      <ul class="styled">
+        <li><strong>Plateau criterion:</strong> Volume change &lt;25 mL over any 1-second period → true end of exhalation reached (RV achieved)</li>
+        <li><strong>Duration minimum:</strong> ≥6 seconds for adults; ≥3 seconds for children under 10</li>
+        <li><strong>In severe obstruction:</strong> May need 15+ seconds — allow it. Terminating early in COPD/emphysema underestimates FVC and overestimates the degree of obstruction</li>
+        <li><strong>Early termination sign:</strong> On VTC, the curve stops abruptly without a flat plateau. On FVL, the expiratory limb ends abruptly before reaching the x-axis</li>
+      </ul>
+    </div>
+
+    <h4 style="margin-top:16px">D · No Other Artifacts</h4>
+    <div class="card" style="background:var(--bg);margin:8px 0">
+      <ul class="styled">
+        <li><strong>Glottic closure (Valsalva):</strong> Patient inadvertently closes glottis mid-exhalation → sudden stop in flow → abrupt notch on FVL. Common in elderly patients.</li>
+        <li><strong>Variable effort:</strong> Patient eases up mid-maneuver → flow drops prematurely → falsely scooped curve that mimics obstruction</li>
+        <li><strong>Leak around mouthpiece:</strong> Volume lost → FVC underestimated. Check lip seal throughout</li>
+        <li><strong>Tongue obstructing mouthpiece:</strong> Blunted PEF that is inconsistent across maneuvers</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Step 2 — Reproducibility (Across Maneuvers)</h3>
+  <div class="card">
+    <p>Need a minimum of <strong>3 acceptable maneuvers</strong>. From those, the two largest FVC values and the two largest FEV₁ values must each be within:</p>
+    <div class="grid-2" style="margin-top:12px">
+      <div class="metric"><div class="val">150 mL</div><div class="label">FVC reproducibility threshold</div><div class="norm">or 100 mL if FVC &lt;1.0 L</div></div>
+      <div class="metric"><div class="val">150 mL</div><div class="label">FEV₁ reproducibility threshold</div><div class="norm">or 100 mL if FEV₁ &lt;1.0 L</div></div>
+    </div>
+    <div class="highlight warn" style="margin-top:14px">
+      ⚠ If the two best values differ by &gt;150 mL, the test is not reproducible. This can mean: (1) patient effort was variable, (2) true physiologic variability (e.g., asthma with bronchospasm during testing), or (3) fatigue from too many maneuvers. Document which.
+    </div>
+  </div>
+
+  <h3>Step 3 — Quality Grading (ATS 2019)</h3>
+  <div class="card">
+    <table>
+      <tr><th>Grade</th><th>Definition</th><th>Clinical Action</th></tr>
+      <tr><td><span class="tag tag-green">A</span></td><td>≥3 acceptable + reproducible (within 150 mL)</td><td>High confidence. Interpret freely.</td></tr>
+      <tr><td><span class="tag tag-blue">B</span></td><td>≥2 acceptable + reproducible</td><td>Acceptable. Minor caveats.</td></tr>
+      <tr><td><span class="tag tag-yellow">C</span></td><td>≥2 acceptable, NOT reproducible (&gt;150 mL apart)</td><td>Interpret with caution. Note variability.</td></tr>
+      <tr><td><span class="tag tag-orange">D</span></td><td>Only 1 acceptable maneuver</td><td>Report values but flag as limited quality.</td></tr>
+      <tr><td><span class="tag tag-red">E</span></td><td>No acceptable maneuvers</td><td>Do NOT interpret. Repeat if possible.</td></tr>
+      <tr><td><span class="tag tag-red">U</span></td><td>Unable to perform</td><td>Document reason (dementia, pain, uncooperative).</td></tr>
+    </table>
+    <div class="highlight" style="margin-top:12px">
+      💡 Always report the quality grade in your interpretation. A Grade C or D result that looks "obstructed" may simply reflect poor effort. Context matters enormously.
+    </div>
+  </div>
+
+  <h3>What Is TGV (Thoracic Gas Volume)?</h3>
+  <div class="card">
+    <div class="card-title">TGV — The Plethysmography Equivalent of FRC</div>
+    <p>TGV (Thoracic Gas Volume) is measured by body plethysmography and represents the volume of gas in the thorax at the point of airway occlusion — which is typically at FRC (end-tidal expiration). It is the plethysmographic measurement of FRC.</p>
+    <div class="highlight" style="margin-top:12px">
+      <strong>How it's measured:</strong> Patient sits in the sealed plethysmograph box and breathes tidally. At end-expiration, a shutter occludes the airway. The patient then performs gentle panting efforts against the closed shutter. By measuring the changes in mouth pressure (≈ alveolar pressure) and box volume (≈ change in thoracic volume) simultaneously, Boyle's Law gives us the thoracic gas volume:<br><br>
+      <span class="mono">P₁V₁ = P₂V₂ → TGV = ΔV_box × P_alveolar / ΔP_mouth</span>
+    </div>
+    <div class="highlight warn" style="margin-top:10px">
+      ⚠ <strong>Key distinction:</strong> TGV measures ALL intrathoracic gas — including gas trapped behind closed airways (bullae, severely obstructed lung units). Gas dilution techniques (He dilution, N₂ washout) only measure <em>communicating</em> gas. In severe emphysema, TGV &gt;&gt; He-dilution FRC — the difference = trapped gas volume.
+    </div>
+    <div class="highlight warn" style="margin-top:10px">
+      ⚠ <strong>Panting frequency artifact:</strong> If the patient pants too fast (&gt;2 Hz) in severe obstruction, pressure equilibration across the obstructed airways is incomplete → TGV is <em>overestimated</em>. Coach slow panting (1 Hz). This is why some labs report implausibly enormous TGV in severe COPD.
+    </div>
+  </div>
+
+  <h3>Picking the Best Maneuver — Decision Checklist</h3>
+  <div class="card">
+    <div class="flow">
+      <div class="flow-node action"><div class="flow-label">FOR EACH MANEUVER</div>Check: BEV &lt;5%FVC or &lt;150mL? No cough in first second? Exhalation ≥6 sec or plateau reached? No glottic closure or variable effort? → <strong>Acceptable ✓ or ✗</strong></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action"><div class="flow-label">FROM ACCEPTABLE MANEUVERS</div>Take the highest FVC. Take the highest FEV₁. Do these come from different maneuvers? That is fine — you are allowed to mix.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action"><div class="flow-label">REPRODUCIBILITY CHECK</div>Are the top 2 FVC values within 150 mL? Are the top 2 FEV₁ values within 150 mL? If yes → Grade A or B. If no → Grade C.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node decision"><div class="flow-label">FEV₁/FVC RATIO</div>Use the maneuver with the <strong>highest sum of FEV₁ + FVC</strong> to calculate the ratio — this ensures the ratio comes from the most complete maneuver, not a cherry-picked one.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node result">Report: Grade, FVC, FEV₁, FEV₁/FVC, PEF, FEF₂₅₋₇₅. Note any artifacts. Proceed to SVC comparison → then FVL interpretation.</div>
+    </div>
+  </div>
+
+  <h3>SVC vs FVC — A Quality Check Too</h3>
+  <div class="card">
+    <p>After performing spirometry, compare FVC to SVC (slow vital capacity). This is both a quality check and a physiologic clue:</p>
+    <ul class="styled">
+      <li><strong>SVC ≈ FVC (within 150–200 mL):</strong> No significant air trapping during forced exhalation. FVC is reliable.</li>
+      <li><strong>SVC &gt; FVC by &gt;200 mL:</strong> Dynamic airway collapse during forced exhalation — the effort itself causes early airway closure and traps gas. FVC underestimates true VC. Use SVC for reporting VC and for calculating TLC from plethysmography.</li>
+      <li><strong>SVC &gt; FVC by &gt;500 mL:</strong> Significant dynamic collapse — severe COPD or emphysema. This also means the "low FVC" you see may be falsely suggesting restriction — it's not restriction, it's air trapping.</li>
+    </ul>
+    <div class="highlight success" style="margin-top:10px">
+      ✓ Always report the <strong>larger</strong> of SVC and FVC as the vital capacity for TLC calculations and pattern interpretation.
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 02 SPIROMETRY ===================== -->
+<div class="section" id="spirometry">
+  <p class="section-title">Reading Spirometry</p>
+  <p class="section-sub">Interpreting the numbers once you've confirmed quality · Parameters · BDR · Severity</p>
+
+  <div class="card">
+    <div class="card-title">Key Spirometric Parameters</div>
+    <table>
+      <tr><th>Parameter</th><th>Definition</th><th>Normal</th><th>Clinical Use</th></tr>
+      <tr>
+        <td><strong>FVC</strong><br><small>Forced Vital Capacity</small></td>
+        <td>Total air exhaled with maximal force from TLC to RV</td>
+        <td><span class="tag tag-green">≥ LLN</span></td>
+        <td>Reduced in restriction AND obstruction (air trapping)</td>
+      </tr>
+      <tr>
+        <td><strong>FEV₁</strong><br><small>Forced Expiratory Volume in 1 sec</small></td>
+        <td>Air exhaled in the first second of the FVC maneuver</td>
+        <td><span class="tag tag-green">≥ LLN</span></td>
+        <td>Primary measure of airflow obstruction</td>
+      </tr>
+      <tr>
+        <td><strong>FEV₁/FVC</strong><br><small>Tiffeneau-Pinelli ratio</small></td>
+        <td>Proportion of FVC expelled in 1 second</td>
+        <td><span class="tag tag-green">≥ LLN (~0.70–0.75)</span></td>
+        <td>KEY ratio: defines obstruction when &lt;LLN</td>
+      </tr>
+      <tr>
+        <td><strong>FEF₂₅₋₇₅</strong><br><small>Mid-expiratory flow</small></td>
+        <td>Mean flow rate during the middle 50% of the FVC</td>
+        <td><span class="tag tag-yellow">Highly variable</span></td>
+        <td>Small airway dysfunction — use cautiously, not standalone</td>
+      </tr>
+      <tr>
+        <td><strong>PEF</strong><br><small>Peak Expiratory Flow</small></td>
+        <td>Highest flow achieved during forced exhalation</td>
+        <td>Varies by age/sex</td>
+        <td>Effort-dependent; asthma monitoring, upper airway obstruction</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>The Flow-Volume Loop</h3>
+  <div class="spiro-canvas">
+    <canvas id="fvCanvas" height="260"></canvas>
+  </div>
+  <div class="pill-row" style="margin-top:12px">
+    <button class="tag tag-blue" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawFVL('normal')">Normal</button>
+    <button class="tag tag-red" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawFVL('obstruction')">Obstruction</button>
+    <button class="tag tag-purple" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawFVL('restriction')">Restriction</button>
+    <button class="tag tag-orange" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawFVL('mixed')">Mixed</button>
+    <button class="tag tag-yellow" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawFVL('uao')">Upper Airway Obstruction</button>
+  </div>
+  <div id="fvl-desc" class="highlight" style="margin-top:8px; font-size:0.82rem"></div>
+
+  <h3>ATS Acceptability Criteria (2019)</h3>
+  <div class="card">
+    <h4>For each maneuver to be acceptable:</h4>
+    <ul class="styled">
+      <li><strong>Good start:</strong> Back-extrapolated volume &lt;5% of FVC or &lt;150 mL (whichever is greater)</li>
+      <li><strong>No cough</strong> during the first second of exhalation</li>
+      <li><strong>No early termination:</strong> Plateau on volume-time curve (change &lt;25 mL in 1 sec) OR ≥15 sec exhalation (or age ≥10 forced to complete)</li>
+      <li><strong>No glottic closure, Valsalva, or variable effort</strong></li>
+    </ul>
+    <h4 style="margin-top:16px">Reproducibility (need ≥3 acceptable maneuvers):</h4>
+    <ul class="styled">
+      <li><strong>FVC:</strong> Largest and second-largest acceptable values within <strong>150 mL</strong> (or 100 mL if FVC &lt;1.0 L)</li>
+      <li><strong>FEV₁:</strong> Same 150 mL criterion</li>
+      <li>Report the <strong>highest FVC</strong> and <strong>highest FEV₁</strong> from any acceptable maneuver (not necessarily same maneuver)</li>
+    </ul>
+  </div>
+
+  <h3>Bronchodilator Response (BDR)</h3>
+  <div class="card">
+    <p>Per <strong>ATS/ERS 2022</strong>, a <em>positive</em> BDR is defined as an increase in FEV₁ or FVC of <strong>≥10% of predicted</strong> (not 12% of baseline as previously used). This change was made to normalize for baseline severity.</p>
+    <div class="highlight success" style="margin-top:12px">
+      ✓ New 2022 threshold: ≥10% predicted AND ≥200 mL absolute increase in FEV₁ or FVC → Positive BDR
+    </div>
+    <p style="margin-top:10px">A positive BDR suggests <strong>reversible airflow limitation</strong> (e.g., asthma), but is not diagnostic. GOLD does not require reversibility for COPD diagnosis.</p>
+    <div class="highlight warn" style="margin-top:8px">
+      ⚠ BDR does not predict long-term response to bronchodilators. About 50% of COPD patients show BDR at some point.
+    </div>
+  </div>
+
+  <h3>Spirometry Quality Grading (ATS 2019)</h3>
+  <div class="card">
+    <table>
+      <tr><th>Grade</th><th>Criteria</th><th>Interpretation</th></tr>
+      <tr><td><span class="tag tag-green">A</span></td><td>≥3 acceptable + reproducible maneuvers</td><td>High confidence in results</td></tr>
+      <tr><td><span class="tag tag-blue">B</span></td><td>≥2 acceptable + reproducible</td><td>Acceptable</td></tr>
+      <tr><td><span class="tag tag-yellow">C</span></td><td>≥2 acceptable, not reproducible</td><td>Caution in interpretation</td></tr>
+      <tr><td><span class="tag tag-orange">D</span></td><td>1 acceptable maneuver only</td><td>Interpret with caution</td></tr>
+      <tr><td><span class="tag tag-red">E</span></td><td>No acceptable maneuvers</td><td>Results not interpretable</td></tr>
+      <tr><td><span class="tag tag-red">U</span></td><td>Unable to perform</td><td>Document reason</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===================== 03 LUNG VOLUMES ===================== -->
+<div class="section" id="volumes">
+  <p class="section-title">Reading Lung Volumes</p>
+  <p class="section-sub">Static volumes · Plethysmography vs. Gas Dilution · Hyperinflation · Confirming Restriction</p>
+
+  <div class="card">
+    <div class="card-title">The Lung Volume Compartments</div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-top:10px">
+      <canvas id="lvCanvas" height="220"></canvas>
+    </div>
+    <table style="margin-top:16px">
+      <tr><th>Abbreviation</th><th>Name</th><th>Definition</th><th>Normal (% pred)</th></tr>
+      <tr><td class="mono">TLC</td><td>Total Lung Capacity</td><td>Volume at full inspiration (VC + RV)</td><td><span class="tag tag-green">≥ LLN</span></td></tr>
+      <tr><td class="mono">VC (SVC)</td><td>Slow Vital Capacity</td><td>Max volume exhaled slowly from TLC</td><td><span class="tag tag-green">≥ LLN</span></td></tr>
+      <tr><td class="mono">FRC</td><td>Functional Residual Capacity</td><td>Volume at end-tidal expiration (RV + ERV)</td><td>~40% TLC</td></tr>
+      <tr><td class="mono">RV</td><td>Residual Volume</td><td>Volume remaining after maximal exhalation</td><td>&lt;ULN (120–140% pred)</td></tr>
+      <tr><td class="mono">IC</td><td>Inspiratory Capacity</td><td>TLC − FRC; reflects hyperinflation</td><td>—</td></tr>
+      <tr><td class="mono">ERV</td><td>Expiratory Reserve Volume</td><td>FRC − RV</td><td>—</td></tr>
+    </table>
+  </div>
+
+  <h3>Measurement Methods</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Body Plethysmography</div>
+      <ul class="styled">
+        <li><strong>Gold standard</strong> — measures total thoracic gas volume (TGV ≈ FRC)</li>
+        <li>Measures all gas, including <strong>trapped/non-communicating</strong> gas</li>
+        <li>Preferred in COPD, emphysema, bullous disease</li>
+        <li>Requires patient cooperation with panting maneuver against closed shutter</li>
+        <li>Can overestimate FRC in severe obstruction if panting frequency too fast</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Gas Dilution (He or N₂ washout)</div>
+      <ul class="styled">
+        <li>Measures only <strong>communicating</strong> gas — will underestimate in air trapping</li>
+        <li>He dilution: rebreath closed circuit with known [He] until equilibration</li>
+        <li>N₂ washout: breathe 100% O₂ until [N₂] &lt;1.5%</li>
+        <li>Useful if plethysmograph unavailable; acceptable for non-obstructive disease</li>
+        <li>Pleth − Gas dilution FRC difference = <strong>trapped gas volume</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Hyperinflation vs. Air Trapping</h3>
+  <div class="card">
+    <table>
+      <tr><th>Finding</th><th>Definition</th><th>Key Metric</th><th>Significance</th></tr>
+      <tr>
+        <td>Air Trapping</td>
+        <td>RV or RV/TLC above ULN</td>
+        <td><span class="tag tag-orange">RV/TLC &gt;ULN (~40%)</span></td>
+        <td>Small airway closure during exhalation; seen in asthma, COPD, early disease</td>
+      </tr>
+      <tr>
+        <td>Hyperinflation</td>
+        <td>TLC above ULN (>120% pred)</td>
+        <td><span class="tag tag-red">TLC &gt;120% pred</span></td>
+        <td>True lung overdistension; COPD, emphysema; correlates with dyspnea</td>
+      </tr>
+      <tr>
+        <td>Dynamic Hyperinflation</td>
+        <td>IC/TLC ratio &lt;0.25</td>
+        <td><span class="tag tag-red">IC/TLC &lt;25%</span></td>
+        <td>Strong predictor of mortality in COPD; limits exercise capacity</td>
+      </tr>
+    </table>
+    <div class="highlight" style="margin-top:12px">
+      💡 You can have air trapping (elevated RV) WITHOUT hyperinflation (normal TLC). In early COPD or asthma, TLC may be normal while RV/TLC is already elevated.
+    </div>
+  </div>
+
+  <h3>Confirming Restriction</h3>
+  <div class="card">
+    <p>A reduced FVC on spirometry raises the question of restriction — but you <strong>cannot confirm restriction from spirometry alone</strong>. You need lung volumes.</p>
+    <div class="flow" style="margin-top:14px">
+      <div class="flow-node decision"><strong>FVC &lt;LLN</strong> + normal or elevated FEV₁/FVC</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node decision">Obtain TLC (plethysmography preferred)</div>
+      <div class="flow-arrow">↓</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="flow-node action"><strong>TLC &lt;LLN</strong><br>→ <span style="color:var(--accent2)">True restriction confirmed</span></div>
+        <div class="flow-node result"><strong>TLC ≥ LLN</strong><br>→ Not restrictive; consider neuromuscular disease, poor effort, obesity, or obstructive pseudorestriction</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 04 DLCO ===================== -->
+<div class="section" id="dlco">
+  <p class="section-title">DLCO</p>
+  <p class="section-sub">Diffusing Capacity for Carbon Monoxide · ATS/ERS 2017 Technical Standard</p>
+
+  <div class="card">
+    <div class="card-title">What DLCO Measures</div>
+    <p>DLCO (also called T<sub>L</sub>CO in Europe) measures the rate of CO transfer from alveolar gas into pulmonary capillary blood per unit driving pressure. It reflects the integrity of the entire gas exchange unit: alveolar surface area, membrane thickness, capillary blood volume, and hemoglobin.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
+      <div class="metric"><div class="val" style="font-size:1rem">DLCO</div><div class="label">Total diffusing capacity</div><div class="norm">mmol/min/kPa or mL/min/mmHg</div></div>
+      <div class="metric"><div class="val" style="font-size:1rem">KCO</div><div class="label">DLCO / VA (transfer coefficient)</div><div class="norm">Corrects for lung volume</div></div>
+      <div class="metric"><div class="val" style="font-size:1rem">VA</div><div class="label">Alveolar Volume</div><div class="norm">From single-breath dilution</div></div>
+    </div>
+  </div>
+
+  <h3>How the Single-Breath DLCO is Performed</h3>
+  <div class="card">
+    <div class="flow">
+      <div class="flow-node action">Patient exhales to RV</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action">Rapid full inspiration of test gas (0.3% CO + 10% He + 21% O₂ + balance N₂) to TLC — ideally in &lt;4 sec</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action">Breath hold at TLC for <strong>10 ± 2 seconds</strong></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action">Rapid exhalation — discard first 750 mL (dead space washout), then collect 500–1000 mL alveolar sample</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node result">Measure [CO] and [He] in sample → calculate DLCO and VA</div>
+    </div>
+    <div class="highlight warn" style="margin-top:14px">
+      ⚠ ATS reproducibility: 2 acceptable maneuvers within <strong>2 mL/min/mmHg</strong> of each other (or within 10%). Wait ≥4 min between maneuvers to allow CO washout.
+    </div>
+  </div>
+
+  <h3>Causes of Reduced DLCO</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="color:var(--accent2)">↓ Alveolar Surface Area</div>
+      <ul class="styled">
+        <li><strong>Emphysema</strong> — destruction of alveolar walls</li>
+        <li><strong>Surgical resection</strong> — pneumonectomy, lobectomy</li>
+        <li><strong>Atelectasis</strong> — collapsed lung units</li>
+        <li><strong>Air trapping</strong> — uneven distribution of test gas</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--accent2)">↓ Membrane Diffusion / Capillary Blood</div>
+      <ul class="styled">
+        <li><strong>ILD/Fibrosis</strong> — thickened alveolar-capillary membrane</li>
+        <li><strong>Pulmonary vascular disease</strong> — PAH, CTEPH (reduced capillary recruitment)</li>
+        <li><strong>Anemia</strong> — reduced Hb available to bind CO</li>
+        <li><strong>PE</strong> — dead space; capillary obstruction</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-title" style="color:var(--accent3)">↑ Elevated DLCO — When to Consider</div>
+    <ul class="styled">
+      <li><strong>Pulmonary hemorrhage</strong> (alveolar Hb binding CO) — classic cause; Goodpasture's, DAH</li>
+      <li><strong>Polycythemia</strong> — increased circulating Hb</li>
+      <li><strong>Left-to-right shunt</strong> — increased pulmonary blood flow</li>
+      <li><strong>Asthma (mild, acute)</strong> — increased pulmonary blood flow during bronchoconstriction</li>
+    </ul>
+  </div>
+
+  <h3>Hemoglobin Correction</h3>
+  <div class="card">
+    <p>DLCO is linearly related to hemoglobin. <strong>Always correct</strong> DLCO for Hb, especially in anemia or polycythemia.</p>
+    <div class="highlight" style="margin-top:10px">
+      <strong>DLCO<sub>corrected</sub></strong> = DLCO<sub>measured</sub> × (10.22 + Hb) / (1.7 × Hb) <em>[females]</em><br>
+      DLCO<sub>corrected</sub> = DLCO<sub>measured</sub> × (10.22 + Hb) / (1.7 × Hb) <em>[males: ref Hb = 14.6 g/dL]</em><br>
+      <small style="color:var(--muted)">Without Hb correction, anemia falsely lowers DLCO and may lead to erroneous diagnosis of ILD or vascular disease.</small>
+    </div>
+  </div>
+
+  <h3>DLCO vs. KCO — What's the Difference?</h3>
+  <div class="card">
+    <table>
+      <tr><th>Scenario</th><th>DLCO</th><th>KCO (DLCO/VA)</th><th>Interpretation</th></tr>
+      <tr><td>Emphysema</td><td><span class="tag tag-red">↓↓</span></td><td><span class="tag tag-red">↓</span></td><td>Loss of surface area AND membrane; KCO also falls</td></tr>
+      <tr><td>Pneumonectomy / Resection</td><td><span class="tag tag-red">↓</span></td><td><span class="tag tag-green">Normal</span></td><td>Less lung volume but remaining lung is healthy — KCO preserved</td></tr>
+      <tr><td>ILD (Fibrosis)</td><td><span class="tag tag-red">↓↓</span></td><td><span class="tag tag-red">↓ or N</span></td><td>Membrane thickening reduces transfer; KCO may be normal or low</td></tr>
+      <tr><td>PAH / Vascular disease</td><td><span class="tag tag-red">↓</span></td><td><span class="tag tag-red">↓</span></td><td>Reduced capillary recruitment; KCO falls disproportionately</td></tr>
+      <tr><td>Obesity</td><td><span class="tag tag-yellow">Low-normal</span></td><td><span class="tag tag-green">↑ or N</span></td><td>Low VA (low FRC) but capillary blood volume intact → KCO elevated</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===================== 05 INTERPRETATION ===================== -->
+<div class="section" id="interpret">
+  <p class="section-title">Interpretation Strategy</p>
+  <p class="section-sub">ATS/ERS 2022 Interpretive Strategy — Step-by-step algorithm</p>
+
+  <div class="card">
+    <div class="card-title">The 2022 ATS/ERS Interpretive Algorithm</div>
+    <div class="flow">
+      <div class="flow-node decision"><strong>Step 1:</strong> Is the FEV₁/FVC ratio &lt;LLN?</div>
+      <div class="flow-arrow">↓</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div class="flow-node result"><strong>YES → Obstructive pattern</strong><br>Severity by FEV₁ % predicted:<br>≥70% = Mild | 60–69% = Moderate | 50–59% = Mod-Severe | 35–49% = Severe | &lt;35% = Very Severe</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node action">Check FVC: Is FVC &lt;LLN?<br><strong>If yes</strong> → consider mixed defect (need TLC to confirm restriction)</div>
+        </div>
+        <div>
+          <div class="flow-node action"><strong>NO → FEV₁/FVC ≥ LLN</strong><br>Is FVC &lt;LLN?</div>
+          <div class="flow-arrow">↓</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="flow-node result">YES → Possible restriction<br><em>Need TLC to confirm</em></div>
+            <div class="flow-node action">NO → Normal spirometry</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Severity Grading</h3>
+  <div class="card">
+    <h4>Obstruction — by FEV₁ % predicted</h4>
+    <div class="sev-bar"><div class="sev-label"><span>Mild</span><span>FEV₁ ≥70% pred</span></div><div class="bar"><div class="bar-fill" style="width:85%;background:var(--accent3)"></div></div></div>
+    <div class="sev-bar"><div class="sev-label"><span>Moderate</span><span>FEV₁ 60–69% pred</span></div><div class="bar"><div class="bar-fill" style="width:65%;background:var(--accent)"></div></div></div>
+    <div class="sev-bar"><div class="sev-label"><span>Moderate-Severe</span><span>FEV₁ 50–59% pred</span></div><div class="bar"><div class="bar-fill" style="width:55%;background:var(--accent5)"></div></div></div>
+    <div class="sev-bar"><div class="sev-label"><span>Severe</span><span>FEV₁ 35–49% pred</span></div><div class="bar"><div class="bar-fill" style="width:40%;background:var(--warn)"></div></div></div>
+    <div class="sev-bar"><div class="sev-label"><span>Very Severe</span><span>FEV₁ &lt;35% pred</span></div><div class="bar"><div class="bar-fill" style="width:20%;background:var(--accent2)"></div></div></div>
+
+    <h4 style="margin-top:20px">Restriction — by TLC % predicted (ATS 2022)</h4>
+    <div class="sev-bar"><div class="sev-label"><span>Mild</span><span>TLC 70–LLN%</span></div><div class="bar"><div class="bar-fill" style="width:80%;background:var(--accent3)"></div></div></div>
+    <div class="sev-bar"><div class="sev-label"><span>Moderate</span><span>TLC 60–69%</span></div><div class="bar"><div class="bar-fill" style="width:60%;background:var(--accent)"></div></div></div>
+    <div class="sev-bar"><div class="sev-label"><span>Severe</span><span>TLC &lt;60%</span></div><div class="bar"><div class="bar-fill" style="width:30%;background:var(--accent2)"></div></div></div>
+
+    <h4 style="margin-top:20px">DLCO Severity — by % predicted</h4>
+    <div class="sev-bar"><div class="sev-label"><span>Mildly reduced</span><span>60–LLN% pred</span></div><div class="bar"><div class="bar-fill" style="width:75%;background:var(--accent3)"></div></div></div>
+    <div class="sev-bar"><div class="sev-label"><span>Moderately reduced</span><span>40–59% pred</span></div><div class="bar"><div class="bar-fill" style="width:50%;background:var(--warn)"></div></div></div>
+    <div class="sev-bar"><div class="sev-label"><span>Severely reduced</span><span>&lt;40% pred</span></div><div class="bar"><div class="bar-fill" style="width:20%;background:var(--accent2)"></div></div></div>
+  </div>
+
+  <h3>Common Pitfalls</h3>
+  <div class="card">
+    <ul class="styled">
+      <li><strong>Obstructive pseudorestriction:</strong> In severe obstruction, air trapping causes elevated RV which "steals" from VC → FVC appears low → looks restrictive. TLC is normal or elevated. This is NOT true restriction.</li>
+      <li><strong>FEV₁/FVC ratio artifactually normal:</strong> In pure restriction, both FEV₁ and FVC fall proportionally → ratio preserved → pattern may look normal on ratio alone. Always check raw FVC and FEV₁.</li>
+      <li><strong>DLCO without volume correction:</strong> Low DLCO due to low VA (e.g., poor effort, small lungs) will be corrected when expressed as KCO. Always report both.</li>
+      <li><strong>Race-based equations:</strong> Be aware of ongoing controversy. Applying race-based equations may systematically underestimate disease in non-white patients. Consider reporting with multiple reference sets when relevant.</li>
+      <li><strong>Longitudinal change:</strong> Serial PFTs should use consistent reference equations and technologists. A 15% decline in FVC or DLCO over time is clinically significant in ILD monitoring.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== 06 PATTERNS ===================== -->
+<div class="section" id="patterns">
+  <p class="section-title">Classic PFT Patterns</p>
+  <p class="section-sub">Recognizing disease signatures in the numbers</p>
+
+  <div class="card">
+    <table>
+      <tr><th>Pattern</th><th>FEV₁/FVC</th><th>FVC</th><th>TLC</th><th>RV</th><th>DLCO</th><th>Classic Diagnosis</th></tr>
+      <tr>
+        <td><span class="tag tag-red">Obstruction</span></td>
+        <td>↓ (&lt;LLN)</td><td>↓ or N</td><td>N or ↑</td><td>↑</td><td>N or ↓</td>
+        <td>COPD, Asthma</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">Restriction</span></td>
+        <td>N or ↑</td><td>↓</td><td>↓</td><td>↓ or N</td><td>↓ or N</td>
+        <td>IPF, Sarcoidosis, NM disease</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">Mixed</span></td>
+        <td>↓</td><td>↓</td><td>↓</td><td>↑</td><td>↓</td>
+        <td>Combined fibrosis + emphysema, advanced COPD with atelectasis</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">Emphysema</span></td>
+        <td>↓</td><td>N or ↓</td><td>↑↑</td><td>↑↑</td><td>↓↓</td>
+        <td>Emphysema (DLCO very low; hallmark)</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">Asthma</span></td>
+        <td>↓ (variable)</td><td>N or ↓</td><td>N or ↑</td><td>↑</td><td>N (or ↑ acutely)</td>
+        <td>Asthma: BDR positive; DLCO normal</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-yellow">CPFE</span></td>
+        <td>N</td><td>N</td><td>N</td><td>N</td><td>↓↓↓</td>
+        <td>Combined pulmonary fibrosis + emphysema: DLCO disproportionately low</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">PAH</span></td>
+        <td>N</td><td>N or mild ↓</td><td>N</td><td>N</td><td>↓ (KCO ↓)</td>
+        <td>Pulmonary vascular disease: isolated low DLCO</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">Neuromuscular</span></td>
+        <td>N</td><td>↓</td><td>↓</td><td>N</td><td>N (or ↑ KCO)</td>
+        <td>MG, ALS, diaphragm paralysis: MIP/MEP abnormal; DLCO often preserved</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>The CPFE Paradox</h3>
+  <div class="card">
+    <p>Combined Pulmonary Fibrosis and Emphysema is a pattern (not a diagnosis) where upper lobe emphysema and lower lobe fibrosis coexist. The opposing effects on lung volumes cancel each other out:</p>
+    <div class="highlight danger" style="margin-top:12px">
+      Fibrosis pulls volumes down → Emphysema pulls volumes up → Net: <strong>normal or near-normal spirometry and TLC</strong>. But DLCO is devastatingly low (both pathologies impair gas transfer). PAH is common and worsens prognosis.
+    </div>
+  </div>
+
+  <h3>Obstructive Patterns: COPD vs. Asthma</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">COPD / Emphysema</div>
+      <ul class="styled">
+        <li>FEV₁/FVC &lt;LLN (post-BD in GOLD criteria)</li>
+        <li>TLC ↑, RV ↑↑, FRC ↑ (hyperinflation)</li>
+        <li>DLCO ↓ (emphysema) or normal (chronic bronchitis)</li>
+        <li>BDR often present but not required for diagnosis</li>
+        <li>IC/TLC ratio &lt;25% = dynamic hyperinflation</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Asthma</div>
+      <ul class="styled">
+        <li>FEV₁/FVC may be normal between attacks</li>
+        <li>BDR usually positive (≥10% predicted)</li>
+        <li>DLCO normal (key differentiator from emphysema)</li>
+        <li>Methacholine challenge: PC20 &lt;8 mg/mL = positive</li>
+        <li>Air trapping (RV ↑) may be present during exacerbation</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 07 SPECIAL TESTS ===================== -->
+<div class="section" id="special">
+  <p class="section-title">Special Tests</p>
+  <p class="section-sub">Methacholine · MIP/MEP · 6MWT · FeNO · Exercise Testing</p>
+
+  <div class="card">
+    <div class="card-title">Methacholine Challenge Test (MCT)</div>
+    <table>
+      <tr><th>Parameter</th><th>Detail</th></tr>
+      <tr><td>Principle</td><td>Methacholine is a cholinergic agonist that causes bronchoconstriction proportional to airway hyperresponsiveness</td></tr>
+      <tr><td>Protocol</td><td>Doubling concentrations (0.0625 → 25 mg/mL) via 2-min tidal breathing or 5-breath dosimeter method; spirometry after each concentration</td></tr>
+      <tr><td>Positive</td><td><strong>PC20 ≤4 mg/mL</strong> = significant hyperresponsiveness (highly specific for asthma)</td></tr>
+      <tr><td>Borderline</td><td>PC20 4–16 mg/mL = mild/borderline hyperresponsiveness</td></tr>
+      <tr><td>Negative</td><td>PC20 >16 mg/mL = normal; effectively rules out current asthma (high NPV)</td></tr>
+      <tr><td>Contraindications</td><td>FEV₁ &lt;60% pred, recent MI, aortic aneurysm, pregnancy, severe HTN, cholinesterase inhibitors</td></tr>
+      <tr><td>Recovery</td><td>Administer 4 puffs albuterol at end; FEV₁ should return to within 10% of baseline within 20 min</td></tr>
+    </table>
+    <div class="highlight warn" style="margin-top:12px">
+      ⚠ MCT should never be performed if FEV₁ &lt;60% predicted. Baseline FEV₁ must be documented and be ≥70% for a reliable negative test.
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="card-title">Respiratory Muscle Strength: MIP & MEP</div>
+    <table>
+      <tr><th>Test</th><th>Measures</th><th>Normal</th><th>Clinical Use</th></tr>
+      <tr>
+        <td><strong>MIP</strong> (Pimax)</td>
+        <td>Maximal Inspiratory Pressure — from RV against occluded airway</td>
+        <td>Men: &gt;–75 cmH₂O; Women: &gt;–50 cmH₂O</td>
+        <td>Diaphragm/inspiratory muscle weakness (ALS, MG, phrenic nerve palsy)</td>
+      </tr>
+      <tr>
+        <td><strong>MEP</strong> (Pemax)</td>
+        <td>Maximal Expiratory Pressure — from TLC</td>
+        <td>Men: &gt;100 cmH₂O; Women: &gt;80 cmH₂O</td>
+        <td>Expiratory muscle weakness; cough effectiveness; NM disease</td>
+      </tr>
+    </table>
+    <div class="highlight" style="margin-top:12px">
+      💡 In neuromuscular disease: MIP falls early. When MIP &lt;–60 cmH₂O, significant inspiratory weakness present. MEP &lt;60 cmH₂O indicates impaired cough and secretion clearance → aspiration risk.
+    </div>
+    <p style="margin-top:10px;font-size:0.83rem;color:var(--muted)">Sitting vs. supine FVC comparison: If FVC drops &gt;20% from sitting to supine → bilateral diaphragm weakness (high sensitivity).</p>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="card-title">6-Minute Walk Test (6MWT)</div>
+    <table>
+      <tr><th>Parameter</th><th>Threshold / Significance</th></tr>
+      <tr><td>6MWD (distance)</td><td>Normal varies widely by age/sex; predicted ~580 m (men), ~500 m (women)</td></tr>
+      <tr><td>Clinically meaningful decline</td><td><strong>26–30 m</strong> = minimal clinically important difference (MCID) in COPD and ILD</td></tr>
+      <tr><td>SpO₂ desaturation</td><td>Drop to &lt;88–90% on room air → significant exertional hypoxemia → qualify for O₂</td></tr>
+      <tr><td>Borg dyspnea scale</td><td>Rate 0–10 before and after; &gt;5 at rest = severe baseline dyspnea</td></tr>
+      <tr><td>ILD prognosis</td><td>6MWD &lt;250 m = poor prognosis in IPF; included in GAP index</td></tr>
+      <tr><td>PAH</td><td>6MWD is primary outcome in major PAH trials; strongly predicts mortality</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="card-title">FeNO (Fractional Exhaled Nitric Oxide)</div>
+    <table>
+      <tr><th>Value</th><th>Interpretation</th><th>Clinical Action</th></tr>
+      <tr><td><span class="tag tag-green">&lt;25 ppb</span></td><td>Low eosinophilic airway inflammation</td><td>ICS less likely to benefit; consider stepping down</td></tr>
+      <tr><td><span class="tag tag-yellow">25–50 ppb</span></td><td>Intermediate</td><td>Interpret in clinical context</td></tr>
+      <tr><td><span class="tag tag-red">&gt;50 ppb</span></td><td>High type 2 airway inflammation</td><td>Strong indicator of ICS response; evaluate for eosinophilic asthma</td></tr>
+    </table>
+    <div class="highlight" style="margin-top:12px">
+      💡 FeNO is <strong>not</strong> a standalone asthma diagnostic. Use alongside spirometry and symptom assessment. Smoking and systemic corticosteroids lower FeNO; allergic rhinitis, atopy raise it.
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 08 CLINICAL CASES ===================== -->
+<div class="section" id="clinical">
+  <p class="section-title">Clinical Cases</p>
+  <p class="section-sub">Apply the algorithm to real-world PFT scenarios</p>
+
+  <div id="cases-container"></div>
+</div>
+
+<!-- ===================== 09 FVC vs SVC ===================== -->
+<div class="section" id="fvcdive">
+  <p class="section-title">FVC vs. SVC — When & Why It Matters</p>
+  <p class="section-sub">The slow vital capacity is one of the most underused tools in the PFT lab</p>
+
+  <div class="card">
+    <div class="card-title">What Is SVC (Slow Vital Capacity)?</div>
+    <p>SVC is the maximal volume exhaled <strong>slowly and completely</strong> from TLC to RV — no forced effort, no time pressure. It should theoretically equal FVC because both measure the same volume (TLC − RV). In healthy lungs, they are nearly identical. In disease, they diverge — and that divergence tells you something important.</p>
+    <div class="highlight" style="margin-top:14px">
+      💡 <strong>Key principle:</strong> FVC is an effort-dependent, time-limited maneuver. When airways collapse prematurely during forced exhalation (dynamic airway compression), the patient cannot exhale all their air before RV is reached — they trap gas. SVC, done slowly, avoids this collapse and gives a truer estimate of VC.
+    </div>
+  </div>
+
+  <h3>The SVC > FVC Gap — What It Means</h3>
+  <div class="card">
+    <table>
+      <tr><th>SVC vs FVC</th><th>Interpretation</th><th>Mechanism</th><th>Clinical Context</th></tr>
+      <tr>
+        <td><span class="tag tag-green">SVC ≈ FVC</span><br><small>Difference &lt;150–200 mL</small></td>
+        <td>No significant air trapping during forced maneuver</td>
+        <td>Airways remain open throughout forced exhalation</td>
+        <td>Normal, mild restriction, or mild disease</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">SVC &gt; FVC</span><br><small>Difference &gt;200–300 mL</small></td>
+        <td><strong>Dynamic airway collapse</strong> — forced exhalation causes early airway closure, trapping gas that SVC can recover</td>
+        <td>High driving pressure during forced effort → airway compression → gas trapped behind closed airways</td>
+        <td>COPD, emphysema, moderate-severe asthma, bronchiectasis</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">SVC &gt;&gt; FVC</span><br><small>Difference &gt;500 mL</small></td>
+        <td>Significant air trapping / severe dynamic collapse</td>
+        <td>Severely floppy airways (emphysema) or severe obstruction</td>
+        <td>Advanced COPD, emphysema — correlates with RV elevation</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>Why This Changes Your Interpretation</h3>
+  <div class="card">
+    <p>This is the <strong>obstructive pseudorestriction</strong> problem in practice. When you only have FVC:</p>
+    <div class="flow" style="margin-top:12px">
+      <div class="flow-node decision">FVC low + FEV₁/FVC normal → "Possible restriction"</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action">Check SVC: Is SVC significantly higher than FVC?</div>
+      <div class="flow-arrow">↓</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="flow-node result"><strong>SVC &gt; FVC by &gt;200 mL:</strong><br>The "low FVC" is from air trapping — not restriction. True VC is better reflected by SVC. Obstruction with air trapping masquerading as restriction.</div>
+        <div class="flow-node action"><strong>SVC ≈ FVC:</strong><br>The reduced FVC is real. Proceed to TLC measurement to confirm restriction.</div>
+      </div>
+    </div>
+    <div class="highlight warn" style="margin-top:14px">
+      ⚠ In practice, use the <strong>largest VC</strong> (whether from SVC or FVC) when calculating TLC = VC + RV. Using a falsely low FVC will underestimate TLC and may falsely suggest restriction even on plethysmography.
+    </div>
+  </div>
+
+  <h3>Which VC to Report?</h3>
+  <div class="card">
+    <ul class="styled">
+      <li><strong>Always report the larger of SVC and FVC</strong> as the "vital capacity" — this is the ATS/ERS recommendation</li>
+      <li>When calculating TLC from spirometry + plethysmography, use the largest VC available</li>
+      <li>If SVC and FVC are similar, either is acceptable — FVC is used for primary spirometric interpretation</li>
+      <li>In COPD patients especially, always perform SVC — the gap is clinically meaningful and affects severity grading</li>
+      <li>A patient with FVC = 2.0 L and SVC = 2.6 L has meaningful air trapping — their "restriction" is an artifact</li>
+    </ul>
+  </div>
+
+  <h3>Practical Tips in the PFT Lab</h3>
+  <div class="card">
+    <ul class="styled">
+      <li><strong>SVC technique:</strong> Patient breathes to TLC (maximal inspiration), then exhales as completely as possible at a comfortable pace — no blast, no rushing. Typical exhalation time 6–15 sec.</li>
+      <li><strong>ERV maneuver:</strong> Can also do SVC from FRC upward (inspiratory VC) — volume should be identical</li>
+      <li><strong>Coach the patient:</strong> "Breathe all the way in… now let it all out slowly, all the way until you can't push any more." Effort at the very end of exhalation matters — incomplete effort at RV is the most common error.</li>
+      <li><strong>When FVC &lt;SVC:</strong> Document both values and report the gap. Note: "FVC &lt;SVC by X mL, consistent with dynamic airway collapse / air trapping during forced maneuver."</li>
+      <li><strong>Pre- and post-BD SVC:</strong> SVC often increases more than FVC after bronchodilator in COPD — reflects reversal of dynamic hyperinflation. This is why some patients feel better after BD even when FEV₁ barely budges.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== 10 FVL DEEP DIVE ===================== -->
+<div class="section" id="fvldive">
+  <p class="section-title">Flow-Volume Loop — Deep Dive</p>
+  <p class="section-sub">Reading the loop systematically · Identifying scooping · Patterns you must recognize</p>
+
+  <div class="card">
+    <div class="card-title">Anatomy of the Normal Flow-Volume Loop</div>
+    <p>The FVL plots <strong>flow (y-axis, L/sec)</strong> against <strong>volume exhaled (x-axis, L)</strong>. Exhalation is the upper curve (positive flow), inhalation is the lower curve (negative flow). The x-axis goes from 0 (TLC, start of exhalation) to FVC (RV, end of exhalation).</p>
+    <div class="spiro-canvas" style="margin-top:14px">
+      <canvas id="fvlAnnotated" height="300"></canvas>
+    </div>
+    <div class="pill-row" style="margin-top:10px">
+      <button class="tag tag-green" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawAnnotated('normal')">Normal — Annotated</button>
+      <button class="tag tag-red" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawAnnotated('mild_obs')">Mild Obstruction</button>
+      <button class="tag tag-red" style="cursor:pointer;border:none;padding:5px 14px;opacity:0.7" onclick="drawAnnotated('mod_obs')">Moderate Obstruction</button>
+      <button class="tag tag-red" style="cursor:pointer;border:none;padding:5px 14px;opacity:0.5" onclick="drawAnnotated('sev_obs')">Severe Obstruction</button>
+      <button class="tag tag-purple" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawAnnotated('restrict')">Restriction</button>
+      <button class="tag tag-yellow" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawAnnotated('fixed_uao')">Fixed UAO</button>
+      <button class="tag tag-orange" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawAnnotated('var_extra')">Variable Extrathoracic</button>
+      <button class="tag tag-blue" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawAnnotated('var_intra')">Variable Intrathoracic</button>
+      <button class="tag tag-green" style="cursor:pointer;border:none;padding:5px 14px;background:rgba(63,185,80,0.15);border:1px solid rgba(63,185,80,0.4)" onclick="drawAnnotated('asymptotic')">↗ Asymptotic Tail</button>
+      <button class="tag tag-green" style="cursor:pointer;border:none;padding:5px 14px;background:rgba(210,168,255,0.15);border:1px solid rgba(210,168,255,0.4);color:#d2a8ff" onclick="drawAnnotated('blunted_pef')">↘ Blunted PEF</button>
+      <button class="tag tag-green" style="cursor:pointer;border:none;padding:5px 14px;background:rgba(227,179,65,0.15);border:1px solid rgba(227,179,65,0.4);color:#e3b341" onclick="drawAnnotated('poor_effort')">Poor Effort</button>
+    </div>
+    <div id="fvl-annotated-desc" class="highlight" style="margin-top:10px;font-size:0.82rem"></div>
+  </div>
+
+  <h3>Volume-Time Curve — The Companion Graph</h3>
+  <div class="card">
+    <div class="card-title">Same breath, different axes — x = Time (sec), y = Volume (L)</div>
+    <p style="margin-bottom:14px">Generated simultaneously with the FVL. Use this to assess <strong>test quality</strong>, duration, and timing. The FVL shows you <em>what</em> is happening; the VTC shows you <em>when</em>.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+      <div class="spiro-canvas">
+        <canvas id="vtcCanvas" height="240"></canvas>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;justify-content:center">
+        <div class="metric"><div class="val" style="font-size:0.9rem">FEV₁</div><div class="label">Volume at exactly 1 second mark</div></div>
+        <div class="metric"><div class="val" style="font-size:0.9rem">Plateau</div><div class="label">Change &lt;25 mL over 1 sec = true end of exhalation</div></div>
+        <div class="metric"><div class="val" style="font-size:0.9rem">Duration</div><div class="label">≥6 sec adults (≥3 sec children) required</div></div>
+        <div class="metric"><div class="val" style="font-size:0.9rem">Back-extrap</div><div class="label">Volume at time zero &lt;5% FVC or &lt;150 mL</div></div>
+      </div>
+    </div>
+    <div class="pill-row">
+      <button class="tag tag-green" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawVTC('normal');drawAnnotated('normal')">Normal</button>
+      <button class="tag tag-red" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawVTC('obstruction');drawAnnotated('mod_obs')">Obstruction</button>
+      <button class="tag tag-purple" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawVTC('restriction');drawAnnotated('restrict')">Restriction</button>
+      <button class="tag tag-yellow" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawVTC('early_term');drawAnnotated('poor_effort')">Early Termination</button>
+      <button class="tag tag-orange" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawVTC('poor_start');drawAnnotated('blunted_pef')">Poor Start</button>
+      <button class="tag tag-blue" style="cursor:pointer;border:none;padding:5px 14px" onclick="drawVTC('cough');drawAnnotated('poor_effort')">Cough Artifact</button>
+    </div>
+    <div id="vtc-desc" class="highlight" style="margin-top:10px;font-size:0.82rem"></div>
+
+    <h4 style="margin-top:20px">FVL vs VTC — When to Use Each</h4>
+    <table>
+      <tr><th></th><th>Flow-Volume Loop</th><th>Volume-Time Curve</th></tr>
+      <tr><td>X-axis</td><td>Volume exhaled (L)</td><td>Time (seconds)</td></tr>
+      <tr><td>Y-axis</td><td>Flow (L/sec)</td><td>Volume (L)</td></tr>
+      <tr><td>Scooping / obstruction pattern</td><td><span class="tag tag-green">✓ Best</span></td><td><span class="tag tag-red">✗ Not visible</span></td></tr>
+      <tr><td>UAO pattern recognition</td><td><span class="tag tag-green">✓ Best</span></td><td><span class="tag tag-red">✗ Not visible</span></td></tr>
+      <tr><td>FEV₁ at 1 second</td><td><span class="tag tag-yellow">Estimated only</span></td><td><span class="tag tag-green">✓ Direct</span></td></tr>
+      <tr><td>Test duration adequacy</td><td><span class="tag tag-red">✗ Cannot tell</span></td><td><span class="tag tag-green">✓ Best</span></td></tr>
+      <tr><td>Early termination</td><td><span class="tag tag-red">✗ Not obvious</span></td><td><span class="tag tag-green">✓ Obvious</span></td></tr>
+      <tr><td>Back-extrapolation / start quality</td><td><span class="tag tag-yellow">Partial</span></td><td><span class="tag tag-green">✓ Best</span></td></tr>
+      <tr><td>Plateau confirmation</td><td><span class="tag tag-red">✗ Not visible</span></td><td><span class="tag tag-green">✓ Best</span></td></tr>
+      <tr><td>Cough artifact timing</td><td>Visible as notch</td><td><span class="tag tag-green">✓ Visible as spike</span></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">The Scooping Assessment Framework</div>
+    <p style="margin-bottom:14px">Scooping = concavity of the expiratory limb. Here's how to evaluate it systematically:</p>
+    <div class="flow">
+      <div class="flow-node action">
+        <div class="flow-label">STEP 1 — Identify the Peak Expiratory Flow (PEF)</div>
+        In normal lungs, PEF occurs very early (~15–20% of FVC exhaled). It should be sharp and high. A blunted or delayed PEF suggests effort or upper airway issue.
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action">
+        <div class="flow-label">STEP 2 — Assess the descending limb shape</div>
+        After PEF, draw an imaginary straight line from PEF to the end of the curve (where it meets the x-axis at RV). 
+        <strong>Is the actual curve above or below this line?</strong>
+        <br>• <span style="color:var(--accent3)">Above = convex = normal</span>
+        <br>• <span style="color:var(--accent2)">Below = concave = scooped = obstruction</span>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action">
+        <div class="flow-label">STEP 3 — Where does scooping occur?</div>
+        • Early (first 25% of FVC): large airway disease, tracheal, significant obstruction<br>
+        • Mid (FEF₂₅₋₇₅ zone): typical COPD, classic scooping<br>
+        • Late only (last 25%): small airway disease — subtle, may have normal FEV₁/FVC
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action">
+        <div class="flow-label">STEP 4 — Check the terminal portion</div>
+        Does the curve reach zero flow smoothly? Or does it tail off asymptotically (never quite reaching zero)? <strong>An asymptotic tail = severe air trapping</strong> — the patient runs out of drive before fully emptying.
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node decision">
+        <div class="flow-label">STEP 5 — Look at the inspiratory limb</div>
+        Normal: smooth semicircle. Flattened = variable extrathoracic UAO (inspiration is effort-independent above the glottis). Both limbs flat = fixed UAO.
+      </div>
+    </div>
+  </div>
+
+  <h3>The Physics of Why Scooping Happens</h3>
+  <div class="card">
+    <div class="card-title">Equal Pressure Point (EPP) Theory</div>
+    <p>During forced exhalation, airway pressure decreases as you move from alveolus toward mouth (resistive pressure drop). At some point — the <strong>Equal Pressure Point</strong> — the airway pressure equals pleural pressure. Downstream from EPP (toward mouth), transmural pressure is negative: the airway is compressed by surrounding pleural pressure.</p>
+    <div class="highlight" style="margin-top:12px">
+      In healthy lungs: EPP is in the large, cartilaginous airways — they resist compression. Flow is high.<br><br>
+      In emphysema/COPD: Loss of elastic recoil → low driving pressure → EPP moves upstream into small, floppy airways → <strong>dynamic compression occurs earlier at lower lung volumes</strong> → flow falls off steeply → <strong>scooping</strong>.
+    </div>
+    <p style="margin-top:12px;font-size:0.85rem;color:var(--muted)">This is why scooping worsens as volume decreases (toward RV) — elastic recoil is lower at low volumes, EPP migrates further upstream, and small airways collapse earlier. This is also why flow at 50% and 25% of FVC (FEF₅₀, FEF₂₅) is most sensitive to small airway disease.</p>
+  </div>
+
+  <h3>Upper Airway Obstruction Patterns</h3>
+  <div class="card">
+    <table>
+      <tr><th>Type</th><th>Expiratory Limb</th><th>Inspiratory Limb</th><th>Cause</th></tr>
+      <tr>
+        <td><span class="tag tag-yellow">Fixed UAO</span></td>
+        <td>Flattened plateau</td>
+        <td>Flattened plateau</td>
+        <td>Tracheal stenosis, subglottic stricture, goiter, tracheal tumor — obstruction is rigid, does not change with breathing phase</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">Variable Extrathoracic</span></td>
+        <td>Normal</td>
+        <td><strong>Flattened</strong></td>
+        <td>Vocal cord dysfunction (VCD), bilateral vocal cord paralysis, subglottic malacia — during inspiration, negative pressure collapses floppy extrathoracic airway; during exhalation, positive pressure opens it</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">Variable Intrathoracic</span></td>
+        <td><strong>Flattened</strong></td>
+        <td>Normal</td>
+        <td>Tracheomalacia, bronchomalacia — during exhalation, positive pleural pressure collapses floppy intrathoracic trachea; during inspiration, negative pleural pressure opens it</td>
+      </tr>
+    </table>
+    <div class="highlight warn" style="margin-top:14px">
+      ⚠ <strong>Quantifying UAO:</strong> Empey index = FEV₁(mL) / PEF(L/min). If &gt;10, suggests large airway obstruction. Also: FEF₅₀/FIF₅₀ ratio — normally ~1. &gt;1 = expiratory predominance (intrathoracic or fixed); &lt;1 = inspiratory predominance (extrathoracic).
+    </div>
+  </div>
+
+  <h3>Subtle Patterns to Know</h3>
+  <div class="card">
+    <ul class="styled">
+      <li><strong>Sawtooth pattern:</strong> Oscillations on expiratory or both limbs → upper airway instability, seen in OSA, Parkinson's, REM behavior disorder. Caused by rhythmic partial collapse of pharyngeal walls.</li>
+      <li><strong>Notch on expiratory limb:</strong> Sudden dip or step partway through exhalation → glottic closure (patient holds breath momentarily), cough artifact, or variable effort. Usually a technical artifact.</li>
+      <li><strong>High PEF with rapid flow fall:</strong> "Ski slope" pattern — very high initial flow that collapses quickly → emphysema with severely reduced recoil. Despite good initial effort, driving pressure is lost quickly.</li>
+      <li><strong>Low PEF with preserved mid-flow:</strong> Suggests poor effort or upper airway weakness rather than obstructive lung disease. Check reproducibility and coaching.</li>
+      <li><strong>Inspiratory loop larger than expiratory:</strong> Rare — seen in obesity or neuromuscular disease where expiratory muscles are very weak.</li>
+      <li><strong>Normal FVL with abnormal spirometry numbers:</strong> Shape is normal but shifted — loop is narrow (restriction) or the tail is prolonged. Always look at both the numbers and the shape.</li>
+    </ul>
+  </div>
+
+  <h3>Reading the Loop Before Looking at Numbers</h3>
+  <div class="card">
+    <div class="card-title">A Disciplined Approach</div>
+    <p>Train yourself to look at the loop <em>before</em> reading the printed values. Ask in order:</p>
+    <div style="counter-reset:step">
+    <ul class="styled">
+      <li><strong>Is the loop wide or narrow?</strong> Width = FVC. Narrow → restriction or air trapping.</li>
+      <li><strong>Is the expiratory peak sharp or blunted?</strong> Blunted → poor effort or UAO.</li>
+      <li><strong>Is the descending limb straight, convex, or concave?</strong> Concave = obstructed.</li>
+      <li><strong>Where does scooping begin?</strong> Early = large airway; late = small airway.</li>
+      <li><strong>Does the curve reach the x-axis cleanly?</strong> Asymptotic tail = air trapping.</li>
+      <li><strong>Is the inspiratory limb normal?</strong> Flat = UAO (extrathoracic or fixed).</li>
+      <li><strong>Are there artifacts?</strong> Sawtooth, notches, variable effort, early termination.</li>
+    </ul>
+    </div>
+    <div class="highlight success" style="margin-top:12px">
+      ✓ If your loop-based gestalt and the numbers disagree — trust your gestalt and look for technical issues with the maneuver. A perfect-looking loop with "abnormal" numbers often means a reference equation mismatch or borderline finding.
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 11 LOW VA / NO TLC ===================== -->
+<div class="section" id="lowva">
+  <p class="section-title">Low VA with Normal FVC — What Now?</p>
+  <p class="section-sub">One of the most common and underappreciated PFT conundrums</p>
+
+  <div class="card">
+    <div class="card-title">The Setup</div>
+    <p>You get a DLCO result back. FVC is normal (or near-normal). But VA — the alveolar volume measured during the single-breath DLCO maneuver — is low. No plethysmography was ordered. What does this mean? Is the DLCO genuinely low, or is it low because VA is low?</p>
+    <div class="highlight danger" style="margin-top:12px">
+      ⚠ <strong>This is a critical interpretive problem.</strong> DLCO depends on the volume of gas distributed during the breath-hold. If the patient didn't inhale fully (low VA), DLCO will be falsely low — not because of disease, but because less lung participated in gas exchange.
+    </div>
+  </div>
+
+  <h3>What VA Actually Measures</h3>
+  <div class="card">
+    <p>VA is calculated from the <strong>helium dilution</strong> during the single-breath DLCO maneuver. The patient inspires from RV to TLC — if they do this fully, VA ≈ TLC. If they don't fully inspire (submaximal effort, obesity limiting TLC, true restriction, or gas maldistribution), VA will be lower than true TLC.</p>
+    <table style="margin-top:14px">
+      <tr><th>Reason VA is Low</th><th>FVC</th><th>DLCO</th><th>KCO</th><th>Action</th></tr>
+      <tr>
+        <td><strong>Submaximal inspiration</strong> (technical)</td>
+        <td>Normal</td>
+        <td>Falsely ↓</td>
+        <td>Normal or ↑</td>
+        <td>Repeat with coaching; check inspiratory volume ≥85–90% of VC</td>
+      </tr>
+      <tr>
+        <td><strong>True restriction</strong> (small TLC)</td>
+        <td>↓</td>
+        <td>↓ (proportional)</td>
+        <td>Normal or ↑</td>
+        <td>Get TLC by plethysmography</td>
+      </tr>
+      <tr>
+        <td><strong>Gas maldistribution</strong> (uneven ventilation)</td>
+        <td>Normal or ↓</td>
+        <td>↓</td>
+        <td>Normal or ↓</td>
+        <td>VA underestimates true lung volume; DLCO interpretation unreliable</td>
+      </tr>
+      <tr>
+        <td><strong>Obesity</strong> (low FRC, small ERV)</td>
+        <td>Normal or mildly ↓</td>
+        <td>Mildly ↓ or N</td>
+        <td>Normal or ↑</td>
+        <td>KCO elevated = clue to obesity effect</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>The KCO (DLCO/VA) — Your Most Important Tool Here</h3>
+  <div class="card">
+    <div class="card-title">Using KCO to Disentangle Low VA</div>
+    <p>KCO = DLCO ÷ VA. It normalizes diffusing capacity for the volume of lung that participated in the test. When VA is low:</p>
+    <div class="flow" style="margin-top:12px">
+      <div class="flow-node decision">VA is low. Is KCO normal, elevated, or low?</div>
+      <div class="flow-arrow">↓</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="flow-node action">
+          <strong style="color:var(--accent3)">KCO Normal or ↑</strong><br><br>
+          The lung tissue that <em>did</em> participate is healthy. Low VA is from: (a) submaximal effort — repeat the test, or (b) true restriction — the small amount of lung present is intrinsically normal. Get TLC to confirm.
+        </div>
+        <div class="flow-node result">
+          <strong style="color:var(--accent2)">KCO Low</strong><br><br>
+          Even the lung that participated is diseased. This is genuine parenchymal or vascular pathology — emphysema, ILD, PAH. Low DLCO is real, not just a volume artifact.
+        </div>
+        <div class="flow-node decision">
+          <strong style="color:var(--warn)">KCO High</strong><br><br>
+          With low VA: strongly suggests restriction — remaining lung is over-recruited (doing the work of the missing volume). Also seen in obesity, polycythemia, alveolar hemorrhage.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>The VA/TLC Ratio — When You Do Have TLC</h3>
+  <div class="card">
+    <p>When plethysmographic TLC is available, compare it to VA from the DLCO maneuver:</p>
+    <div class="highlight" style="margin-top:10px">
+      <strong>VA/TLC ratio</strong> (normal ≥0.85–0.90)<br><br>
+      If VA/TLC &lt;0.85 → significant <strong>gas maldistribution</strong> — unevenly ventilated regions are not sampled by the He bolus. DLCO is an underestimate of true diffusing capacity because poorly ventilated lung units received no test gas. This is most pronounced in severe emphysema with bullae.
+    </div>
+    <div class="highlight warn" style="margin-top:10px">
+      ⚠ When VA/TLC is very low (e.g., 0.60), DLCO may severely underestimate true diffusing capacity. Some labs will note: "DLCO may underestimate true diffusing capacity due to significant gas maldistribution (VA/TLC = X)."
+    </div>
+  </div>
+
+  <h3>What To Do When You Have Normal FVC but Low VA and No TLC</h3>
+  <div class="card">
+    <div class="card-title">Decision Algorithm</div>
+    <div class="flow">
+      <div class="flow-node decision">FVC normal + VA low on DLCO + No TLC available</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action"><strong>Step 1: Check inspiratory volume (IV) for the DLCO maneuver</strong><br>IV should be ≥85% of the largest VC. If IV &lt;85% of VC → <strong>submaximal inspiration</strong> → technically inadequate test → repeat with coaching.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action"><strong>Step 2: If IV was adequate, check KCO</strong><br>KCO normal or elevated → low VA likely reflects true small lungs or obesity. Report: "DLCO reduced; KCO preserved, suggesting volume-dependent reduction rather than intrinsic membrane pathology."</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action"><strong>Step 3: Compare VA to FVC</strong><br>VA should approximate TLC, which is always &gt;FVC. If VA &lt;FVC → definitely submaximal inspiration — the patient didn't even inspire to their FVC volume. This test is invalid for DLCO.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node result"><strong>Step 4: Recommend plethysmography</strong><br>This is the definitive answer. Note in your report: "TLC measurement recommended to clarify whether low VA reflects true restriction vs. gas maldistribution vs. submaximal effort."</div>
+    </div>
+    <div class="highlight success" style="margin-top:14px">
+      ✓ <strong>The critical rule:</strong> If VA &lt; FVC, the DLCO test is technically invalid. The patient did not inspire fully. No interpretation should be made from DLCO in this setting. Repeat the test.
+    </div>
+  </div>
+
+  <h3>Putting It Together — Worked Example</h3>
+  <div class="card">
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--muted);line-height:2">
+      FVC = 3.2 L (92% pred) &nbsp;|&nbsp; FEV₁/FVC = 0.80 &nbsp;|&nbsp; FEV₁ = 88% pred<br>
+      DLCO = 52% pred &nbsp;|&nbsp; VA = 3.8 L &nbsp;|&nbsp; KCO = 68% pred<br>
+      TLC by plethysmography: not done
+    </div>
+    <div class="highlight" style="margin-top:12px">
+      <strong>Analysis:</strong><br>
+      • Spirometry: normal (no obstruction, FVC normal)<br>
+      • VA = 3.8 L vs FVC = 3.2 L → VA &gt; FVC ✓ (adequate inspiration — reached at least above FVC)<br>
+      • However, TLC is typically FVC + RV. RV ~1.2–1.5 L → expected TLC ~4.4–4.7 L. VA = 3.8 L is low for expected TLC → some gas maldistribution or mildly submaximal effort.<br>
+      • KCO = 68% predicted → below LLN → even the lung that participated is diseased.<br>
+      • <strong>Interpretation:</strong> Moderately reduced DLCO with reduced KCO, in the setting of normal spirometry. Pattern consistent with pulmonary vascular disease (PAH, CTEPH) or early ILD. CPFE cannot be excluded. Recommend TLC + CT chest.
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 08 CAVEATS ===================== -->
+<div class="section" id="caveats">
+  <p class="section-title">Caveats, Pitfalls & Edge Cases</p>
+  <p class="section-sub">The things that trip everyone up · ERV · VA alone · Pseudo-restriction · Patterns that lie</p>
+
+  <div class="card">
+    <div class="card-title">Can I Use VA Alone to Say Restriction Without TLC?</div>
+    <p><strong>Short answer: No. But VA gives you useful clues.</strong></p>
+    <p style="margin-top:8px">VA is measured during the single-breath DLCO maneuver via helium dilution. It approximates TLC only if the patient inhaled fully (inspiration ≥85% of VC) and gas distribution is uniform. VA is almost always ≤ TLC — never greater. So:</p>
+    <div class="flow" style="margin-top:12px">
+      <div class="flow-node decision">VA is low. FVC is normal or also low. No TLC available.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action"><strong>First: Was inspiration adequate?</strong> Check inspiratory volume (IV) for the DLCO maneuver. IV must be ≥85% of the largest VC. If VA &lt; FVC → the patient didn't even inspire to their own FVC → test is <span style="color:var(--accent2)">technically invalid</span>. Repeat.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action"><strong>If IV was adequate:</strong> Check KCO (DLCO/VA). If KCO is normal or elevated → the lung tissue present is healthy. Low VA + normal KCO = small lungs (restriction) OR obesity (high KCO). Low VA + low KCO = diseased lung tissue (emphysema, ILD, vascular disease).</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node result"><strong>Bottom line:</strong> VA alone cannot confirm restriction. You can say "VA is reduced, consistent with restriction, but TLC measurement is needed to confirm." Never diagnose restriction from VA alone in a report.</div>
+    </div>
+    <div class="highlight warn" style="margin-top:12px">
+      ⚠ VA/TLC ratio (when TLC available): if &lt;0.85, significant gas maldistribution — poorly ventilated units not sampled by He bolus → DLCO underestimates true diffusing capacity. Common in emphysema with bullae.
+    </div>
+  </div>
+
+  <h3>Can I Rely on ERV?</h3>
+  <div class="card">
+    <div class="card-title">ERV (Expiratory Reserve Volume) — Use With Extreme Caution</div>
+    <p>ERV = FRC − RV = the volume you can exhale below tidal end-expiration. It sounds useful but is the <strong>most effort-dependent and variable</strong> of all lung volume compartments. Problems:</p>
+    <ul class="styled">
+      <li><strong>Highly variable within sessions:</strong> ERV can change 20–30% between maneuvers depending on where the patient is breathing tidally. FRC itself varies breath to breath.</li>
+      <li><strong>Obesity:</strong> ERV is dramatically reduced in obesity because abdominal contents push the diaphragm up, reducing FRC. An obese patient may have ERV of 0.3–0.5 L vs. 1.0–1.5 L expected. This does NOT mean lung disease.</li>
+      <li><strong>Supine position:</strong> ERV falls significantly when supine — if testing is done semi-reclined, ERV is not interpretable.</li>
+      <li><strong>Not used for diagnosis:</strong> ERV is never used alone to diagnose obstruction or restriction. It contributes to calculating FRC (ERV + RV) but the individual value has limited standalone clinical utility.</li>
+    </ul>
+    <div class="highlight warn" style="margin-top:10px">
+      ⚠ A low ERV in an obese patient with normal FEV₁/FVC and normal TLC is NOT restriction. It's a positional/mechanical effect of obesity on the chest wall. KCO is often elevated in this setting — another clue.
+    </div>
+  </div>
+
+  <h3>Obstructive Pseudorestriction</h3>
+  <div class="card">
+    <p>One of the most common misdiagnoses in PFT interpretation. In severe obstruction, massive air trapping elevates RV. This RV "steals" from the VC — as RV goes up, FVC comes down. The FEV₁/FVC may now be near-normal (both are reduced proportionally) and the FVC is low → looks like restriction.</p>
+    <div class="flow" style="margin-top:12px">
+      <div class="flow-node decision">FVC low + FEV₁/FVC normal → "Possible restriction"</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node action">Get TLC. Is TLC low, normal, or HIGH?</div>
+      <div class="flow-arrow">↓</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="flow-node result"><strong>TLC normal or ↑:</strong> NOT restriction. This is obstructive pseudorestriction — air trapping reduced the FVC. RV is elevated. TLC is your arbiter.</div>
+        <div class="flow-node action"><strong>TLC ↓:</strong> True restriction confirmed. Now you can grade severity by TLC % predicted.</div>
+      </div>
+    </div>
+    <div class="highlight" style="margin-top:12px">
+      💡 Also check SVC vs FVC gap — if SVC is significantly higher than FVC, the "low FVC" was from dynamic collapse during forced exhalation, not a small lung.
+    </div>
+  </div>
+
+  <h3>When FEV₁/FVC Lies</h3>
+  <div class="card">
+    <ul class="styled">
+      <li><strong>Ratio artificially normal in restriction:</strong> In pure parenchymal restriction (e.g., IPF), both FEV₁ and FVC fall in proportion → ratio preserved or even elevated. The ratio alone will not flag this — you must look at the absolute FVC and FEV₁ values against LLN.</li>
+      <li><strong>Ratio artificially elevated in mixed disease:</strong> If obstruction and restriction coexist, the FVC may fall more than FEV₁ → ratio rises toward normal → obstruction is masked. Always look at the TLC to unmask the obstruction component.</li>
+      <li><strong>Ratio near LLN in a tall young male:</strong> LLN for FEV₁/FVC in a healthy 25yo male can be as low as 0.68–0.70. Using a fixed cutoff of 0.70 will misclassify him as obstructed. Always use LLN from reference equations, not a fixed number.</li>
+      <li><strong>Ratio artificially high in poor effort:</strong> If the patient terminates early, FVC is truncated → ratio rises → looks like restriction or normal when the patient is actually obstructed. Check exhalation duration on VTC.</li>
+    </ul>
+  </div>
+
+  <h3>DLCO Pitfalls</h3>
+  <div class="card">
+    <ul class="styled">
+      <li><strong>Anemia not corrected:</strong> Every 1 g/dL drop in Hb below reference reduces DLCO ~4–5%. Always correct for Hb. An uncorrected DLCO in a severely anemic patient may be reported as "moderately reduced" when it's actually normal for their Hb.</li>
+      <li><strong>COHb from smoking:</strong> Carboxyhemoglobin occupies Hb binding sites, reducing CO uptake. Heavy smokers who smoked within 4–6 hours of testing will have falsely LOW DLCO. Ask about recent smoking.</li>
+      <li><strong>Alveolar hemorrhage:</strong> Paradoxically ELEVATED DLCO — free Hb in alveoli binds CO avidly. A rising DLCO on serial testing in a patient with hemoptysis is a red flag, not reassurance.</li>
+      <li><strong>Recent exercise:</strong> Pulmonary capillary recruitment from exercise can transiently elevate DLCO for 30–60 min. Patients should avoid exercise before testing.</li>
+      <li><strong>Breath-hold time:</strong> Must be 10 ± 2 seconds. Too short → DLCO overestimated. Too long → CO equilibrates → DLCO underestimated. Check technical parameters before interpreting.</li>
+    </ul>
+  </div>
+
+  <h3>Race-Based Equations — The Active Controversy</h3>
+  <div class="card">
+    <ul class="styled">
+      <li><strong>Old GLI-2012:</strong> Separate equations for Caucasian, Black, NE Asian, SE Asian — Black reference values set ~12% lower for FVC/FEV₁</li>
+      <li><strong>ATS 2023 statement:</strong> Recommends race-neutral (global) equations as the preferred default — race is a social construct, not a biological variable, and lower predicted values for Black patients likely encode socioeconomic and environmental disadvantage, not physiology</li>
+      <li><strong>Practical consequence:</strong> A Black patient previously tested with race-specific equations may have "normal" results that become below LLN when race-neutral equations are applied — potentially unmasking real disease that was systematically hidden</li>
+      <li><strong>Your lab policy:</strong> Confirm your PFT software default. If still using race-specific equations, flag this in your reports and consider dual reporting during the transition period</li>
+      <li><strong>DLCO and volumes:</strong> Race-based equations exist for these too (GLI-2017, GLI-2021) — same controversy applies</li>
+    </ul>
+  </div>
+
+  <h3>Longitudinal PFT Interpretation</h3>
+  <div class="card">
+    <ul class="styled">
+      <li><strong>Meaningful decline in FVC (ILD monitoring):</strong> ≥10% relative decline OR ≥200 mL absolute over 12 months = clinically significant progression in IPF (per ATS/ERS IPF guidelines)</li>
+      <li><strong>Meaningful decline in DLCO:</strong> ≥15% relative decline over 12 months = significant in ILD and vascular disease monitoring</li>
+      <li><strong>Use same reference equations across visits:</strong> Switching from race-specific to race-neutral equations will change all values — do not interpret this as disease progression</li>
+      <li><strong>Natural aging effect on FEV₁:</strong> FEV₁ declines ~25–30 mL/year in healthy non-smokers; ~40–50 mL/year in smokers. A "stable" absolute FEV₁ over years actually means the patient is declining relative to their predicted value.</li>
+      <li><strong>Height changes in elderly:</strong> Height loss from vertebral compression changes the predicted values. Always remeasure height at each visit — do not carry forward a height from 10 years ago.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== 09 SIMULATOR ===================== -->
+<div class="section" id="simulator">
+  <p class="section-title">PFT Interpreter</p>
+  <p class="section-sub">Enter values below to get an automated interpretation using the ATS/ERS 2022 algorithm</p>
+
+  <div class="slider-section">
+    <h3 style="margin-top:0;margin-bottom:16px">Spirometry</h3>
+    <div class="slider-label"><span>FEV₁/FVC ratio</span><span id="fev1fvc-val">0.68</span></div>
+    <input type="range" id="fev1fvc" min="0.40" max="0.95" step="0.01" value="0.68" oninput="updateSim()">
+
+    <div class="slider-label"><span>FEV₁ % predicted</span><span id="fev1-val">55%</span></div>
+    <input type="range" id="fev1pct" min="15" max="120" step="1" value="55" oninput="updateSim()">
+
+    <div class="slider-label"><span>FVC % predicted</span><span id="fvc-val">70%</span></div>
+    <input type="range" id="fvcpct" min="20" max="120" step="1" value="70" oninput="updateSim()">
+
+    <h3 style="margin-top:20px;margin-bottom:16px">Lung Volumes</h3>
+    <div class="slider-label"><span>TLC % predicted</span><span id="tlc-val">110%</span></div>
+    <input type="range" id="tlcpct" min="30" max="150" step="1" value="110" oninput="updateSim()">
+
+    <div class="slider-label"><span>RV/TLC ratio</span><span id="rvtlc-val">0.45</span></div>
+    <input type="range" id="rvtlc" min="0.20" max="0.70" step="0.01" value="0.45" oninput="updateSim()">
+
+    <h3 style="margin-top:20px;margin-bottom:16px">DLCO</h3>
+    <div class="slider-label"><span>DLCO % predicted</span><span id="dlco-val">45%</span></div>
+    <input type="range" id="dlcopct" min="10" max="130" step="1" value="45" oninput="updateSim()">
+  </div>
+
+  <div id="sim-result" class="interp-result"></div>
+</div>
+
+</div><!-- end content -->
+
+<script>
+// ===================== NAVIGATION =====================
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ===================== FLOW-VOLUME LOOP =====================
+const fvlData = {
+  normal: {
+    label: 'Normal Flow-Volume Loop',
+    desc: 'Normal: Rapid rise to PEF, then convex decrease to RV. Inspiratory limb reaches PIF of −5 to −6 L/sec — a full, generous semicircle. This HIGH inspiratory flow is normal and reassuring: inspiration is entirely effort-dependent, so a healthy patient giving full effort will routinely hit −5 to −6 L/sec. A "plateau" at these values is NOT pathological — it simply reflects maximal inspiratory effort.',
+    color: '#3fb950',
+    exhale: [[0,0],[0.1,5.8],[0.2,7.2],[0.3,6.8],[0.5,5.8],[1.0,4.5],[2.0,2.8],[3.5,1.0],[5.0,0]],
+    inhale: [[0,0],[0.8,-4.2],[1.8,-5.6],[3.2,-5.8],[4.2,-5.2],[5.0,0]],
+    fvc: 5.0
+  },
+  obstruction: {
+    label: 'Obstructive Pattern (COPD/Asthma)',
+    desc: 'Obstruction: Scooped-out (concave) expiratory curve — the hallmark of airflow limitation. Inspiratory limb remains relatively preserved (reaches −4 to −5 L/sec) because intrathoracic obstruction during expiration is worsened by dynamic collapse, while inspiration opens those same airways. FVC may be reduced due to air trapping.',
+    color: '#f78166',
+    exhale: [[0,0],[0.1,5.0],[0.2,5.8],[0.4,4.0],[0.8,2.5],[1.5,1.2],[3.0,0.4],[4.5,0]],
+    inhale: [[0,0],[0.8,-3.8],[2.0,-5.0],[3.2,-5.2],[4.0,-4.6],[4.5,0]],
+    fvc: 4.5
+  },
+  restriction: {
+    label: 'Restrictive Pattern (ILD/Fibrosis)',
+    desc: 'Restriction: Normal shape but narrow loop — FVC is reduced. Inspiratory limb is proportionally reduced in WIDTH (less volume) but PIF may still reach −4 to −5 L/sec because muscle strength is preserved. The loop is like a normal loop compressed horizontally. FEV₁/FVC ratio is normal or elevated.',
+    color: '#d2a8ff',
+    exhale: [[0,0],[0.05,5.5],[0.15,6.5],[0.25,5.8],[0.5,4.2],[1.0,2.5],[2.0,0.5],[2.8,0]],
+    inhale: [[0,0],[0.5,-4.0],[1.2,-5.2],[2.0,-5.0],[2.5,-4.2],[2.8,0]],
+    fvc: 2.8
+  },
+  mixed: {
+    label: 'Mixed Obstructive + Restrictive',
+    desc: 'Mixed: Narrow loop (restriction) with scooped-out shape (obstruction). Both TLC and FEV₁/FVC are reduced. Inspiratory limb is narrow but PIF relatively preserved. Often seen in combined fibrosis + emphysema or advanced sarcoidosis.',
+    color: '#ffa657',
+    exhale: [[0,0],[0.1,4.5],[0.2,5.0],[0.35,3.5],[0.7,1.8],[1.5,0.6],[2.8,0]],
+    inhale: [[0,0],[0.5,-3.5],[1.2,-4.8],[2.0,-4.6],[2.5,-3.8],[2.8,0]],
+    fvc: 2.8
+  },
+  uao: {
+    label: 'Upper Airway Obstruction (Fixed)',
+    desc: 'Fixed UAO (e.g., tracheal stenosis, goiter): BOTH expiratory AND inspiratory limbs plateau at the same low flow (~3 L/sec). Compare this to the normal inspiratory peak of −5 to −6 L/sec — a ceiling at −3 represents ~50% reduction and is clearly pathological. The rigid obstruction does not change with breathing phase. Box-shaped loop. Empey index (FEV₁mL/PEF L/min) >10.',
+    color: '#e3b341',
+    exhale: [[0,0],[0.1,2.8],[0.2,3.0],[0.5,3.0],[1.5,3.0],[3.0,2.8],[4.5,2.0],[5.0,0]],
+    inhale: [[0,0],[1.0,-2.8],[2.5,-3.0],[4.0,-3.0],[5.0,0]],
+    fvc: 5.0
+  }
+};
+
+function drawFVL(type) {
+  const canvas = document.getElementById('fvCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth * window.devicePixelRatio || 800;
+  const H = 260 * window.devicePixelRatio || 260;
+  canvas.width = W; canvas.height = H;
+  const scaleX = W / (canvas.offsetWidth || W);
+  const scaleY = H / 260;
+  ctx.scale(1, 1);
+
+  const data = fvlData[type];
+  const padL = 68, padR = 30, padT = 20, padB = 40;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const maxVol = data.fvc + 0.3;
+  const maxFlow = 8;
+
+  function toX(v) { return padL + (v / maxVol) * plotW; }
+  function toY(f) { return padT + plotH/2 - (f / maxFlow) * (plotH/2); }
+
+  // Background
+  ctx.fillStyle = '#1c2333';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#30363d';
+  ctx.lineWidth = 1;
+  for (let v = 0; v <= maxVol; v += 1) {
+    ctx.beginPath(); ctx.moveTo(toX(v), padT); ctx.lineTo(toX(v), padT + plotH); ctx.stroke();
+  }
+  for (let f = -4; f <= 7; f += 2) {
+    ctx.beginPath(); ctx.moveTo(padL, toY(f)); ctx.lineTo(padL + plotW, toY(f)); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#8b949e'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(padL, toY(0)); ctx.lineTo(padL + plotW, toY(0)); ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#8b949e'; ctx.font = `${11}px DM Mono, monospace`;
+  // X-axis label
+  ctx.fillText('Volume exhaled (L)', padL + plotW/2 - 55, padT + plotH + 28);
+  // Y-axis label — rotated
+  ctx.save(); ctx.translate(13, padT + plotH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Flow (L/sec)', -38, 0); ctx.restore();
+  // Flow tick values on y-axis
+  for (let f = -4; f <= 7; f += 2) {
+    if (f === 0) continue;
+    ctx.fillText(f, padL - 22, toY(f) + 4);
+  }
+  ctx.fillStyle = '#58a6ff'; ctx.font = `bold ${10}px DM Mono, monospace`;
+  ctx.fillText('EXP', padL + 5, padT + 14);
+  ctx.fillStyle = '#8b949e';
+  ctx.fillText('INSP', padL + 5, padT + plotH - 5);
+  ctx.font = `${11}px DM Mono, monospace`;
+  for (let v = 0; v <= Math.floor(maxVol); v++) {
+    ctx.fillText(v, toX(v) - 4, padT + plotH + 14);
+  }
+
+  // Draw loop
+  function drawCurve(pts, color) {
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const x = toX(p[0]), y = toY(p[1]);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  // Fill
+  ctx.fillStyle = data.color + '18';
+  ctx.beginPath();
+  [...data.exhale, ...[...data.inhale].reverse()].forEach((p, i) => {
+    const x = toX(p[0]), y = toY(p[1]);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.fill();
+
+  drawCurve(data.exhale, data.color);
+  drawCurve(data.inhale, data.color + 'aa');
+
+  // Label
+  ctx.fillStyle = data.color; ctx.font = `bold ${13 * scaleX}px DM Sans, sans-serif`;
+  ctx.fillText(data.label, padL + 10, padT + 16);
+
+  document.getElementById('fvl-desc').textContent = data.desc;
+}
+
+// ===================== LUNG VOLUME DIAGRAM =====================
+function drawLV() {
+  const canvas = document.getElementById('lvCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth * 2 || 800;
+  const H = 440;
+  canvas.width = W; canvas.height = H;
+
+  ctx.fillStyle = '#1c2333';
+  ctx.fillRect(0, 0, W, H);
+
+  const barX = W * 0.12, barW = W * 0.18;
+  const bottom = H - 40, top = 40;
+  const totalH = bottom - top;
+
+  // Proportions (% of TLC)
+  const rv = 0.24, erv = 0.14, ic = 0.50, vrv = 0.12;
+  // TLC = IC + FRC = IC + ERV + RV
+
+  const rvH = rv * totalH;
+  const ervH = erv * totalH;
+  const icH = ic * totalH;
+  const vrvH = vrv * totalH; // part of IC remaining
+
+  const rvY = bottom - rvH;
+  const frcY = bottom - rvH - ervH;
+  const tlcY = top;
+
+  const segments = [
+    { label: 'RV', color: '#f78166', y: rvY, h: rvH, pct: '~24%' },
+    { label: 'ERV', color: '#ffa657', y: frcY, h: ervH, pct: '~14%' },
+    { label: 'IC', color: '#58a6ff', y: tlcY, h: icH, pct: '~50%' },
+  ];
+
+  segments.forEach(s => {
+    ctx.fillStyle = s.color + '55';
+    ctx.fillRect(barX, s.y, barW, s.h);
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(barX, s.y, barW, s.h);
+    ctx.fillStyle = s.color;
+    ctx.font = `bold ${14}px DM Mono, monospace`;
+    ctx.fillText(s.label, barX + barW/2 - 12, s.y + s.h/2 + 5);
+  });
+
+  // Brace labels
+  const lblX = barX + barW + 20;
+  const braces = [
+    { label: 'TLC', y1: tlcY, y2: bottom, color: '#e6edf3' },
+    { label: 'FRC', y1: frcY, y2: bottom, color: '#d2a8ff' },
+    { label: 'VC', y1: tlcY, y2: rvY, color: '#3fb950' },
+  ];
+
+  braces.forEach((b, i) => {
+    const x = lblX + i * 80;
+    ctx.strokeStyle = b.color + '88';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(x, b.y1); ctx.lineTo(x + 10, b.y1);
+    ctx.moveTo(x + 10, b.y1); ctx.lineTo(x + 10, b.y2);
+    ctx.moveTo(x + 10, b.y2); ctx.lineTo(x, b.y2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = b.color;
+    ctx.font = `bold 12px DM Mono, monospace`;
+    ctx.fillText(b.label, x + 14, (b.y1 + b.y2) / 2 + 5);
+  });
+}
+
+// ===================== CLINICAL CASES =====================
+const cases = [
+  {
+    title: 'Case 1: 65yo Male Smoker with Progressive Dyspnea',
+    values: 'FEV₁/FVC = 0.55 | FEV₁ = 48% pred | FVC = 78% pred | TLC = 135% pred | RV = 190% pred | DLCO = 38% pred',
+    answer: 'Severe COPD with emphysema. Obstructive pattern (FEV₁/FVC <LLN) with severe obstruction (FEV₁ 48%). Hyperinflation (TLC >120%) and significant air trapping (RV markedly elevated). Severely reduced DLCO confirms emphysema component. IC/TLC likely <25% → dynamic hyperinflation.',
+    tag: 'tag-red', tagLabel: 'Obstruction + Emphysema'
+  },
+  {
+    title: 'Case 2: 55yo Female with Progressive Dry Cough',
+    values: 'FEV₁/FVC = 0.85 | FEV₁ = 62% pred | FVC = 58% pred | TLC = 65% pred | RV = 88% pred | DLCO = 48% pred',
+    answer: 'Moderate restriction with moderately reduced DLCO — classic IPF pattern. FEV₁/FVC is elevated (hallmark of restriction). TLC <LLN confirms true restriction. DLCO reduction out of proportion to lung volumes suggests membrane impairment. Next step: HRCT chest.',
+    tag: 'tag-purple', tagLabel: 'Restriction (ILD)'
+  },
+  {
+    title: 'Case 3: 30yo with Episodic Wheezing, Normal Between Attacks',
+    values: 'FEV₁/FVC = 0.74 (just above LLN) | FEV₁ = 88% pred | FVC = 92% pred | Post-BD: FEV₁ = 99% pred | DLCO = 102% pred',
+    answer: 'Borderline obstruction with positive bronchodilator response (FEV₁ increase 11% predicted). Normal DLCO distinguishes this from emphysema. This pattern is classic asthma — normal between attacks, BDR positive, DLCO normal. If spirometry is normal during testing, proceed to methacholine challenge.',
+    tag: 'tag-green', tagLabel: 'Asthma'
+  },
+  {
+    title: 'Case 4: 70yo with Normal Spirometry but Severe Dyspnea on Exertion',
+    values: 'FEV₁/FVC = 0.78 | FEV₁ = 82% pred | FVC = 84% pred | TLC = 96% pred | DLCO = 28% pred',
+    answer: 'Isolated severely reduced DLCO with normal spirometry and lung volumes. This pattern — disproportionately low DLCO — is the hallmark of pulmonary vascular disease (PAH or CTEPH) or CPFE. Evaluate for PAH: echo, right heart cath. Check for upper lobe emphysema and lower lobe fibrosis on CT (CPFE).',
+    tag: 'tag-orange', tagLabel: 'PAH / CPFE Pattern'
+  },
+  {
+    title: 'Case 5: 45yo with ALS, Declining Respiratory Status',
+    values: 'FEV₁/FVC = 0.82 | FVC = 52% pred (sitting), 38% pred (supine) | TLC = 58% pred | MIP = –22 cmH₂O | MEP = 38 cmH₂O | DLCO = 98% pred',
+    answer: 'Neuromuscular restriction in ALS. FVC drop >20% sitting to supine confirms bilateral diaphragm weakness. MIP severely reduced (normal > –75 cmH₂O). MEP markedly reduced → impaired cough. DLCO is preserved — key differentiator from parenchymal disease. Indications for NIV: FVC <50% predicted, MIP < –60 cmH₂O, nocturnal hypoventilation.',
+    tag: 'tag-blue', tagLabel: 'Neuromuscular Disease'
+  }
+];
+
+function renderCases() {
+  const container = document.getElementById('cases-container');
+  cases.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div class="card-title" style="margin-bottom:0">${c.title}</div>
+        <span class="tag ${c.tag}">${c.tagLabel}</span>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin:12px 0;font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--muted);line-height:1.8">${c.values}</div>
+      <button onclick="toggleAnswer(${i})" style="background:rgba(88,166,255,0.1);border:1px solid rgba(88,166,255,0.3);color:var(--accent);padding:7px 16px;border-radius:6px;cursor:pointer;font-size:0.78rem;font-family:'DM Mono',monospace">Show Interpretation ▼</button>
+      <div id="ans-${i}" class="highlight" style="display:none;margin-top:12px;font-size:0.83rem">${c.answer}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function toggleAnswer(i) {
+  const el = document.getElementById(`ans-${i}`);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ===================== SIMULATOR =====================
+function updateSim() {
+  const fev1fvc = parseFloat(document.getElementById('fev1fvc').value);
+  const fev1pct = parseInt(document.getElementById('fev1pct').value);
+  const fvcpct = parseInt(document.getElementById('fvcpct').value);
+  const tlcpct = parseInt(document.getElementById('tlcpct').value);
+  const rvtlc = parseFloat(document.getElementById('rvtlc').value);
+  const dlcopct = parseInt(document.getElementById('dlcopct').value);
+
+  document.getElementById('fev1fvc-val').textContent = fev1fvc.toFixed(2);
+  document.getElementById('fev1-val').textContent = fev1pct + '%';
+  document.getElementById('fvc-val').textContent = fvcpct + '%';
+  document.getElementById('tlc-val').textContent = tlcpct + '%';
+  document.getElementById('rvtlc-val').textContent = rvtlc.toFixed(2);
+  document.getElementById('dlco-val').textContent = dlcopct + '%';
+
+  // Interpret
+  const LLN_ratio = 0.70; // simplified
+  const isObstructed = fev1fvc < LLN_ratio;
+  const isFVClow = fvcpct < 80;
+  const isTLClow = tlcpct < 80;
+  const isTLChigh = tlcpct > 120;
+  const isAirTrapping = rvtlc > 0.40;
+  const isDLCOlow = dlcopct < 75;
+  const isDLCOmild = dlcopct >= 60 && dlcopct < 75;
+  const isDLCOmod = dlcopct >= 40 && dlcopct < 60;
+  const isDLCOsev = dlcopct < 40;
+
+  let pattern = '';
+  let details = [];
+  let color = '#58a6ff';
+  let sev = '';
+
+  if (isObstructed) {
+    if (fev1pct >= 70) sev = 'Mild';
+    else if (fev1pct >= 60) sev = 'Moderate';
+    else if (fev1pct >= 50) sev = 'Moderate-Severe';
+    else if (fev1pct >= 35) sev = 'Severe';
+    else sev = 'Very Severe';
+
+    if (isFVClow && isTLClow) {
+      pattern = 'Mixed Obstructive + Restrictive';
+      color = '#ffa657';
+      details.push('FEV₁/FVC < LLN → Obstruction confirmed');
+      details.push(`TLC < LLN → Restriction confirmed (not obstructive pseudorestriction)`);
+    } else {
+      pattern = `${sev} Obstruction`;
+      color = '#f78166';
+      details.push(`FEV₁/FVC ${fev1fvc.toFixed(2)} < 0.70 → Obstructive pattern`);
+      if (isFVClow) details.push('FVC reduced but TLC normal/high → Obstructive pseudorestriction (air trapping)');
+    }
+    if (isTLChigh) details.push('TLC > 120% → Hyperinflation present');
+    if (isAirTrapping) details.push('RV/TLC > 0.40 → Air trapping');
+    if (isTLChigh && isAirTrapping) details.push('Consider emphysema — especially if DLCO is also low');
+  } else {
+    if (isFVClow) {
+      if (isTLClow) {
+        pattern = 'Restrictive Pattern';
+        color = '#d2a8ff';
+        if (tlcpct >= 70) sev = 'Mild restriction';
+        else if (tlcpct >= 60) sev = 'Moderate restriction';
+        else sev = 'Severe restriction';
+        details.push('FEV₁/FVC ≥ LLN (no obstruction)');
+        details.push(`TLC < LLN → True restriction confirmed (${sev})`);
+        details.push('Consider ILD, pleural disease, chest wall restriction, neuromuscular disease');
+      } else {
+        pattern = 'Possible Restriction — TLC Needed';
+        color = '#e3b341';
+        details.push('FVC reduced but FEV₁/FVC normal → Possible restriction');
+        details.push('TLC is not clearly reduced — interpretation uncertain');
+        details.push('Check quality grade, obesity effect, neuromuscular weakness, poor effort');
+      }
+    } else {
+      pattern = 'Normal Spirometry & Lung Volumes';
+      color = '#3fb950';
+      details.push('FEV₁/FVC ≥ LLN — no obstruction');
+      details.push('FVC ≥ 80% predicted — no restriction on spirometry');
+      details.push('TLC not reduced — no restriction confirmed');
+    }
+  }
+
+  // DLCO comment
+  let dlcoStr = '';
+  if (isDLCOsev) dlcoStr = `⬇ DLCO severely reduced (${dlcopct}% pred) — significant parenchymal/vascular disease; consider emphysema, ILD, PAH, PE, anemia`;
+  else if (isDLCOmod) dlcoStr = `⬇ DLCO moderately reduced (${dlcopct}% pred)`;
+  else if (isDLCOmild) dlcoStr = `⬇ DLCO mildly reduced (${dlcopct}% pred)`;
+  else dlcoStr = `DLCO within normal limits (${dlcopct}% pred)`;
+
+  const html = `
+    <div style="background:${color}18;border:1px solid ${color}44;border-radius:10px;padding:18px">
+      <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:${color};letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">ATS/ERS 2022 Interpretation</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:${color};margin-bottom:14px">${pattern}</div>
+      ${details.map(d => `<div style="font-size:0.83rem;color:#e6edf3;padding:4px 0;border-bottom:1px solid #30363d">→ ${d}</div>`).join('')}
+      <div style="font-size:0.83rem;color:#e6edf3;padding:8px 0;margin-top:4px;color:${isDLCOlow ? '#ffa657' : '#8b949e'}">${dlcoStr}</div>
+    </div>
+  `;
+  document.getElementById('sim-result').innerHTML = html;
+}
+
+// ===================== ANNOTATED FVL =====================
+const annotatedData = {
+  normal: {
+    label: 'Normal Flow-Volume Loop',
+    desc: 'Normal: PIF reaches −5.5 to −6 L/sec — a full generous semicircle. This is NORMAL and expected. Inspiration is entirely effort-dependent, so a healthy patient at full effort routinely hits these values. A curve peaking at −6 is NOT a plateau from obstruction — it is simply maximal effort. Compare this to the UAO patterns where PIF is truncated at −2.5 to −3 L/sec.',
+    color: '#3fb950',
+    exhale: [[0,0],[0.15,7.2],[0.5,6.0],[1.2,4.8],[2.2,3.5],[3.5,1.8],[5.0,0]],
+    inhale: [[0,0],[0.8,-4.0],[1.8,-5.5],[3.0,-5.8],[4.0,-5.2],[5.0,0]],
+    annotations: [
+      {x: 0.15, y: 7.2, label: 'PEF ~7 L/sec', color: '#3fb950'},
+      {x: 2.2, y: 3.5, label: 'FEF₅₀', color: '#58a6ff'},
+      {x: 3.0, y: -5.8, label: 'PIF ~−5.8 L/sec (normal)', color: '#3fb950'},
+    ],
+    fvc: 5.0
+  },
+  mild_obs: {
+    label: 'Mild Obstruction — Late Scooping, Normal PIF',
+    desc: 'Mild obstruction: PEF preserved. Scooping in last 40% of FVC only. Inspiratory limb is PRESERVED — reaches −5 to −5.5 L/sec normally. This is key: in pure intrathoracic obstruction, the inspiratory limb is spared because inspiration opens airways that collapse during expiration. A normal inspiratory limb in an obstructed pattern = intrathoracic disease, not UAO.',
+    color: '#ffa657',
+    exhale: [[0,0],[0.15,7.0],[0.5,5.8],[1.2,4.5],[2.2,3.0],[3.5,1.2],[4.8,0.2],[5.0,0]],
+    inhale: [[0,0],[0.8,-3.8],[1.8,-5.2],[3.0,-5.5],[4.0,-5.0],[5.0,0]],
+    annotations: [{x: 0.15, y: 7.0, label: 'PEF preserved', color: '#3fb950'}, {x: 3.8, y: 0.8, label: 'Scooping here', color: '#ffa657'}, {x: 3.0, y: -5.5, label: 'Normal PIF', color: '#3fb950'}],
+    fvc: 5.0
+  },
+  mod_obs: {
+    label: 'Moderate Obstruction — Scooping, Normal PIF',
+    desc: 'Moderate obstruction: Classic concave expiratory limb. Inspiratory limb still reaches −4.5 to −5 L/sec — relatively preserved compared to the severely compromised expiratory flow. FEF₅₀/FIF₅₀ ratio will be >1 (expiratory flow more limited than inspiratory). This asymmetry is the hallmark of intrathoracic disease: obstruction worsens on expiration when airways are dynamically compressed.',
+    color: '#f78166',
+    exhale: [[0,0],[0.15,6.5],[0.4,5.5],[0.9,3.8],[1.8,2.2],[3.0,1.0],[4.2,0.2],[4.5,0]],
+    inhale: [[0,0],[0.8,-3.5],[1.8,-4.8],[3.0,-5.0],[3.8,-4.5],[4.5,0]],
+    annotations: [{x: 0.15, y: 6.5, label: 'PEF', color: '#3fb950'},{x: 1.8, y: 2.2, label: 'Concave — scooped', color: '#f78166'},{x: 2.8, y: -5.0, label: 'PIF relatively preserved', color: '#3fb950'}],
+    fvc: 4.5
+  },
+  sev_obs: {
+    label: 'Severe Obstruction — Ski Slope, PIF Reduced by Air Trapping',
+    desc: 'Severe obstruction: Ski slope expiratory limb with asymptotic tail. Inspiratory limb is now also reduced — reaches only −3.5 to −4 L/sec. WHY? In severe COPD/emphysema, loss of elastic recoil means TLC is elevated but the patient starts from a hyperinflated position — inspiratory muscle length-tension relationships are suboptimal, reducing maximal inspiratory effort. Also: severe air trapping limits the inspiratory reserve. Not UAO — the expiratory limb is far more abnormal than the inspiratory.',
+    color: '#e3b341',
+    exhale: [[0,0],[0.1,5.5],[0.3,4.0],[0.7,2.2],[1.5,1.2],[2.8,0.5],[4.0,0.15],[4.3,0]],
+    inhale: [[0,0],[0.8,-2.5],[1.8,-3.8],[3.0,-4.0],[3.8,-3.5],[4.3,0]],
+    annotations: [{x: 0.1, y: 5.5, label: 'PEF', color: '#3fb950'},{x: 3.5, y: 0.2, label: 'Asymptotic tail', color: '#e3b341'},{x: 2.8, y: -4.0, label: 'PIF reduced (hyperinflation)', color: '#e3b341'}],
+    fvc: 4.3
+  },
+  restrict: {
+    label: 'Restriction — Narrow Loop, PIF Preserved',
+    desc: 'Restriction: Narrow loop but normal convex shape. PIF reaches −4.5 to −5 L/sec — muscle strength is preserved, just less volume to fill. The inspiratory limb is narrow in WIDTH (less volume inhaled) but not flat or truncated in flow. FEV₁/FVC elevated. Think of it as a normal loop squeezed horizontally. Neuromuscular restriction would show both narrow width AND reduced PIF.',
+    color: '#d2a8ff',
+    exhale: [[0,0],[0.1,6.5],[0.3,5.5],[0.7,4.2],[1.3,2.8],[2.0,1.2],[2.8,0]],
+    inhale: [[0,0],[0.5,-3.8],[1.2,-5.0],[2.0,-5.0],[2.5,-4.2],[2.8,0]],
+    annotations: [{x: 0.1, y: 6.5, label: 'PEF high rel. to FVC', color: '#d2a8ff'},{x: 1.5, y: 2.0, label: 'Convex — normal shape', color: '#3fb950'},{x: 1.5, y: -5.0, label: 'PIF preserved', color: '#3fb950'}],
+    fvc: 2.8
+  },
+  fixed_uao: {
+    label: 'Fixed UAO — Both Limbs Plateaued at ~3 L/sec',
+    desc: 'Fixed UAO: Both expiratory AND inspiratory limbs plateau at ~3 L/sec. Now compare to normal PIF of −5.5 to −6 L/sec — this is a 50% reduction and clearly pathological. The inspiratory plateau at −3 is what makes this alarming: a healthy patient should reach −5 to −6, so hitting a ceiling at −3 means something rigid is obstructing flow regardless of breathing phase. Box-shaped loop. Causes: tracheal stenosis (post-intubation, post-trach, malignancy), subglottic stricture, goiter compressing trachea. Empey index >10.',
+    color: '#e3b341',
+    exhale: [[0,0],[0.1,2.8],[0.3,3.1],[0.8,3.1],[2.0,3.0],[3.5,2.9],[4.5,1.8],[5.0,0]],
+    inhale: [[0,0],[0.8,-2.5],[2.0,-3.0],[3.5,-3.0],[4.5,-2.8],[5.0,0]],
+    annotations: [
+      {x: 1.5, y: 3.1, label: 'Exp plateau ~3 L/sec', color: '#e3b341'},
+      {x: 2.8, y: -3.0, label: 'Insp plateau ~−3 L/sec ← PATHOLOGICAL', color: '#f78166'},
+    ],
+    fvc: 5.0
+  },
+  var_extra: {
+    label: 'Variable Extrathoracic UAO — Inspiratory Plateau at −2.5 L/sec',
+    desc: 'Variable Extrathoracic UAO (VCD, vocal cord paralysis): Expiratory limb is NORMAL — reaches 6-7 L/sec PEF with normal shape. Inspiratory limb is truncated flat at −2.5 L/sec. Compare to normal −5.5 to −6 L/sec: this is a 55-60% reduction in PIF — highly pathological. The ceiling is fixed by the collapsing extrathoracic airway during inspiration. FEF₅₀/FIF₅₀ ratio here would be ~2.4/0.5 ≈ very high. Symptoms: inspiratory stridor, voice changes, throat tightness. Dx: nasopharyngoscopy during symptomatic period.',
+    color: '#f78166',
+    exhale: [[0,0],[0.15,7.0],[0.5,6.0],[1.2,4.8],[2.5,3.2],[4.0,1.5],[5.0,0]],
+    inhale: [[0,0],[0.6,-1.8],[1.5,-2.5],[3.0,-2.5],[4.2,-2.3],[5.0,0]],
+    annotations: [
+      {x: 0.15, y: 7.0, label: 'Normal expiratory limb', color: '#3fb950'},
+      {x: 2.5, y: -2.5, label: 'Flat at −2.5 L/sec ← PATHOLOGICAL', color: '#f78166'},
+    ],
+    fvc: 5.0
+  },
+  var_intra: {
+    label: 'Variable Intrathoracic UAO — Expiratory Plateau, Normal PIF',
+    desc: 'Variable Intrathoracic UAO (tracheomalacia): Expiratory limb plateaus at ~3 L/sec — positive pleural pressure during exhalation crushes the floppy intrathoracic trachea. Inspiratory limb is NORMAL reaching −5 to −5.5 L/sec — negative pleural pressure during inspiration splints the trachea open. This asymmetry is the diagnostic signature. Note: the preserved inspiratory flow distinguishes tracheomalacia from fixed UAO where BOTH limbs are affected.',
+    color: '#58a6ff',
+    exhale: [[0,0],[0.1,3.0],[0.3,3.2],[0.8,3.1],[2.0,3.0],[3.2,2.9],[4.2,1.8],[5.0,0]],
+    inhale: [[0,0],[0.8,-4.0],[1.8,-5.2],[3.0,-5.5],[4.0,-5.0],[5.0,0]],
+    annotations: [
+      {x: 1.5, y: 3.1, label: 'Expiratory plateau', color: '#58a6ff'},
+      {x: 2.8, y: -5.5, label: 'Normal PIF −5.5 L/sec ✓', color: '#3fb950'},
+    ],
+    fvc: 5.0
+  },
+
+  asymptotic: {
+    label: 'Asymptotic Tail — Loop Never Reaches Zero',
+    desc: 'ASYMPTOTIC TAIL: The expiratory curve approaches but never cleanly reaches the x-axis (zero flow). The patient is still exhaling a tiny trickle of air after many seconds but can never fully empty. This means the test was terminated before true RV was reached — BUT importantly, in severe obstruction this may reflect genuine inability to reach RV due to dynamic airway collapse trapping gas. KEY QUESTIONS: (1) Was exhalation time ≥15 sec? If cut short → technical termination. (2) Even with full effort and time, does the curve tail off? → true air trapping. FVC is UNDERESTIMATED. RV is OVERESTIMATED. Think severe COPD, emphysema with bullae. The "true FVC" is likely higher than measured — this is why SVC > FVC in these patients.',
+    color: '#3fb950',
+    exhale: [[0,0],[0.1,5.8],[0.3,4.5],[0.7,2.8],[1.5,1.6],[2.8,0.9],[4.2,0.45],[5.5,0.2],[6.5,0.08],[7.0,0.03]],
+    inhale: [[0,0],[1.5,-2.8],[3.5,-3.5],[5.5,-3.2],[7.0,0.03]],
+    annotations: [
+      {x: 0.1, y: 5.8, label: 'PEF', color: '#3fb950'},
+      {x: 4.2, y: 0.45, label: 'Still flowing...', color: '#e3b341'},
+      {x: 6.2, y: 0.1, label: '← Never reaches zero', color: '#f78166'},
+    ],
+    fvc: 7.0,
+    extraDraw: 'asymptotic'
+  },
+
+  blunted_pef: {
+    label: 'Blunted PEF — Flat or Delayed Peak',
+    desc: 'BLUNTED PEF: Normally PEF is a sharp, prominent spike occurring within the first 15-20% of FVC exhaled. A blunted or rounded PEF means the peak is delayed, reduced, or spread out. THREE causes with very different meanings: (1) POOR EFFORT — patient did not blast hard enough at the start. Most common. Check: was there a good hesitational start? Did the volume-time curve have a sharp initial upstroke? Repeat with coaching: "blast it out as hard and fast as you can from the very start." (2) UPPER AIRWAY OBSTRUCTION (fixed or extrathoracic) — the UAO limits maximal flow regardless of effort. PEF is effort-independent here. Check PEF/FIF₅₀ ratio. (3) NEUROMUSCULAR WEAKNESS — inspiratory or expiratory muscle weakness limits the initial explosive effort. Check MIP/MEP. KEY DISTINGUISHER: In poor effort, the rest of the curve is also suboptimal and non-reproducible. In UAO, PEF is consistently blunted across all maneuvers with a characteristic plateau.',
+    color: '#d2a8ff',
+    exhale: [[0,0],[0.2,2.8],[0.5,3.5],[1.0,3.8],[1.8,3.2],[3.0,2.2],[4.5,1.0],[5.5,0]],
+    inhale: [[0,0],[0.8,-3.8],[1.8,-5.2],[3.2,-5.5],[4.2,-5.0],[5.5,0]],
+    annotations: [
+      {x: 1.0, y: 3.8, label: 'Delayed, rounded peak (not sharp)', color: '#d2a8ff'},
+      {x: 0.2, y: 2.8, label: 'Slow initial rise', color: '#f78166'},
+      {x: 3.0, y: 2.2, label: 'Mid-flow relatively preserved', color: '#e3b341'},
+    ],
+    fvc: 5.5,
+    extraDraw: 'blunted'
+  },
+
+  poor_effort: {
+    label: 'Poor Effort — Variable, Non-Reproducible',
+    desc: 'POOR EFFORT: The hallmark is NON-REPRODUCIBILITY — each maneuver looks different. A single maneuver may look deceptively "obstructed" or "restricted" but comparison across 3 attempts reveals marked variability (>150 mL difference in FVC or FEV₁). Features: (1) Variable PEF height and timing across maneuvers. (2) Irregular, wobbly descending limb — not smooth. (3) Early termination — the curve stops abruptly before reaching RV (patient stops exhaling). (4) FVC varies wildly between maneuvers. (5) Sometimes a "scalloped" appearance from inconsistent effort. Compare to the ghost (normal) — poor effort loops often look narrow but with an abnormally shaped descent. This is why ATS quality grading exists — a Grade E (no acceptable maneuvers) result should not be interpreted. Document coaching attempts and reason for limitation.',
+    color: '#e3b341',
+    exhale: [[0,0],[0.2,5.0],[0.6,4.2],[1.2,3.0],[2.0,1.8],[2.8,0.8],[3.3,0]],
+    exhale2: [[0,0],[0.3,6.5],[0.7,5.5],[1.5,3.8],[2.5,1.5],[3.5,0.4],[3.8,0]],
+    exhale3: [[0,0],[0.15,4.2],[0.5,3.5],[1.0,2.5],[1.8,1.2],[2.5,0]],
+    inhale: [[0,0],[0.8,-3.0],[2.0,-3.5],[3.0,-3.2],[3.3,0]],
+    annotations: [
+      {x: 0.3, y: 6.5, label: 'Attempt 2 — higher', color: '#3fb950'},
+      {x: 0.2, y: 5.0, label: 'Attempt 1', color: '#e3b341'},
+      {x: 0.15, y: 4.2, label: 'Attempt 3 — lower', color: '#f78166'},
+    ],
+    fvc: 4.5,
+    extraDraw: 'poor_effort'
+  }
+};
+
+function drawAnnotated(type) {
+  const canvas = document.getElementById('fvlAnnotated');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth * (window.devicePixelRatio||1);
+  const H = 300 * (window.devicePixelRatio||1);
+  canvas.width = W; canvas.height = H;
+  const dpr = window.devicePixelRatio||1;
+
+  const data = annotatedData[type];
+  const padL = 68, padR = 30, padT = 30, padB = 44;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const maxVol = data.fvc + 0.4;
+  const maxFlow = 8;
+
+  function toX(v) { return padL + (v / maxVol) * plotW; }
+  function toY(f) { return padT + plotH/2 - (f / maxFlow) * (plotH/2); }
+
+  ctx.fillStyle = '#1c2333';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1;
+  for (let v = 0; v <= maxVol; v++) { ctx.beginPath(); ctx.moveTo(toX(v), padT); ctx.lineTo(toX(v), padT+plotH); ctx.stroke(); }
+  for (let f = -5; f <= 8; f+=2) { ctx.beginPath(); ctx.moveTo(padL, toY(f)); ctx.lineTo(padL+plotW, toY(f)); ctx.stroke(); }
+
+  // Axes
+  ctx.strokeStyle = '#8b949e'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT+plotH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(padL, toY(0)); ctx.lineTo(padL+plotW, toY(0)); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#8b949e';
+  ctx.font = `${11*dpr}px DM Mono, monospace`;
+  // X-axis label
+  ctx.fillText('Volume exhaled (L)', padL + plotW/2 - 55, padT + plotH + 30);
+  // Y-axis label — rotated
+  ctx.save(); ctx.translate(13, padT + plotH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Flow (L/sec)', -38, 0); ctx.restore();
+  // Flow tick values on y-axis
+  for (let f = -5; f <= 8; f += 2) {
+    if (f === 0) continue;
+    ctx.fillStyle = '#8b949e';
+    ctx.fillText(f, padL - 22, toY(f) + 4);
+  }
+  ctx.fillStyle = '#58a6ff'; ctx.font = `bold ${10*dpr}px DM Mono, monospace`;
+  ctx.fillText('EXP →', padL+6, padT+13);
+  ctx.fillStyle = '#8b949e'; ctx.font = `${10*dpr}px DM Mono, monospace`;
+  ctx.fillText('← INSP', padL+6, padT+plotH-5);
+  ctx.font = `${11*dpr}px DM Mono, monospace`;
+  for (let v=0; v<=Math.floor(maxVol); v++) ctx.fillText(v, toX(v)-4, padT+plotH+15);
+
+  // Normal reference ghost
+  if (type !== 'normal') {
+    const norm = annotatedData['normal'];
+    ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1.5; ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    norm.exhale.forEach((p,i) => { const x=toX(p[0]),y=toY(p[1]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke();
+    norm.inhale.forEach((p,i) => { const x=toX(p[0]),y=toY(p[1]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Fill area
+  ctx.fillStyle = data.color + '18';
+  ctx.beginPath();
+  [...data.exhale, ...[...data.inhale].reverse()].forEach((p,i)=>{
+    const x=toX(p[0]),y=toY(p[1]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.fill();
+
+  // Draw curves
+  function drawCurve(pts, alpha='ff', dash=[]) {
+    ctx.strokeStyle = data.color+alpha; ctx.lineWidth = 2.5*dpr; ctx.setLineDash(dash);
+    ctx.beginPath();
+    pts.forEach((p,i)=>{ const x=toX(p[0]),y=toY(p[1]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Extra drawing for special patterns
+  if (data.extraDraw === 'asymptotic') {
+    // Draw zero-line reference and shade the gap
+    const zeroY = toY(0);
+    const lastPt = data.exhale[data.exhale.length-1];
+    // Shade the "gap" zone near x-axis to show it never reaches zero
+    ctx.fillStyle = '#f78166' + '22';
+    ctx.fillRect(toX(3.0), zeroY - 12*dpr, toX(7.0) - toX(3.0), 12*dpr);
+    // Dashed zero reference
+    ctx.strokeStyle = '#f78166'; ctx.lineWidth = 1.5; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(toX(3.0), zeroY); ctx.lineTo(toX(7.2), zeroY); ctx.stroke();
+    ctx.setLineDash([]);
+    // Label
+    ctx.fillStyle = '#f78166'; ctx.font = `${9*dpr}px DM Mono, monospace`;
+    ctx.fillText('← never reaches zero →', toX(3.5), zeroY - 3*dpr);
+  }
+
+  if (data.extraDraw === 'blunted') {
+    // Draw normal ghost PEF spike for comparison
+    ctx.strokeStyle = '#3fb950' + '55'; ctx.lineWidth = 2*dpr; ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    [[0,0],[0.1,7.2],[0.25,6.5]].forEach((p,i)=>{ const x=toX(p[0]),y=toY(p[1]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#3fb950' + '99'; ctx.font = `${9*dpr}px DM Mono, monospace`;
+    ctx.fillText('Normal PEF spike', toX(0.12), toY(7.2) - 5*dpr);
+    // Bracket showing delayed peak
+    ctx.strokeStyle = '#d2a8ff'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(toX(0.1), toY(6.0)); ctx.lineTo(toX(1.0), toY(6.0)); ctx.stroke();
+    ctx.fillStyle = '#d2a8ff'; ctx.font = `${9*dpr}px DM Mono, monospace`;
+    ctx.fillText('delayed →', toX(0.15), toY(6.0) - 4*dpr);
+  }
+
+  if (data.extraDraw === 'poor_effort') {
+    // Draw 3 overlapping attempts in different colors
+    const attempts = [
+      { pts: data.exhale2, color: '#3fb950', label: 'Attempt 2' },
+      { pts: data.exhale3, color: '#f78166', label: 'Attempt 3' },
+    ];
+    attempts.forEach(a => {
+      ctx.strokeStyle = a.color + 'bb'; ctx.lineWidth = 2*dpr; ctx.setLineDash([]);
+      ctx.beginPath();
+      a.pts.forEach((p,i)=>{ const x=toX(p[0]),y=toY(p[1]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+      ctx.stroke();
+    });
+    // Bracket showing FVC variability
+    ctx.strokeStyle = '#e3b341'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(toX(3.3), toY(0.1)); ctx.lineTo(toX(3.3), toY(-1.0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(toX(3.8), toY(0.1)); ctx.lineTo(toX(3.8), toY(-1.0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(toX(2.5), toY(0.1)); ctx.lineTo(toX(2.5), toY(-1.0)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#e3b341'; ctx.font = `${9*dpr}px DM Mono, monospace`;
+    ctx.fillText('FVC varies >500mL', toX(2.3), toY(-1.3));
+  }
+
+  drawCurve(data.exhale);
+  drawCurve(data.inhale, '99');
+
+  // Annotations
+  if (data.annotations) {
+    data.annotations.forEach(a => {
+      const x = toX(a.x), y = toY(a.y);
+      ctx.fillStyle = a.color;
+      ctx.beginPath(); ctx.arc(x, y, 5*dpr, 0, Math.PI*2); ctx.fill();
+      ctx.font = `bold ${10*dpr}px DM Sans, sans-serif`;
+      ctx.fillStyle = a.color;
+      ctx.fillText(a.label, x+8, y+4);
+    });
+  }
+
+  // Title
+  ctx.fillStyle = data.color;
+  ctx.font = `bold ${13*dpr}px DM Sans, sans-serif`;
+  ctx.fillText(data.label, padL+8, padT+16);
+
+  document.getElementById('fvl-annotated-desc').textContent = data.desc;
+}
+
+// ===================== VOLUME-TIME CURVE =====================
+const vtcData = {
+  normal: {
+    label: 'Normal Volume-Time Curve',
+    desc: 'NORMAL: Sharp initial rise — the steepest part of the curve occurs in the first second (this slope = FEV₁). The curve then flattens to a clear plateau by ~4–6 seconds, indicating the patient has fully exhaled to RV. FEV₁ (volume at 1 sec) is clearly visible. Exhalation time ≥6 sec with plateau change <25 mL/sec = acceptable maneuver.',
+    color: '#3fb950',
+    pts: [[0,0],[0.5,2.8],[1.0,3.8],[1.5,4.4],[2.0,4.7],[3.0,4.95],[4.0,5.02],[5.0,5.04],[6.0,5.05]],
+    fev1_t: 1.0, fev1_v: 3.8, plateau_t: 4.0, total_t: 6.0,
+    markers: [
+      {t:1.0, v:3.8, label:'FEV₁ = 3.8 L', color:'#58a6ff'},
+      {t:4.5, v:5.04, label:'Plateau ✓', color:'#3fb950'},
+    ]
+  },
+  obstruction: {
+    label: 'Obstruction — Slow Rise, No Early Plateau',
+    desc: 'OBSTRUCTION: The curve rises slowly — FEV₁ is low relative to FVC because airflow is limited. Critically, the curve does NOT plateau early. It continues to rise slowly for many seconds (8–12+ sec in severe COPD) as air slowly escapes through narrowed airways. A common error is terminating the maneuver too early (at 6 sec) before the obstructed patient has fully emptied — this underestimates FVC. Always allow ≥10–15 sec in suspected obstruction.',
+    color: '#f78166',
+    pts: [[0,0],[0.5,1.5],[1.0,2.2],[2.0,3.2],[3.0,3.9],[4.0,4.3],[5.0,4.55],[6.0,4.65],[8.0,4.72],[10.0,4.75]],
+    fev1_t: 1.0, fev1_v: 2.2, plateau_t: 9.0, total_t: 10.0,
+    markers: [
+      {t:1.0, v:2.2, label:'FEV₁ = 2.2 L (low)', color:'#f78166'},
+      {t:3.0, v:3.9, label:'Still rising at 3 sec', color:'#e3b341'},
+      {t:9.0, v:4.74, label:'Plateau finally', color:'#3fb950'},
+    ]
+  },
+  restriction: {
+    label: 'Restriction — Fast Rise, Early Plateau, Small FVC',
+    desc: 'RESTRICTION: The curve rises quickly (often faster than normal — high FEV₁/FVC ratio) but reaches a LOW plateau early. The total FVC is reduced. Because the lungs are stiff and small, the patient empties quickly — often reaching plateau by 3–4 seconds. The shape looks "normal" but compressed vertically. Key: plateau is real and early, not from early termination — the patient has genuinely emptied their small lungs.',
+    color: '#d2a8ff',
+    pts: [[0,0],[0.5,2.0],[1.0,2.6],[1.5,2.85],[2.0,2.93],[3.0,2.97],[4.0,2.98],[5.0,2.98],[6.0,2.98]],
+    fev1_t: 1.0, fev1_v: 2.6, plateau_t: 2.5, total_t: 6.0,
+    markers: [
+      {t:1.0, v:2.6, label:'FEV₁ = 2.6 L', color:'#d2a8ff'},
+      {t:2.5, v:2.96, label:'Early plateau (small lungs)', color:'#3fb950'},
+      {t:5.0, v:2.98, label:'FVC = 2.98 L (reduced)', color:'#f78166'},
+    ]
+  },
+  early_term: {
+    label: 'Early Termination — Abrupt Stop, No Plateau',
+    desc: 'EARLY TERMINATION: The curve rises then stops abruptly — no plateau is reached. The patient stopped exhaling before reaching RV. This is a technical failure. The measured FVC is UNDERESTIMATED — the true FVC is higher. On the FVL, the curve simply stops midway through the expiratory limb. This is one of the most common reasons for poor quality grade. Coaching: "Keep going… keep pushing… all the way out… don\'t stop." In obstruction, even a motivated patient may appear to terminate early — check the slope at termination. If still >25 mL/sec change, it\'s true early termination.',
+    color: '#e3b341',
+    pts: [[0,0],[0.5,2.5],[1.0,3.5],[1.5,4.0],[2.0,4.2],[2.8,4.3],[3.0,4.3]],
+    fev1_t: 1.0, fev1_v: 3.5, plateau_t: null, total_t: 3.0,
+    markers: [
+      {t:1.0, v:3.5, label:'FEV₁ = 3.5 L', color:'#58a6ff'},
+      {t:3.0, v:4.3, label:'Abrupt stop — no plateau!', color:'#f78166'},
+    ],
+    earlyTerm: true
+  },
+  poor_start: {
+    label: 'Poor Start — Slow Initial Rise (Back-Extrapolation Fails)',
+    desc: 'POOR START / HESITATION: The curve does not rise sharply from time zero — instead there is a slow, rounded start. This means the patient did not blast air out immediately at the start of the maneuver (hesitation, late glottic opening, or slow ramp-up). The back-extrapolated volume (BEV) is large — >5% of FVC or >150 mL = unacceptable start. This falsely inflates the measured FEV₁ (you are counting volume exhaled before true time-zero). On the FVL, a poor start appears as a blunted, delayed PEF. The fix: "Blast it out — hard and fast from the very first moment."',
+    color: '#ffa657',
+    pts: [[0,0],[0.3,0.4],[0.7,1.5],[1.0,2.8],[1.5,3.8],[2.0,4.3],[3.0,4.7],[4.5,4.85],[6.0,4.87]],
+    fev1_t: 1.0, fev1_v: 2.8, plateau_t: 4.5, total_t: 6.0,
+    markers: [
+      {t:0.4, v:0.8, label:'Slow initial rise (poor start)', color:'#ffa657'},
+      {t:1.0, v:2.8, label:'FEV₁ underestimated', color:'#f78166'},
+    ],
+    poorStart: true
+  },
+  cough: {
+    label: 'Cough Artifact — Spike in First Second',
+    desc: 'COUGH ARTIFACT: A sudden sharp spike or step in the volume-time curve, most damaging when it occurs in the first second (invalidates FEV₁). On the FVL it appears as a notch or abrupt kink in the expiratory limb. A cough in the first second = maneuver is UNACCEPTABLE per ATS criteria. A cough after the first second does not affect FEV₁ but may affect FVC. Always ask patients to suppress coughs — provide a nose clip, position comfortably, and coach: "Don\'t cough while blowing — save the cough for after." If a patient chronically coughs, consider performing SVC or MIP/MEP instead to get some usable data.',
+    color: '#58a6ff',
+    pts: [[0,0],[0.3,1.8],[0.6,2.9],[0.75,2.5],[0.85,3.3],[1.0,3.6],[1.5,4.2],[2.5,4.65],[4.0,4.78],[6.0,4.80]],
+    fev1_t: 1.0, fev1_v: 3.6, plateau_t: 4.0, total_t: 6.0,
+    markers: [
+      {t:0.75, v:2.5, label:'Cough! (notch in first sec)', color:'#f78166'},
+      {t:1.0, v:3.6, label:'FEV₁ unreliable', color:'#e3b341'},
+    ],
+    cough: true
+  }
+};
+
+function drawVTC(type) {
+  const canvas = document.getElementById('vtcCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth * dpr;
+  const H = 240 * dpr;
+  canvas.width = W; canvas.height = H;
+
+  const data = vtcData[type];
+  const padL = 52, padR = 20, padT = 28, padB = 44;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const maxT = data.total_t + 0.5;
+  const maxV = 6.0;
+
+  function toX(t) { return padL + (t / maxT) * plotW; }
+  function toY(v) { return padT + plotH - (v / maxV) * plotH; }
+
+  // Background
+  ctx.fillStyle = '#1c2333';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1;
+  for (let t = 0; t <= maxT; t++) {
+    ctx.beginPath(); ctx.moveTo(toX(t), padT); ctx.lineTo(toX(t), padT + plotH); ctx.stroke();
+  }
+  for (let v = 0; v <= maxV; v += 1) {
+    ctx.beginPath(); ctx.moveTo(padL, toY(v)); ctx.lineTo(padL + plotW, toY(v)); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#8b949e'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#8b949e'; ctx.font = `${10*dpr}px DM Mono, monospace`;
+  ctx.fillText('Volume (L)', padL - 48, padT + plotH/2);
+  ctx.fillText('Time (sec)', padL + plotW/2 - 25, padT + plotH + 30);
+  for (let t = 0; t <= Math.floor(maxT); t++) {
+    ctx.fillText(t, toX(t) - 3, padT + plotH + 14);
+  }
+  for (let v = 0; v <= maxV; v += 1) {
+    ctx.fillText(v, padL - 18, toY(v) + 4);
+  }
+
+  // Fill under curve
+  ctx.fillStyle = data.color + '18';
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(0));
+  data.pts.forEach(p => ctx.lineTo(toX(p[0]), toY(p[1])));
+  ctx.lineTo(toX(data.pts[data.pts.length-1][0]), padT + plotH);
+  ctx.lineTo(padL, padT + plotH);
+  ctx.closePath(); ctx.fill();
+
+  // Main curve
+  ctx.strokeStyle = data.color; ctx.lineWidth = 2.5*dpr; ctx.setLineDash([]);
+  ctx.beginPath();
+  data.pts.forEach((p, i) => { i===0 ? ctx.moveTo(toX(p[0]), toY(p[1])) : ctx.lineTo(toX(p[0]), toY(p[1])); });
+  ctx.stroke();
+
+  // FEV₁ vertical line
+  ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(toX(1.0), padT); ctx.lineTo(toX(1.0), padT + plotH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#58a6ff'; ctx.font = `bold ${9*dpr}px DM Mono, monospace`;
+  ctx.fillText('1 sec', toX(1.0) + 3, padT + 10);
+
+  // FEV₁ horizontal dotted line to axis
+  ctx.strokeStyle = '#58a6ff' + '88'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(padL, toY(data.fev1_v)); ctx.lineTo(toX(data.fev1_t), toY(data.fev1_v)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Plateau reference
+  if (data.plateau_t) {
+    ctx.strokeStyle = '#3fb950' + '88'; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(toX(data.plateau_t), padT); ctx.lineTo(toX(data.plateau_t), padT + plotH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#3fb950'; ctx.font = `${9*dpr}px DM Mono, monospace`;
+    ctx.fillText('plateau', toX(data.plateau_t) + 3, padT + 22);
+  }
+
+  // Early termination marker
+  if (data.earlyTerm) {
+    const lastPt = data.pts[data.pts.length - 1];
+    ctx.strokeStyle = '#f78166'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(toX(lastPt[0]), toY(lastPt[1]), 8*dpr, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.fillStyle = '#f78166'; ctx.font = `${9*dpr}px DM Mono, monospace`;
+    ctx.fillText('stopped!', toX(lastPt[0]) + 10, toY(lastPt[1]));
+    // Dotted extension showing where it should go
+    ctx.strokeStyle = '#f78166' + '55'; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(toX(lastPt[0]), toY(lastPt[1])); ctx.lineTo(toX(lastPt[0]+2), toY(lastPt[1]+0.3)); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Poor start shading
+  if (data.poorStart) {
+    ctx.fillStyle = '#ffa657' + '22';
+    ctx.fillRect(padL, padT, toX(0.5) - padL, plotH);
+    ctx.fillStyle = '#ffa657'; ctx.font = `${9*dpr}px DM Mono, monospace`;
+    ctx.fillText('BEV', padL + 3, padT + 12);
+  }
+
+  // Cough marker
+  if (data.cough) {
+    const coughT = 0.75;
+    ctx.strokeStyle = '#f78166'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(toX(coughT), toY(2.1)); ctx.lineTo(toX(coughT), toY(3.5)); ctx.stroke();
+    ctx.fillStyle = '#f78166' + '22';
+    ctx.fillRect(padL, padT, toX(1.0) - padL, plotH);
+  }
+
+  // Markers (dots + labels)
+  if (data.markers) {
+    data.markers.forEach(m => {
+      const x = toX(m.t), y = toY(m.v);
+      ctx.fillStyle = m.color;
+      ctx.beginPath(); ctx.arc(x, y, 5*dpr, 0, Math.PI*2); ctx.fill();
+      ctx.font = `bold ${9*dpr}px DM Sans, sans-serif`;
+      ctx.fillStyle = m.color;
+      // Offset label to avoid overlap
+      const lx = x + 7; const ly = y - 4;
+      ctx.fillText(m.label, lx, ly);
+    });
+  }
+
+  // Title
+  ctx.fillStyle = data.color; ctx.font = `bold ${12*dpr}px DM Sans, sans-serif`;
+  ctx.fillText(data.label, padL + 5, padT + 14);
+
+  document.getElementById('vtc-desc').textContent = data.desc;
+}
+
+// ===================== INIT =====================
+// Draw annotated FVL + VTC when that tab is shown
+const origShow = window.show;
+window.show = function(id) {
+  origShow && origShow(id);
+  if (id === 'fvldive') {
+    setTimeout(() => { drawAnnotated('normal'); drawVTC('normal'); }, 50);
+  }
+};
+
+// Also initialize on direct load if fvldive is somehow active
+window.addEventListener('load', () => {
+  drawFVL('normal');
+  setTimeout(drawLV, 100);
+  renderCases();
+  updateSim();
+});
+
+window.addEventListener('resize', () => {
+  const activeSection = document.querySelector('.section.active');
+  if (activeSection?.id === 'spirometry') drawFVL('normal');
+  if (activeSection?.id === 'volumes') drawLV();
+});
+</script>
+</body>
+</html>
